@@ -3,7 +3,15 @@ import Foundation
 enum Localization {
     
     enum Cart {
+        
         static let tabBarItemTitle = "Tab.cart"
+        
+        static let emptyStateMessage = "Main.cart.empty"
+        
+        static let filterByPrice = "Filter.cart.by_price"
+        static let filterByRating = "Filter.cart.by_rating"
+        static let filterByTitle = "Filter.cart.by_title"
+
     }
     
 }

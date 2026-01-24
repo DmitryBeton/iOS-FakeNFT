@@ -7,3 +7,9 @@
 
 // Cart
 "Tab.cart" = "Корзина";
+
+"Main.cart.empty" = "Корзина пуста"
+
+"Filter.cart.by_price" = "По цене"
+"Filter.cart.by_rating" = "По рейтингу"
+"Filter.cart.by_title" = "По названию"
