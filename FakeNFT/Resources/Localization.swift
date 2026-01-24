@@ -11,7 +11,8 @@ enum Localization {
         static let filterByPrice = "Filter.cart.by_price"
         static let filterByRating = "Filter.cart.by_rating"
         static let filterByTitle = "Filter.cart.by_title"
-
+        
+        static let price = "Cell.Price"
     }
     
 }

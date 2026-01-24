@@ -11,6 +11,6 @@ struct UICartItem {
     let id: UUID
     let image: UIImage
     let title: String
-    let rating: String
+    let rating: Int
     let price: String
 }
