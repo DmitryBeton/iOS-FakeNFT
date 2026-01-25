@@ -368,44 +368,36 @@
 		8C5228112F2511DE009DD9F4 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				8C6865992F267F59006A9E41 /* CartItem.swift */,
+				8C5228122F2511E7009DD9F4 /* UICartItem.swift */,
 				8C5228162F2514C9009DD9F4 /* CartState.swift */,
 				8C5228142F25143E009DD9F4 /* SortOptions.swift */,
-				8C6865992F267F59006A9E41 /* CartItem.swift */,
 			);
 			path = Models;
-			sourceTree = "<group>";
-		};
-		8C5228182F251983009DD9F4 /* TableView */ = {
-			isa = PBXGroup;
-			children = (
-				8C5228192F25198C009DD9F4 /* Cell */,
-			);
-			path = TableView;
-			sourceTree = "<group>";
-		};
-		8C5228192F25198C009DD9F4 /* Cell */ = {
-			isa = PBXGroup;
-			children = (
-				8C52281C2F253EB2009DD9F4 /* RatingView.swift */,
-				8C52281A2F251996009DD9F4 /* UICartTableViewCell.swift */,
-				8C5228122F2511E7009DD9F4 /* UICartItem.swift */,
-			);
-			path = Cell;
 			sourceTree = "<group>";
 		};
 		8C702BB02F250E5B00D58B6A /* Cart */ = {
 			isa = PBXGroup;
 			children = (
+				8C5228112F2511DE009DD9F4 /* Models */,
+				8CB5A1EA2F26954300A5F2C0 /* UI Elements */,
 				8C68659D2F2680B3006A9E41 /* CartService.swift */,
 				8C68659B2F267FC3006A9E41 /* CartRepository.swift */,
-				8C5B6F372F263BC5003328FB /* DeleteConfirmationAlertViewController.swift */,
-				8C5B6F312F25FA7C003328FB /* OrderSummaryView.swift */,
 				8C5B6F332F261E12003328FB /* CartViewModel.swift */,
 				8C702BAD2F250CD100D58B6A /* CartViewController.swift */,
-				8C5228182F251983009DD9F4 /* TableView */,
-				8C5228112F2511DE009DD9F4 /* Models */,
 			);
 			path = Cart;
+			sourceTree = "<group>";
+		};
+		8CB5A1EA2F26954300A5F2C0 /* UI Elements */ = {
+			isa = PBXGroup;
+			children = (
+				8C52281C2F253EB2009DD9F4 /* RatingView.swift */,
+				8C5B6F372F263BC5003328FB /* DeleteConfirmationAlertViewController.swift */,
+				8C52281A2F251996009DD9F4 /* UICartTableViewCell.swift */,
+				8C5B6F312F25FA7C003328FB /* OrderSummaryView.swift */,
+			);
+			path = "UI Elements";
 			sourceTree = "<group>";
 		};
 		E19CD5A92A98B55900CA39A5 /* Cell */ = {

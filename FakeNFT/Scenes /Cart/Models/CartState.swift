@@ -8,6 +8,6 @@
 enum CartState {
     case loading
     case content
-    case empty(message: String = Localization.Cart.emptyStateMessage.localized)
-    case error(message: String)
+    case empty
+    case error
 }
