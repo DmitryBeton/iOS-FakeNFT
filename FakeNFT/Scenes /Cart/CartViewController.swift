@@ -9,11 +9,13 @@ import UIKit
 
 final class CartViewController: UIViewController {
     
+    // MARK: - Properties
     private let mockData = [
         UICartItem(id: UUID(), image: UIImage(resource: .mock), title: "April", rating: 1, price: "1,78 ETH"),
         UICartItem(id: UUID(), image: UIImage(resource: .mock2), title: "Greena", rating: 3, price: "1,78 ETH"),
         UICartItem(id: UUID(), image: UIImage(resource: .mock3), title: "Spring", rating: 5, price: "1,78 ETH")
     ]
+    private var sortOption: SortOption = .name
     
     // MARK: - UI Elements
     let tableView: UITableView = {
@@ -29,6 +31,8 @@ final class CartViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        setupNavigationBar()
+        
         view.backgroundColor = UIColor(resource: .nftWhite)
         tableView.dataSource = self
 
@@ -41,6 +45,44 @@ final class CartViewController: UIViewController {
             tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
 
+    }
+    // MARK: - Setup UI
+    private func setupNavigationBar() {
+        let sortButton = UIBarButtonItem(
+            image: UIImage(resource: .sortIcon),
+            style: .plain,
+            target: self,
+            action: #selector(sortButtonTapped)
+        )
+        sortButton.tintColor = UIColor(resource: .nftBlack)
+        navigationItem.rightBarButtonItem = sortButton
+    }
+
+    private func showSortOptionsMenu() {
+        let alert = UIAlertController(
+            title: Localization.Cart.sort.localized,
+            message: nil,
+            preferredStyle: .actionSheet
+        )
+
+        for option in SortOption.allCases {
+            let action = UIAlertAction(
+                title: option.localizedWord,
+                style: .default
+            ) { [weak self] _ in
+                self?.sortOption = option
+            }
+            alert.addAction(action)
+        }
+        
+        alert.addAction(UIAlertAction(title: Localization.Cart.close.localized, style: .cancel))
+                
+        present(alert, animated: true)
+    }
+
+    // MARK: - Actions
+    @objc private func sortButtonTapped() {
+        showSortOptionsMenu()
     }
 }
 

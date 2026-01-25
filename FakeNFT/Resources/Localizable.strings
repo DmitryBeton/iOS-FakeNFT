@@ -15,3 +15,6 @@
 "Filter.cart.by_title" = "По названию";
 
 "Cell.Price" = "Цена";
+
+"Alert.sort" = "Сортировка";
+"Alert.close" = "Закрыть";
