@@ -67,7 +67,7 @@ final class OrderSummaryView: UIView {
     
     private let payButton: UIButton = {
         let button = UIButton()
-        button.setTitle("К оплате", for: .normal)
+        button.setTitle(Localization.Cart.payButton.localized, for: .normal)
         button.titleLabel?.font = UIFont.bodyBold
         button.setTitleColor(UIColor(resource: .nftWhite), for: .normal)
         button.backgroundColor = UIColor(resource: .nftBlack)

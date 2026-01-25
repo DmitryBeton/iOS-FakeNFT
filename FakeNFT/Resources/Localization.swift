@@ -17,6 +17,7 @@ enum Localization {
         static let sort = "Alert.sort"
         static let close = "Alert.close"
 
+        static let payButton = "Button.to_pay"
     }
     
 }
