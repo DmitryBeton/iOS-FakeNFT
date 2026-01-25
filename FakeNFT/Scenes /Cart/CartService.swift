@@ -9,6 +9,8 @@ import Foundation
 
 protocol CartServiceProtocol {
     func fetchCartItems(completion: @escaping (Result<[CartItem], Error>) -> Void)
+    func deleteCartItem(id: String, completion: @escaping () -> Void)
+    func saveCartItems(_ items: [CartItem], completion: @escaping () -> Void)
 }
 
 final class CartService: CartServiceProtocol {
@@ -30,4 +32,15 @@ final class CartService: CartServiceProtocol {
         let items = repository.getCartItems()
         completion(.success(items))
     }
+    
+    func deleteCartItem(id: String, completion: @escaping () -> Void) {
+        repository.deleteCartItem(with: id)
+        completion()
+    }
+    
+    func saveCartItems(_ items: [CartItem], completion: @escaping () -> Void) {
+        repository.saveCartItems(items)
+        completion()
+    }
 }
+

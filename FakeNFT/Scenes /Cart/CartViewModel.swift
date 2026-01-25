@@ -24,6 +24,23 @@ protocol CartViewModelProtocol: AnyObject {
 }
 
 final class CartViewModel: CartViewModelProtocol {
+    // MARK: - Dependencies
+    private let service: CartServiceProtocol
+    
+    // MARK: - Backing storage
+    private var cartItems: [CartItem] = [] {
+        didSet {
+            items = cartItems.map { self.mapToUI($0) }
+            totalPrice = cartItems.reduce(0) { $0 + $1.price }
+            sortItems()
+        }
+    }
+    
+    // MARK: - Init
+    init(service: CartServiceProtocol = CartService()) {
+        self.service = service
+    }
+    
     // MARK: - Properties
     var items: [UICartItem] = [] {
         didSet {
@@ -33,7 +50,7 @@ final class CartViewModel: CartViewModelProtocol {
     
     var itemsCount: Int { items.count }
     
-    var totalPrice: Double = 5.34 // TODO: - Добавлю изменение во 2 модуле когда будет структура CartItem
+    var totalPrice: Double = 0
     
     var sortOption: SortOption = .name {
         didSet {
@@ -47,16 +64,25 @@ final class CartViewModel: CartViewModelProtocol {
 
     // MARK: - Public Methods
     func loadItems() {
-        items = [
-            UICartItem(id: UUID(), image: UIImage(resource: .mock), title: "April", rating: 1, price: "1,78 ETH"),
-            UICartItem(id: UUID(), image: UIImage(resource: .mock2), title: "Greena", rating: 3, price: "1,78 ETH"),
-            UICartItem(id: UUID(), image: UIImage(resource: .mock3), title: "Spring", rating: 5, price: "1,78 ETH")
-        ]
+        service.fetchCartItems { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success(let items):
+                self.cartItems = items
+            case .failure:
+                // В простом варианте очищаем при ошибке
+                self.cartItems = []
+            }
+        }
     }
     
     func deleteItem(at index: Int) {
         guard index < items.count else { return }
-        items.remove(at: index)
+        let id = items[index].id
+        service.deleteCartItem(id: id) { [weak self] in
+            guard let self else { return }
+            self.cartItems.removeAll { $0.id == id }
+        }
     }
     
     func sortItems() {
@@ -66,12 +92,10 @@ final class CartViewModel: CartViewModelProtocol {
         case .rating:
             items.sort { $0.rating > $1.rating }
         case .price:
-            items.sort { $0.price < $1.price }
+            items.sort { $0.price > $1.price }
         }
-
     }
     
-    // в будущем будет конвертировать cartItem в UICartItem
     func getUICartItem(at index: Int) -> UICartItem? {
         guard index < items.count else { return nil }
         return items[index]
@@ -80,5 +104,20 @@ final class CartViewModel: CartViewModelProtocol {
     func isEmpty() -> Bool {
         items.isEmpty
     }
-
+    
+    // MARK: - Mapping
+    private func mapToUI(_ item: CartItem) -> UICartItem {
+        // Плейсхолдер т.к. загрузки по URL пока нет
+        let placeholder = UIImage(resource: .mock)
+        // TODO: - в будущем заменить ETH на выбранную в currencyService валюту
+        let formattedPrice = String(format: "%,2f ETH", item.price)
+        return UICartItem(
+            id: item.id,
+            image: placeholder,
+            title: item.name,
+            rating: item.rating,
+            price: formattedPrice
+        )
+    }
 }
+

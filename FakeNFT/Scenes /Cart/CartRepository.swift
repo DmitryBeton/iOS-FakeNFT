@@ -39,12 +39,12 @@ final class CartRepository: CartRepositoryProtocol {
         ),
         CartItem(
             id: "1e649115-1d4f-4026-ad56-9551a16763ee",
-            name: "delenit verterem elaboraret",
-            images: ["https://code.s3.yandex.net/Mobile/iOS/NFT/Brown/Emma/1.png",
-                     "https://code.s3.yandex.net/Mobile/iOS/NFT/Brown/Emma/2.png",
-                     "https://code.s3.yandex.net/Mobile/iOS/NFT/Brown/Emma/3.png"],
+            name: "dico eleifend",
+            images: ["https://code.s3.yandex.net/Mobile/iOS/NFT/Yellow/Helga/1.png",
+                     "https://code.s3.yandex.net/Mobile/iOS/NFT/Yellow/Helga/2.png",
+                     "https://code.s3.yandex.net/Mobile/iOS/NFT/Yellow/Helga/3.png"],
             rating: 5,
-            price: 28.82,
+            price: 8.08,
         )
     ]
     

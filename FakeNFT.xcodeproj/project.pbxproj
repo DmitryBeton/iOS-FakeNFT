@@ -399,11 +399,11 @@
 				8C68659D2F2680B3006A9E41 /* CartService.swift */,
 				8C68659B2F267FC3006A9E41 /* CartRepository.swift */,
 				8C5B6F372F263BC5003328FB /* DeleteConfirmationAlertViewController.swift */,
-				8C5B6F332F261E12003328FB /* CartViewModel.swift */,
 				8C5B6F312F25FA7C003328FB /* OrderSummaryView.swift */,
+				8C5B6F332F261E12003328FB /* CartViewModel.swift */,
+				8C702BAD2F250CD100D58B6A /* CartViewController.swift */,
 				8C5228182F251983009DD9F4 /* TableView */,
 				8C5228112F2511DE009DD9F4 /* Models */,
-				8C702BAD2F250CD100D58B6A /* CartViewController.swift */,
 			);
 			path = Cart;
 			sourceTree = "<group>";
