@@ -40,8 +40,6 @@ final class RatingView: UIView {
     
     // MARK: - Private Methods
     private func setupView() {
-        translatesAutoresizingMaskIntoConstraints = false
-        
         for _ in 0..<5 {
             let starImageView = UIImageView()
             starImageView.contentMode = .scaleAspectFit

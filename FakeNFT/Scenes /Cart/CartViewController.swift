@@ -18,7 +18,7 @@ final class CartViewController: UIViewController {
     private var sortOption: SortOption = .name
     
     // MARK: - UI Elements
-    let tableView: UITableView = {
+    private let tableView: UITableView = {
         let tableView = UITableView()
         tableView.allowsSelection = false
         tableView.register(CartItemViewCell.self)
@@ -28,21 +28,36 @@ final class CartViewController: UIViewController {
         return tableView
     }()
     
+    private let orderSummaryView: OrderSummaryView = {
+        let view = OrderSummaryView()
+        return view
+    }()
+    
+    // MARK: - LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        orderSummaryView.updateOrderSummary(count: 3, price: 5.34)
         setupNavigationBar()
         
         view.backgroundColor = UIColor(resource: .nftWhite)
         tableView.dataSource = self
 
         view.addSubview(tableView)
+        view.addSubview(orderSummaryView)
+        
         tableView.translatesAutoresizingMaskIntoConstraints = false
+        orderSummaryView.translatesAutoresizingMaskIntoConstraints = false
+
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            tableView.bottomAnchor.constraint(equalTo: orderSummaryView.topAnchor),
+            
+            orderSummaryView.heightAnchor.constraint(equalToConstant: 76),
+            orderSummaryView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            orderSummaryView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            orderSummaryView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor)
         ])
 
     }
