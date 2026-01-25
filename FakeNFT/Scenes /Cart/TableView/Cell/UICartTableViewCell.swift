@@ -9,6 +9,9 @@ import UIKit
 
 final class CartItemViewCell: UITableViewCell, ReuseIdentifying {
     
+    // MARK: - Properties
+    var onDeleteButtonTapped: (() -> Void)?
+    
     // MARK: - UI Elements
     private lazy var cellContentView: UIView = {
         let view = UIView()
@@ -201,7 +204,7 @@ final class CartItemViewCell: UITableViewCell, ReuseIdentifying {
 
     // MARK: - Actions
     @objc private func deleteTapped() {
-        // TODO: удалить NFT из корзины
+        onDeleteButtonTapped?()
     }
 }
 

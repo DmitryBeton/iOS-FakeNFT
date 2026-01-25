@@ -10,13 +10,8 @@ import UIKit
 final class CartViewController: UIViewController {
     
     // MARK: - Properties
-    private let mockData: [UICartItem] = [
-        UICartItem(id: UUID(), image: UIImage(resource: .mock), title: "April", rating: 1, price: "1,78 ETH"),
-        UICartItem(id: UUID(), image: UIImage(resource: .mock2), title: "Greena", rating: 3, price: "1,78 ETH"),
-        UICartItem(id: UUID(), image: UIImage(resource: .mock3), title: "Spring", rating: 5, price: "1,78 ETH")
-    ]
-    private var sortOption: SortOption = .name
-    
+    private let viewModel: CartViewModelProtocol
+
     // MARK: - UI Elements
     private let tableView: UITableView = {
         let tableView = UITableView()
@@ -53,13 +48,24 @@ final class CartViewController: UIViewController {
         return sortButton
     }()
     
+    // MARK: - Initialization
+    init(viewModel: CartViewModelProtocol = CartViewModel()) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        nil
+    }
+
     // MARK: - LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-
-        orderSummaryView.updateOrderSummary(count: 3, price: 5.34)
-        cartIsEmpty(mockData.isEmpty)
+        setupBindings()
+        
+        viewModel.loadItems()
     }
     
     // MARK: - Setup UI
@@ -97,6 +103,36 @@ final class CartViewController: UIViewController {
     }
     
     // MARK: - Private methods
+    private func setupBindings() {
+        viewModel.onItemsUpdated = { [weak self] in
+            guard let self = self else { return }
+            
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+                self.updateCartState()
+                self.orderSummaryView.updateOrderSummary(
+                    count: self.viewModel.itemsCount,
+                    price: self.viewModel.totalPrice
+                )
+            }
+        }
+        
+        viewModel.onSortChanged = { [weak self] in
+            guard let self = self else { return }
+            
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+            }
+        }
+    }
+    
+    private func updateCartState() {
+        let isEmpty = viewModel.isEmpty()
+        emptyStateLabel.isHidden = !isEmpty
+        orderSummaryView.isHidden = isEmpty
+        navigationItem.rightBarButtonItem = isEmpty ? nil : sortButton
+    }
+
     private func showSortOptionsMenu() {
         let alert = UIAlertController(
             title: Localization.Cart.sort.localized,
@@ -109,7 +145,7 @@ final class CartViewController: UIViewController {
                 title: option.localizedWord,
                 style: .default
             ) { [weak self] _ in
-                self?.sortOption = option
+                self?.viewModel.sortOption = option
             }
             alert.addAction(action)
         }
@@ -117,12 +153,6 @@ final class CartViewController: UIViewController {
         alert.addAction(UIAlertAction(title: Localization.Cart.close.localized, style: .cancel))
                 
         present(alert, animated: true)
-    }
-    
-    private func cartIsEmpty(_ isEmpty: Bool) {
-        emptyStateLabel.isHidden = !isEmpty
-        orderSummaryView.isHidden = isEmpty
-        navigationItem.rightBarButtonItem = isEmpty ? nil : sortButton
     }
 
     // MARK: - Actions
@@ -133,15 +163,22 @@ final class CartViewController: UIViewController {
 
 extension CartViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        mockData.count
+        viewModel.itemsCount
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
         let cell: CartItemViewCell = tableView.dequeueReusableCell()
-
-        cell.configure(data: mockData[indexPath.row])
+        
+        if let uiCartItem = viewModel.getUICartItem(at: indexPath.row) {
+            cell.configure(data: uiCartItem)
+            cell.onDeleteButtonTapped = { [weak self] in
+                guard let self = self,
+                      let indexPath = self.tableView.indexPath(for: cell) else { return }
+                
+                self.viewModel.deleteItem(at: indexPath.row)
+            }
+        }
+        
         return cell
-
     }
 }

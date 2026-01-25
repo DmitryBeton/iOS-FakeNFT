@@ -17,7 +17,10 @@ protocol CartViewModelProtocol: AnyObject {
     
     func loadItems()
     func deleteItem(at index: Int)
-    func sortItems(by option: SortOption)
+    func sortItems()
+    
+    func getUICartItem(at index: Int) -> UICartItem?
+    func isEmpty() -> Bool
 }
 
 final class CartViewModel: CartViewModelProtocol {
@@ -28,19 +31,18 @@ final class CartViewModel: CartViewModelProtocol {
         }
     }
     
-    lazy var itemsCount: Int = items.count
+    var itemsCount: Int { items.count }
     
-    var totalPrice: Double = 5.34
+    var totalPrice: Double = 5.34 // TODO: - Добавлю изменение во 2 модуле когда будет структура CartItem
     
     var sortOption: SortOption = .name {
         didSet {
-            sortItems(by: sortOption)
+            sortItems()
             onSortChanged?()
         }
     }
 
     var onItemsUpdated: (() -> Void)?
-    
     var onSortChanged: (() -> Void)?
 
     // MARK: - Public Methods
@@ -54,15 +56,11 @@ final class CartViewModel: CartViewModelProtocol {
     
     func deleteItem(at index: Int) {
         guard index < items.count else { return }
-        
-        let itemId = items[index].id
         items.remove(at: index)
     }
     
-    func sortItems(by option: SortOption) {
-        sortOption = option
-        
-        switch option {
+    func sortItems() {
+        switch sortOption {
         case .name:
             items.sort { $0.title < $1.title }
         case .rating:
@@ -73,4 +71,14 @@ final class CartViewModel: CartViewModelProtocol {
 
     }
     
+    // в будущем будет конвертировать cartItem в UICartItem
+    func getUICartItem(at index: Int) -> UICartItem? {
+        guard index < items.count else { return nil }
+        return items[index]
+    }
+    
+    func isEmpty() -> Bool {
+        items.isEmpty
+    }
+
 }
