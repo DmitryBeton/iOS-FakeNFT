@@ -8,7 +8,7 @@
 import UIKit
 
 protocol CartViewModelProtocol: AnyObject {
-    var items: [UICartItem] { get }  // TODO: во 2 модуле заменю структуру на СartItem
+    var items: [UICartItem] { get }
     var itemsCount: Int { get }
     var totalPrice: Double { get }
     var sortOption: SortOption { get set }
