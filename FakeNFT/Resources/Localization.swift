@@ -18,6 +18,10 @@ enum Localization {
         static let close = "Alert.close"
 
         static let payButton = "Button.to_pay"
+        
+        static let confirmationOfDeletion = "Delete.Alert.delete.confirmation"
+        static let backButton = "Delete.Alert.cancel"
+        static let deleteButton = "Delete.Alert.delete"
     }
     
 }

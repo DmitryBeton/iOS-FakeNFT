@@ -175,7 +175,13 @@ extension CartViewController: UITableViewDataSource {
                 guard let self = self,
                       let indexPath = self.tableView.indexPath(for: cell) else { return }
                 
-                self.viewModel.deleteItem(at: indexPath.row)
+                let alertVC = DeleteConfirmationAlertViewController(image: uiCartItem.image)
+                alertVC.onDeleteTapped = { [weak self] in
+                    self?.viewModel.deleteItem(at: indexPath.row)
+                }
+                alertVC.onCancelTapped = {}
+                
+                alertVC.show(on: self)
             }
         }
         

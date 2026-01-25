@@ -20,3 +20,8 @@
 "Alert.close" = "Закрыть";
 
 "Button.to_pay" = "К оплате";
+
+"Delete.Alert.delete.confirmation" = "Вы уверены, что хотите\nудалить объект из корзины?";
+"Delete.Alert.cancel" = "Вернуться";
+"Delete.Alert.delete" = "Удалить";
+
