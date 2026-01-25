@@ -32,12 +32,12 @@ final class CartItemViewCell: UITableViewCell, ReuseIdentifying {
         let view = UIView()
         return view
     }()
-
+    
     private lazy var priceContainerView: UIView = {
         let view = UIView()
         return view
     }()
-
+    
     private lazy var nftImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
@@ -56,7 +56,7 @@ final class CartItemViewCell: UITableViewCell, ReuseIdentifying {
         let view = RatingView()
         return view
     }()
-
+    
     private let priceLabel: UILabel = {
         let label = UILabel()
         label.text = Localization.Cart.price.localized
@@ -64,7 +64,7 @@ final class CartItemViewCell: UITableViewCell, ReuseIdentifying {
         label.textColor = UIColor(resource: .nftBlack)
         return label
     }()
-
+    
     private lazy var nftCurrentPriceLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.bodyBold
@@ -115,18 +115,18 @@ final class CartItemViewCell: UITableViewCell, ReuseIdentifying {
         
         cellContentView.addSubview(fullInfoContainerView)
         cellContentView.addSubview(deleteButton)
-
+        
         fullInfoContainerView.addSubview(nftImageView)
         fullInfoContainerView.addSubview(shortInfoContainerView)
-
+        
         shortInfoContainerView.addSubview(nameAndRatingContainerView)
         nameAndRatingContainerView.addSubview(nftTitleLabel)
         nameAndRatingContainerView.addSubview(ratingView)
-
+        
         shortInfoContainerView.addSubview(priceContainerView)
         priceContainerView.addSubview(priceLabel)
         priceContainerView.addSubview(nftCurrentPriceLabel)
-
+        
     }
     
     private func setupConstraints() {
@@ -142,7 +142,7 @@ final class CartItemViewCell: UITableViewCell, ReuseIdentifying {
             cellContentView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Layout.Spacing.horizontalInset),
             cellContentView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Layout.Spacing.verticalInset),
             cellContentView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Layout.Spacing.verticalInset),
-
+            
             // fullInfoContainerView
             fullInfoContainerView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
             fullInfoContainerView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
@@ -176,7 +176,7 @@ final class CartItemViewCell: UITableViewCell, ReuseIdentifying {
             ratingView.topAnchor.constraint(equalTo: nftTitleLabel.bottomAnchor, constant: Layout.Spacing.nameToRating),
             ratingView.leadingAnchor.constraint(equalTo: nameAndRatingContainerView.leadingAnchor),
             ratingView.bottomAnchor.constraint(equalTo: nameAndRatingContainerView.bottomAnchor),
-
+            
             // priceContainerView
             priceContainerView.topAnchor.constraint(equalTo: nameAndRatingContainerView.bottomAnchor, constant: Layout.Spacing.nameToPrice),
             priceContainerView.leadingAnchor.constraint(equalTo: shortInfoContainerView.leadingAnchor),
@@ -201,7 +201,7 @@ final class CartItemViewCell: UITableViewCell, ReuseIdentifying {
             deleteButton.heightAnchor.constraint(equalToConstant: Layout.Trash.size)
         ])
     }
-
+    
     // MARK: - Actions
     @objc private func deleteTapped() {
         onDeleteButtonTapped?()
@@ -225,7 +225,7 @@ private enum Layout {
         static let nameToPrice: CGFloat = 12
         static let nameToRating: CGFloat = 4
         static let priceToCurrentPrice: CGFloat = 2
-
+        
     }
     
     enum Style {

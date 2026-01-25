@@ -20,7 +20,7 @@ final class OrderSummaryView: UIView {
             updateTotalPrice()
         }
     }
-
+    
     // MARK: - UI Elements
     private let totalView: UIView = {
         let view = UIView()
@@ -48,7 +48,7 @@ final class OrderSummaryView: UIView {
         let view = UIView()
         return view
     }()
-
+    
     private let totalCountLabel: UILabel = {
         let label = UILabel()
         label.textColor = UIColor(resource: .nftBlack)
@@ -74,7 +74,7 @@ final class OrderSummaryView: UIView {
         button.layer.cornerRadius = Layout.Style.cornerRadius
         return button
     }()
-
+    
     // MARK: - Initialization
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -98,7 +98,7 @@ final class OrderSummaryView: UIView {
         
         paddingView.addSubview(priceView)
         paddingView.addSubview(payButton)
-
+        
         priceView.addSubview(totalCountLabel)
         priceView.addSubview(totalPriceLabel)
         
@@ -138,9 +138,9 @@ final class OrderSummaryView: UIView {
             
             payButton.leadingAnchor.constraint(greaterThanOrEqualTo: priceView.trailingAnchor, constant: Layout.Spacing.buttonToPrice)
         ])
-
+        
     }
-
+    
     // MARK: - Private Methods
     private func updateCount() {
         totalCountLabel.text = "\(count) NFT"

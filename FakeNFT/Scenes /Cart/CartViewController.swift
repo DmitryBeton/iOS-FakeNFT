@@ -11,7 +11,7 @@ final class CartViewController: UIViewController {
     
     // MARK: - Properties
     private let viewModel: CartViewModelProtocol
-
+    
     // MARK: - UI Elements
     private let tableView: UITableView = {
         let tableView = UITableView()
@@ -58,7 +58,7 @@ final class CartViewController: UIViewController {
     required init?(coder: NSCoder) {
         nil
     }
-
+    
     // MARK: - LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -71,7 +71,7 @@ final class CartViewController: UIViewController {
     // MARK: - Setup UI
     private func setupUI() {
         view.backgroundColor = UIColor(resource: .nftWhite)
-                
+        
         tableView.dataSource = self
         
         view.addSubview(tableView)
@@ -81,7 +81,7 @@ final class CartViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         orderSummaryView.translatesAutoresizingMaskIntoConstraints = false
         emptyStateLabel.translatesAutoresizingMaskIntoConstraints = false
-
+        
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
@@ -96,10 +96,10 @@ final class CartViewController: UIViewController {
             emptyStateLabel.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor),
             emptyStateLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
             emptyStateLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
-
-
+            
+            
         ])
-
+        
     }
     
     // MARK: - Private methods
@@ -132,14 +132,14 @@ final class CartViewController: UIViewController {
         orderSummaryView.isHidden = isEmpty
         navigationItem.rightBarButtonItem = isEmpty ? nil : sortButton
     }
-
+    
     private func showSortOptionsMenu() {
         let alert = UIAlertController(
             title: Localization.Cart.sort.localized,
             message: nil,
             preferredStyle: .actionSheet
         )
-
+        
         for option in SortOption.allCases {
             let action = UIAlertAction(
                 title: option.localizedWord,
@@ -151,10 +151,10 @@ final class CartViewController: UIViewController {
         }
         
         alert.addAction(UIAlertAction(title: Localization.Cart.close.localized, style: .cancel))
-                
+        
         present(alert, animated: true)
     }
-
+    
     // MARK: - Actions
     @objc private func sortButtonTapped() {
         showSortOptionsMenu()

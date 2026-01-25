@@ -66,7 +66,7 @@ final class RatingView: UIView {
             
             if let previous = previousStar {
                 starImageView.leadingAnchor.constraint(equalTo: previous.trailingAnchor,
-                                                      constant: starSpacing).isActive = true
+                                                       constant: starSpacing).isActive = true
             } else {
                 starImageView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
             }

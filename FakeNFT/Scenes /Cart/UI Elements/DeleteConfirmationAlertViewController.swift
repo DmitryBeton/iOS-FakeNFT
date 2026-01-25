@@ -18,7 +18,7 @@ final class DeleteConfirmationAlertViewController: UIViewController {
         let view = UIVisualEffectView(effect: blurEffect)
         return view
     }()
-
+    
     private let containerView: UIView = {
         let view = UIView()
         return view
@@ -83,7 +83,7 @@ final class DeleteConfirmationAlertViewController: UIViewController {
     required init?(coder: NSCoder) {
         nil
     }
-
+    
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -95,7 +95,7 @@ final class DeleteConfirmationAlertViewController: UIViewController {
     private func setupUI() {
         view.addSubview(blurView)
         blurView.translatesAutoresizingMaskIntoConstraints = false
-
+        
         [containerView, imageView, titleLabel, buttonStackView, paddingView].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
         }
@@ -103,7 +103,7 @@ final class DeleteConfirmationAlertViewController: UIViewController {
         view.addSubview(containerView)
         containerView.addSubview(paddingView)
         containerView.addSubview(buttonStackView)
-
+        
         paddingView.addSubview(imageView)
         paddingView.addSubview(titleLabel)
         
@@ -120,12 +120,12 @@ final class DeleteConfirmationAlertViewController: UIViewController {
             containerView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
             containerView.widthAnchor.constraint(equalToConstant: Layout.containerWidth),
             containerView.heightAnchor.constraint(equalToConstant: Layout.containerHeight),
-
+            
             paddingView.topAnchor.constraint(equalTo: containerView.topAnchor),
             paddingView.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
             paddingView.widthAnchor.constraint(equalToConstant: Layout.paddingWidth),
             paddingView.heightAnchor.constraint(equalToConstant: Layout.paddingHeight),
-
+            
             imageView.topAnchor.constraint(equalTo: paddingView.topAnchor),
             imageView.centerXAnchor.constraint(equalTo: paddingView.centerXAnchor),
             imageView.widthAnchor.constraint(equalToConstant: Layout.imageSize),
@@ -162,7 +162,7 @@ final class DeleteConfirmationAlertViewController: UIViewController {
             self?.onCancelTapped?()
         }
     }
-
+    
     // MARK: - Presentation
     func show(on viewController: UIViewController) {
         modalPresentationStyle = .overFullScreen

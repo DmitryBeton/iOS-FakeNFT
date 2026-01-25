@@ -58,10 +58,10 @@ final class CartViewModel: CartViewModelProtocol {
             onSortChanged?()
         }
     }
-
+    
     var onItemsUpdated: (() -> Void)?
     var onSortChanged: (() -> Void)?
-
+    
     // MARK: - Public Methods
     func loadItems() {
         service.fetchCartItems { [weak self] result in
