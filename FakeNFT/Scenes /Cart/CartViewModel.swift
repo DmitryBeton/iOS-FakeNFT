@@ -26,19 +26,23 @@ protocol CartViewModelProtocol: AnyObject {
 final class CartViewModel: CartViewModelProtocol {
     // MARK: - Dependencies
     private let service: CartServiceProtocol
+    private let sortStore: SortOptionStore
     
     // MARK: - Backing storage
     private var cartItems: [CartItem] = [] {
         didSet {
             items = cartItems.map { self.mapToUI($0) }
             totalPrice = cartItems.reduce(0) { $0 + $1.price }
-            sortItems()
         }
     }
     
     // MARK: - Init
-    init(service: CartServiceProtocol = CartService()) {
+    init(service: CartServiceProtocol = CartService(),
+         sortStore: SortOptionStore = UserDefaultsSortOptionStore()) {
         self.service = service
+        self.sortStore = sortStore
+        
+        self.sortOption = sortStore.load()
     }
     
     // MARK: - Properties
@@ -52,8 +56,9 @@ final class CartViewModel: CartViewModelProtocol {
     
     var totalPrice: Double = 0
     
-    var sortOption: SortOption = .name {
+    var sortOption: SortOption {
         didSet {
+            sortStore.save(sortOption)
             sortItems()
             onSortChanged?()
         }
@@ -70,7 +75,7 @@ final class CartViewModel: CartViewModelProtocol {
             case .success(let items):
                 self.cartItems = items
             case .failure:
-                // В простом варианте очищаем при ошибке
+                // TODO: - добавить обработку ошибок
                 self.cartItems = []
             }
         }
@@ -92,7 +97,7 @@ final class CartViewModel: CartViewModelProtocol {
         case .rating:
             items.sort { $0.rating > $1.rating }
         case .price:
-            items.sort { $0.price > $1.price }
+            cartItems.sort { $0.price < $1.price }
         }
     }
     
@@ -110,7 +115,7 @@ final class CartViewModel: CartViewModelProtocol {
         // Плейсхолдер т.к. загрузки по URL пока нет
         let placeholder = UIImage(resource: .mock)
         // TODO: - в будущем заменить ETH на выбранную в currencyService валюту
-        let formattedPrice = String(format: "%,2f ETH", item.price)
+        let formattedPrice = String(format: "%.2f ETH", item.price)
         return UICartItem(
             id: item.id,
             image: placeholder,
