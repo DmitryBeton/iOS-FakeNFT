@@ -8,7 +8,7 @@
 import UIKit
 
 struct UICartItem {
-    let id: UUID
+    let id: String
     let image: UIImage
     let title: String
     let rating: Int
