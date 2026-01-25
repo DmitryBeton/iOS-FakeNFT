@@ -114,6 +114,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		9D0D7B8B2F26332B0087E04B /* Profile */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Profile; sourceTree = "<group>"; };
 		FD05033A2F24F14200E304AC /* docs */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = docs; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
@@ -274,6 +275,7 @@
 		3F6806C729CBBC5B00B4F915 /* Scenes  */ = {
 			isa = PBXGroup;
 			children = (
+				9D0D7B8B2F26332B0087E04B /* Profile */,
 				E1A1B9D82AA01C9700C3AFBC /* TabBarController */,
 				0CF2C2D92A783C1600FDC837 /* Common */,
 				0CFCB7472A7808870009A829 /* Catalog */,
@@ -385,6 +387,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				9D0D7B8B2F26332B0087E04B /* Profile */,
 				FD05033A2F24F14200E304AC /* docs */,
 			);
 			name = FakeNFT;
