@@ -9,7 +9,7 @@ final class CatalogViewController: UIViewController {
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
         tableView.backgroundColor = UIColor(resource: .nftWhite)
-        tableView.register(CatalogCollectionCell.self, forCellReuseIdentifier: "CatalogCollectionCell")
+        tableView.register(CatalogCell.self, forCellReuseIdentifier: "CatalogCell")
         tableView.separatorStyle = .none
         tableView.rowHeight = 75
         tableView.translatesAutoresizingMaskIntoConstraints = false
