@@ -66,6 +66,7 @@ final class CartViewController: UIViewController {
         setupBindings()
         
         viewModel.loadItems()
+        viewModel.sortItems()
     }
     
     // MARK: - Setup UI
