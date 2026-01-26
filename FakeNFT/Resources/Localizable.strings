@@ -6,5 +6,6 @@
 "Error.title" = "Ошибка";
 
 // Profile
+"Tab.profile" = "Профиль";
 "Profile.myNFT" = "Мои NFT (%d)";
 "Profile.favourites" = "Избранные NFT (%d)";
