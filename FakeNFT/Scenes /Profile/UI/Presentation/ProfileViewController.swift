@@ -1,4 +1,5 @@
 import UIKit
+import Kingfisher
 
 final class ProfileViewController: UIViewController {
     
@@ -8,10 +9,10 @@ final class ProfileViewController: UIViewController {
         case myNFT
         case favourites
         
-        func title(count: Int) -> String {
+        var title: String {
             switch self {
-            case .myNFT: return Localization.Profile.myNFT(count: count)
-            case .favourites: return Localization.Profile.favourites(count: count)
+            case .myNFT: return Localization.Profile.myNFT
+            case .favourites: return Localization.Profile.favourites
             }
         }
     }
@@ -50,6 +51,9 @@ final class ProfileViewController: UIViewController {
     
     private lazy var menuTableView: UITableView = {
         let tableView = UITableView()
+        tableView.register(MenuCell.self)
+        tableView.rowHeight = 54
+        tableView.separatorStyle = .none
         return tableView
     }()
     
@@ -90,7 +94,7 @@ final class ProfileViewController: UIViewController {
     // TODO: Should be deleted after network implementation
     private let mockProfile = Profile(
         name: "Joaquin Phoenix",
-        avatarURL: URL(string: "https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/124.jpg"),
+        avatarURL: URL(string: "https://i.pinimg.com/736x/fc/e2/8b/fce28b5c4414c3492084022cb908f760.jpg"),
         description: """
             Дизайнер из Казани, люблю цифровое искусство
             и бейглы. В моей коллекции уже 100+ NFT,
@@ -99,22 +103,25 @@ final class ProfileViewController: UIViewController {
             """,
         link: URL(string: "https://practicum.yandex.ru/graphic-designer/")!,
         myNFTCount: 112,
-        FavouritesCount: 11
+        favouritesCount: 11
     )
+    
+    private let menu: [Menu] = [.myNFT, .favourites]
     
     // MARK: - Life Cycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        addViews()
+        setupViews()
         setupNavigationBar()
         setupConstraints()
+        setupDelegates()
         setProfile(mockProfile)
     }
     
     // MARK: - UI Methods
     
-    private func addViews() {
+    private func setupViews() {
         view.backgroundColor = UIColor(resource: .nftWhite)
         view.addSubviews([
             profileInfoStackView,
@@ -159,11 +166,16 @@ final class ProfileViewController: UIViewController {
         NSLayoutConstraint.activate([
             menuTableView.topAnchor.constraint(equalTo: profileInfoStackView.bottomAnchor, constant: 40),
             menuTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            menuTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+            menuTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            menuTableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
     }
     
     // MARK: - Private Properties
+    
+    private func setupDelegates() {
+        menuTableView.dataSource = self
+    }
     
     private func setProfile(_ profile: Profile) {
         avatarImageView.kf.setImage(with: profile.avatarURL, placeholder: UIImage(resource: .prDefaultAvatar))
@@ -172,9 +184,32 @@ final class ProfileViewController: UIViewController {
         linkButton.setTitle(shortURLString(from: profile.link), for: .normal)
     }
     
+    // TODO: Method should be moved to ViewModel
     private func shortURLString(from url: URL?) -> String? {
         guard let url else { return nil }
         return url.host()?.replacingOccurrences(of: "www", with: "")
+    }
+    
+}
+
+// MARK: - DataSource
+
+extension ProfileViewController: UITableViewDataSource {
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        menu.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell: MenuCell = tableView.dequeueReusableCell()
+        let item = menu[indexPath.row]
+        switch item {
+        case .myNFT:
+            cell.configure(title: item.title, count: mockProfile.myNFTCount)
+        case .favourites:
+            cell.configure(title: item.title, count: mockProfile.favouritesCount)
+        }
+        return cell
     }
     
 }

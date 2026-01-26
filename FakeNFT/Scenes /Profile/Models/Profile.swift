@@ -6,5 +6,5 @@ struct Profile {
     let description: String
     let link: URL?
     let myNFTCount: Int
-    let FavouritesCount: Int
+    let favouritesCount: Int
 }
