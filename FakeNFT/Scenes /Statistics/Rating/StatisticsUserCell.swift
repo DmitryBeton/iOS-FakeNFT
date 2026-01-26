@@ -36,9 +36,8 @@ final class StatisticsUserCell: UITableViewCell {
         backgroundColor = .clear
         contentView.backgroundColor = .clear
 
-        // цифра слева (вне карточки)
-        placeLabel.font = .systemFont(ofSize: 13, weight: .regular)
-        placeLabel.textColor = .secondaryLabel
+        placeLabel.font = .systemFont(ofSize: 15, weight: .regular)
+        placeLabel.textColor = UIColor(named: "nftBlackUni")
         placeLabel.textAlignment = .center
         placeLabel.translatesAutoresizingMaskIntoConstraints = false
 
@@ -56,7 +55,7 @@ final class StatisticsUserCell: UITableViewCell {
             avatarImageView.heightAnchor.constraint(equalToConstant: 28)
         ])
 
-        nameLabel.font = .systemFont(ofSize: 17, weight: .medium)
+        nameLabel.font = UIFont.systemFont(ofSize: 22, weight: .bold)
         nameLabel.textColor = .label
         nameLabel.numberOfLines = 1
         nameLabel.lineBreakMode = .byTruncatingTail
@@ -84,25 +83,20 @@ final class StatisticsUserCell: UITableViewCell {
         stackView.addArrangedSubview(nftCountLabel)
 
         NSLayoutConstraint.activate([
-            // фикс высота строки как в макете
-            containerView.heightAnchor.constraint(equalToConstant: 56),
+            containerView.heightAnchor.constraint(equalToConstant: 80),
 
-            // внешние отступы
-            containerView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 6),
-            containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -6),
+            containerView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4),
+            containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4),
             containerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
 
-            // цифра слева по центру вертикали
             placeLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             placeLabel.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
             placeLabel.widthAnchor.constraint(equalToConstant: 20),
 
-            // карточка начинается после цифры
             containerView.leadingAnchor.constraint(equalTo: placeLabel.trailingAnchor, constant: 8),
 
-            // внутренние отступы контента карточки
-            stackView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 8),
-            stackView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -8),
+            stackView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 16),
+            stackView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -16),
             stackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 12),
             stackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -12)
         ])

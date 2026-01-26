@@ -26,7 +26,6 @@ final class StatisticsPresenter: StatisticsPresenterProtocol {
     }
 
     func viewDidLoad() {
-        // мок-данные, чтобы закрыть UI-issues
         users = [
             .init(name: "Alex", nftCount: 112),
             .init(name: "Bill", nftCount: 98),
@@ -52,8 +51,6 @@ final class StatisticsPresenter: StatisticsPresenterProtocol {
     }
 
     private func applySort(option: StatisticsSortOption) {
-        // сортировка влияет только на порядок отображения.
-        // данные не мутируем, чтобы можно было легко менять порядок снова.
         onDataUpdated?()
     }
 
