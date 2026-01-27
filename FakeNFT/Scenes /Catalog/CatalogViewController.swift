@@ -136,12 +136,8 @@ final class CatalogViewController: UIViewController {
 //MARK: - UITableViewDataSource
 
 extension CatalogViewController: UITableViewDataSource {
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return viewModel.numberOfCollections()
-    }
-
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1
+        return viewModel.numberOfCollections()
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -152,7 +148,7 @@ extension CatalogViewController: UITableViewDataSource {
             return UITableViewCell()
         }
 
-        let collection = viewModel.collection(at: indexPath.section)
+        let collection = viewModel.collection(at: indexPath.row)
         cell.configure(with: collection)
 
         return cell
@@ -167,18 +163,8 @@ extension CatalogViewController: UITableViewDelegate {
         return 179
     }
 
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let headerView = UIView()
-        headerView.backgroundColor = .clear
-        return headerView
-    }
-
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 8
-    }
-
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        // Переход на детальный экран коллекции 
+        // Переход на детальный экран коллекции
     }
 }
