@@ -40,7 +40,6 @@ final class CatalogViewModel {
     // MARK: - Private Methods
     
     private func loadCollections() {
-        // Показываем индикатор загрузки
         onLoadingStateChanged?(true)
         
         // Симулируем загрузку с сервера (задержка 1 секунда)
@@ -49,7 +48,6 @@ final class CatalogViewModel {
             let mockCollections = self?.createMockCollections() ?? []
             self?.collections = mockCollections
             
-            // Скрываем индикатор загрузки
             self?.onLoadingStateChanged?(false)
             
             // Уведомляем View что данные обновились
@@ -94,7 +92,6 @@ final class CatalogViewModel {
     }
 }
 
-// Enum для типов сортировки (добавим позже)
 enum SortType {
     case byName
     case byNftCount

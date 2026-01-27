@@ -11,7 +11,7 @@ final class CatalogViewController: UIViewController {
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
-        tableView.backgroundColor = .background
+        tableView.backgroundColor = UIColor(resource: .nftWhite)
         tableView.register(CatalogCollectionCell.self, forCellReuseIdentifier: CatalogCollectionCell.reuseIdentifier)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         return tableView
@@ -51,7 +51,7 @@ final class CatalogViewController: UIViewController {
     // MARK: - Private Methods
     
     private func setupUI() {
-        view.backgroundColor = .background
+        view.backgroundColor = UIColor(resource: .nftWhite)
 
         view.addSubview(tableView)
         view.addSubview(activityIndicator)
@@ -79,7 +79,7 @@ final class CatalogViewController: UIViewController {
             target: self,
             action: #selector(sortButtonTapped)
         )
-        sortButton.tintColor = .textPrimary
+        sortButton.tintColor = UIColor(resource: .nftBlack)
         navigationItem.rightBarButtonItem = sortButton
     }
     
@@ -159,8 +159,7 @@ extension CatalogViewController: UITableViewDataSource {
 
 extension CatalogViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        // 140 (изображения) + 4 (отступ) + ~21 (текст) + 16 (нижний отступ) = ~181
-        return 181
+        return 179
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
