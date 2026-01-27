@@ -126,7 +126,7 @@ final class CatalogViewController: UIViewController {
             self?.viewModel.sortCollections(by: .byNftCount)
         })
 
-        alert.addAction(UIAlertAction(title: NSLocalizedString("cancel", comment: ""), style: .cancel))
+        alert.addAction(UIAlertAction(title: Localization.Catalog.cancel, style: .cancel))
 
         present(alert, animated: true)
     }
