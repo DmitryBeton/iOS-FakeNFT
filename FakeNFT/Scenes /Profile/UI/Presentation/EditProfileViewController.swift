@@ -13,19 +13,19 @@ final class EditProfileViewController: UIViewController {
     }()
     
     private lazy var nameEditStackView: EditStackView = {
-        let editStackView = EditStackView()
+        let editStackView = EditStackView(textViewDelegate: self)
         editStackView.titleLabel.text = Localization.Profile.editName
         return editStackView
     }()
     
     private lazy var descriptionEditStackView: EditStackView = {
-        let editStackView = EditStackView()
+        let editStackView = EditStackView(textViewDelegate: self)
         editStackView.titleLabel.text = Localization.Profile.editDescription
         return editStackView
     }()
     
     private lazy var websiteEditStackView: EditStackView = {
-        let editStackView = EditStackView()
+        let editStackView = EditStackView(textViewDelegate: self)
         editStackView.titleLabel.text = Localization.Profile.editWebsite
         return editStackView
     }()
@@ -67,12 +67,22 @@ final class EditProfileViewController: UIViewController {
         return button
     }()
     
+    // MARK: - Private Properties
+    
+    private lazy var singleTapRecognizer: UITapGestureRecognizer = {
+        let recognizer = UITapGestureRecognizer(target: self, action: #selector(didSingleTap))
+        recognizer.numberOfTapsRequired = 1
+        recognizer.cancelsTouchesInView = false
+        return recognizer
+    }()
+    
     // MARK: - Life Cycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
         setupConstraints()
+        setupActions()
     }
     
     // MARK: - UI Methods
@@ -130,6 +140,34 @@ final class EditProfileViewController: UIViewController {
             saveButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             saveButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16)
         ])
+    }
+    
+    private func setupActions() {
+        view.addGestureRecognizer(singleTapRecognizer)
+    }
+    
+    // MARK: - Actions
+    
+    @objc private func didSingleTap() {
+        view.endEditing(true)
+    }
+    
+}
+
+// MARK: - TextFieldDelegate
+
+extension EditProfileViewController: UITextViewDelegate {
+    
+    func textView(
+        _ textView: UITextView,
+        shouldChangeTextIn range: NSRange,
+        replacementText text: String
+    ) -> Bool {
+        if text == "\n" {
+            textView.resignFirstResponder()
+            return false
+        }
+        return true
     }
     
 }

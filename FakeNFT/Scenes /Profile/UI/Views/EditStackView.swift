@@ -30,8 +30,9 @@ final class EditStackView: UIStackView {
     
     // MARK: - Init
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init(textViewDelegate: UITextViewDelegate?) {
+        super.init(frame: .zero)
+        fieldTextView.delegate = textViewDelegate
         setupViews()
     }
     
