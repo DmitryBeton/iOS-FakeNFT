@@ -88,7 +88,7 @@ final class ProfileViewController: UIViewController {
         image: UIImage(resource: .prEdit),
         style: .plain,
         target: self,
-        action: nil
+        action: #selector(editBarButtonTapped)
     )
 
     // MARK: - Private Properties
@@ -136,7 +136,7 @@ final class ProfileViewController: UIViewController {
         navigationItem.backButtonDisplayMode = .minimal
         
         let appearance = UINavigationBarAppearance()
-        appearance.configureWithDefaultBackground()
+        appearance.configureWithTransparentBackground()
         appearance.setBackIndicatorImage(
             UIImage(resource: .prBack),
             transitionMaskImage: UIImage(resource: .prBack)
@@ -169,6 +169,13 @@ final class ProfileViewController: UIViewController {
             menuTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             menuTableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
+    }
+    
+    // MARK: - Actions
+    
+    @objc private func editBarButtonTapped() {
+        let editProfileVC = EditProfileViewController()
+        navigationController?.pushViewController(editProfileVC, animated: true)
     }
     
     // MARK: - Private Properties
