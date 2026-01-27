@@ -1,6 +1,6 @@
 import UIKit
 
-final class CatalogCell: UITableViewCell {
+final class CatalogCollectionCell: UITableViewCell {
     
     // MARK: - UI elements
     private lazy var containerView: UIView = {

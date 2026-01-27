@@ -9,7 +9,7 @@ final class CatalogViewController: UIViewController {
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
         tableView.backgroundColor = UIColor(resource: .nftWhite)
-        tableView.register(CatalogCell.self, forCellReuseIdentifier: "CatalogCell")
+        tableView.register(CatalogCollectionCell.self, forCellReuseIdentifier: "CatalogCollectionCell")
         tableView.separatorStyle = .none
         tableView.rowHeight = 75
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -66,7 +66,7 @@ extension CatalogViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: "CatalogCell", for: indexPath) as? CatalogCell else {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "CatalogCollectionCell", for: indexPath) as? CatalogCollectionCell else {
             return UITableViewCell()
         }
         return cell
