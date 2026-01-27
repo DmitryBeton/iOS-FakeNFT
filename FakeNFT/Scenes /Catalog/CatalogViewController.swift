@@ -127,7 +127,7 @@ final class CatalogViewController: UIViewController {
             self?.viewModel.sortCollections(by: .byNftCount)
         })
 
-        alert.addAction(UIAlertAction(title: Localization.Catalog.cancel, style: .cancel))
+        alert.addAction(UIAlertAction(title: Localization.Catalog.cancel.localized, style: .cancel))
 
         present(alert, animated: true)
     }
@@ -169,15 +169,13 @@ extension CatalogViewController: UITableViewDelegate {
         return 179
     }
 
-    // Добавляем расстояние 8pt между ячейками через header
+    // Убираем расстояние между ячейками
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let headerView = UIView()
-        headerView.backgroundColor = .clear
-        return headerView
+        return nil
     }
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 8
+        return 0
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
