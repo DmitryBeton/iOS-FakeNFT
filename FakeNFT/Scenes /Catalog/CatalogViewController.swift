@@ -114,20 +114,20 @@ final class CatalogViewController: UIViewController {
     // MARK: - Actions
     
     @objc private func sortButtonTapped() {
-        let alert = UIAlertController(title: "Сортировка",
+        let alert = UIAlertController(title: Localization.Catalog.sortBy.localized,
                                       message: nil,
                                       preferredStyle: .actionSheet)
-        
-        alert.addAction(UIAlertAction(title: "По названию", style: .default) { [weak self] _ in
+
+        alert.addAction(UIAlertAction(title: Localization.Catalog.sortByName.localized, style: .default) { [weak self] _ in
             self?.viewModel.sortCollections(by: .byName)
         })
-        
-        alert.addAction(UIAlertAction(title: "По количеству NFT", style: .default) { [weak self] _ in
+
+        alert.addAction(UIAlertAction(title: Localization.Catalog.sortByNumberOfNFTs.localized, style: .default) { [weak self] _ in
             self?.viewModel.sortCollections(by: .byNftCount)
         })
-        
-        alert.addAction(UIAlertAction(title: "Отмена", style: .cancel))
-        
+
+        alert.addAction(UIAlertAction(title: NSLocalizedString("cancel", comment: ""), style: .cancel))
+
         present(alert, animated: true)
     }
 }
