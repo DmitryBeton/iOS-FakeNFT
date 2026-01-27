@@ -49,7 +49,7 @@ final class CatalogCollectionCell: UITableViewCell {
 
     private let nftCountLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 17, weight: .regular)
+        label.font = .systemFont(ofSize: 17, weight: .bold)
         label.textColor = .textPrimary
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -70,9 +70,8 @@ final class CatalogCollectionCell: UITableViewCell {
 
     private func setupUI() {
         selectionStyle = .none
-        backgroundColor = .background
+        backgroundColor = UIColor(resource: .nftWhite)
 
-        // Добавляем imageView в stackView
         coverImagesStackView.addArrangedSubview(firstImageView)
         coverImagesStackView.addArrangedSubview(secondImageView)
         coverImagesStackView.addArrangedSubview(thirdImageView)
@@ -86,21 +85,18 @@ final class CatalogCollectionCell: UITableViewCell {
 
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            // StackView с картинками
             coverImagesStackView.topAnchor.constraint(equalTo: contentView.topAnchor),
             coverImagesStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            coverImagesStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            coverImagesStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -13),
             coverImagesStackView.heightAnchor.constraint(equalToConstant: 140),
 
-            // Название коллекции
             nameLabel.topAnchor.constraint(equalTo: coverImagesStackView.bottomAnchor, constant: 4),
             nameLabel.leadingAnchor.constraint(equalTo: coverImagesStackView.leadingAnchor),
-            nameLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16),
+            nameLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -13),
 
-            // Количество NFT (справа от названия)
             nftCountLabel.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
             nftCountLabel.leadingAnchor.constraint(equalTo: nameLabel.trailingAnchor, constant: 4),
-            nftCountLabel.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -16)
+            nftCountLabel.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -13)
         ])
     }
     
@@ -110,15 +106,12 @@ final class CatalogCollectionCell: UITableViewCell {
         nameLabel.text = model.name
         nftCountLabel.text = "(\(model.nftCount))"
 
-        // Загружаем 3 изображения
         if model.coverImages.count >= 3 {
-            // Пробуем загрузить из Assets, если нет - создаём цветной плейсхолдер
-            firstImageView.image = UIImage(named: model.coverImages[0]) ?? createPlaceholder(color: .systemPink)
-            secondImageView.image = UIImage(named: model.coverImages[1]) ?? createPlaceholder(color: .systemBlue)
-            thirdImageView.image = UIImage(named: model.coverImages[2]) ?? createPlaceholder(color: .systemGreen)
+            firstImageView.image = createPlaceholder(color: .systemPink)
+            secondImageView.image = createPlaceholder(color: .systemBlue)
+            thirdImageView.image = createPlaceholder(color: .systemGreen)
         }
 
-        // Потом здесь будет загрузка через Kingfisher:
         // if model.coverImages.count >= 3 {
         //     firstImageView.kf.setImage(with: URL(string: model.coverImages[0]))
         //     secondImageView.kf.setImage(with: URL(string: model.coverImages[1]))
