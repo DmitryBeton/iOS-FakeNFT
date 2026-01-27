@@ -26,7 +26,15 @@ final class CatalogViewModel {
     }
     
     func sortCollections(by sortType: SortType) {
-        // Здесь будет логика сортировки
+        switch sortType {
+        case .byName:
+            collections.sort { $0.name < $1.name }
+        case .byNftCount:
+            collections.sort { $0.nftCount > $1.nftCount }
+        }
+
+        // Уведомляем View что данные обновились
+        onCollectionsUpdated?(collections)
     }
     
     // MARK: - Private Methods

@@ -112,9 +112,10 @@ final class CatalogCollectionCell: UITableViewCell {
 
         // Загружаем 3 изображения
         if model.coverImages.count >= 3 {
-            firstImageView.image = UIImage(named: model.coverImages[0])
-            secondImageView.image = UIImage(named: model.coverImages[1])
-            thirdImageView.image = UIImage(named: model.coverImages[2])
+            // Пробуем загрузить из Assets, если нет - создаём цветной плейсхолдер
+            firstImageView.image = UIImage(named: model.coverImages[0]) ?? createPlaceholder(color: .systemPink)
+            secondImageView.image = UIImage(named: model.coverImages[1]) ?? createPlaceholder(color: .systemBlue)
+            thirdImageView.image = UIImage(named: model.coverImages[2]) ?? createPlaceholder(color: .systemGreen)
         }
 
         // Потом здесь будет загрузка через Kingfisher:
@@ -123,6 +124,17 @@ final class CatalogCollectionCell: UITableViewCell {
         //     secondImageView.kf.setImage(with: URL(string: model.coverImages[1]))
         //     thirdImageView.kf.setImage(with: URL(string: model.coverImages[2]))
         // }
+    }
+
+    // MARK: - Helper methods
+
+    private func createPlaceholder(color: UIColor) -> UIImage {
+        let size = CGSize(width: 100, height: 100)
+        let renderer = UIGraphicsImageRenderer(size: size)
+        return renderer.image { context in
+            color.setFill()
+            context.fill(CGRect(origin: .zero, size: size))
+        }
     }
     
 }
