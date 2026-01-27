@@ -12,6 +12,7 @@ final class CatalogViewController: UIViewController {
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
         tableView.backgroundColor = UIColor(resource: .nftWhite)
+        tableView.separatorStyle = .none  // Убираем сепараторы
         tableView.register(CatalogCollectionCell.self, forCellReuseIdentifier: CatalogCollectionCell.reuseIdentifier)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         return tableView
@@ -62,7 +63,7 @@ final class CatalogViewController: UIViewController {
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
@@ -135,10 +136,16 @@ final class CatalogViewController: UIViewController {
 //MARK: - UITableViewDataSource
 
 extension CatalogViewController: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        viewModel.numberOfCollections()
+    // Количество секций = количество коллекций (для расстояния между ячейками)
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return viewModel.numberOfCollections()
     }
-    
+
+    // Одна ячейка в каждой секции
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 1
+    }
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(
             withIdentifier: CatalogCollectionCell.reuseIdentifier,
@@ -146,13 +153,13 @@ extension CatalogViewController: UITableViewDataSource {
         ) as? CatalogCollectionCell else {
             return UITableViewCell()
         }
-        
-        let collection = viewModel.collection(at: indexPath.row)
+
+        let collection = viewModel.collection(at: indexPath.section)  // используем section вместо row
         cell.configure(with: collection)
-        
+
         return cell
     }
-    
+
 }
 
 //MARK: - UITableViewDelegate
@@ -161,7 +168,18 @@ extension CatalogViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 179
     }
-    
+
+    // Добавляем расстояние 8pt между ячейками через header
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let headerView = UIView()
+        headerView.backgroundColor = .clear
+        return headerView
+    }
+
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 8
+    }
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         // Переход на детальный экран коллекции (добавим позже)
