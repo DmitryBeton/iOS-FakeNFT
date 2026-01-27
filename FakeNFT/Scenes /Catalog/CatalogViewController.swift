@@ -1,16 +1,17 @@
 import UIKit
 
 final class CatalogViewController: UIViewController {
-    
+
     // MARK: - Properties
-    
+
     private let viewModel: CatalogViewModel
+    private let servicesAssembly: ServicesAssembly
     
     // MARK: - UI Elements
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
-        tableView.backgroundColor = UIColor(resource: .nftWhite)
+        tableView.backgroundColor = .background
         tableView.register(CatalogCollectionCell.self, forCellReuseIdentifier: CatalogCollectionCell.reuseIdentifier)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         return tableView
@@ -23,9 +24,10 @@ final class CatalogViewController: UIViewController {
     }()
     
     // MARK: - Initializer
-    
-    init(viewModel: CatalogViewModel) {
-        self.viewModel = viewModel
+
+    init(servicesAssembly: ServicesAssembly) {
+        self.servicesAssembly = servicesAssembly
+        self.viewModel = CatalogViewModel()
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -49,20 +51,24 @@ final class CatalogViewController: UIViewController {
     // MARK: - Private Methods
     
     private func setupUI() {
-        view.backgroundColor = UIColor(resource: .nftWhite)
-        
+        view.backgroundColor = .background
+
         view.addSubview(tableView)
-        
+        view.addSubview(activityIndicator)
+
         tableView.dataSource = self
         tableView.delegate = self
     }
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
+            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.topAnchor, constant: -16)
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
     }
     
