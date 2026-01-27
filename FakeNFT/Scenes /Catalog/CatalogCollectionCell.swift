@@ -2,15 +2,14 @@ import UIKit
 
 final class CatalogCollectionCell: UITableViewCell {
     
+    // MARK: - Properties
+    static let reuseIdentifier: String = "CatalogCollectionCell"
+    
     // MARK: - UI elements
     
-    private lazy var containerView: UIView = {
-        let view = UIView()
-        view.backgroundColor = UIColor(resource: .nftWhite)
-        view.layer.masksToBounds = true
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
+    private let coverImageView = UIImageView()
+    private let nameLabel = UILabel()
+    private let nftCountLabel = UILabel()
     
     // MARK: - Initialization
     
@@ -26,28 +25,26 @@ final class CatalogCollectionCell: UITableViewCell {
     // MARK: - Private methods
     
     private func setupUI() {
-        selectionStyle = .none
-        backgroundColor = .clear
-
-        contentView.addSubview(containerView)
-        setupConstraints()
-    }
-    
-    private func setupConstraints() {
-        NSLayoutConstraint.activate([
-            containerView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            containerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            containerView.heightAnchor.constraint(equalToConstant: 75)
-        ])
-    }
+            contentView.addSubview(coverImageView)
+            contentView.addSubview(nameLabel)
+            contentView.addSubview(nftCountLabel)
+            
+            // TODO: Добавить constraints
+            // coverImageView.translatesAutoresizingMaskIntoConstraints = false
+            // NSLayoutConstraint.activate([...])
+        }
     
     // MARK: - Public methods
     
-    func configure() {
-        
-    }
+    func configure(with model: CatalogCollectionModel) {
+            nameLabel.text = model.name
+            nftCountLabel.text = "\(model.nftCount) NFTs"
+            
+            // Пока используем placeholder или моковое изображение
+            coverImageView.image = UIImage(named: model.coverImageUrl)
+            // Потом здесь будет загрузка через Kingfisher:
+            // coverImageView.kf.setImage(with: URL(string: model.coverImageUrl))
+        }
     
 }
 

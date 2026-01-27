@@ -4,7 +4,6 @@ final class CatalogViewModel {
     
     // MARK: - Properties
     
-    // Колбэк для обновления UI (View подписывается на это)
     var onCollectionsUpdated: (([CatalogCollectionModel]) -> Void)?
     var onLoadingStateChanged: ((Bool) -> Void)?
     var onError: ((String) -> Void)?
@@ -13,12 +12,10 @@ final class CatalogViewModel {
     
     // MARK: - Public Methods
     
-    // Вызывается из ViewController когда экран загружается
     func viewDidLoad() {
         loadCollections()
     }
     
-    // Количество коллекций для tableView
     func numberOfCollections() -> Int {
         return collections.count
     }
@@ -28,7 +25,6 @@ final class CatalogViewModel {
         return collections[index]
     }
     
-    // Сортировка (добавим позже)
     func sortCollections(by sortType: SortType) {
         // Здесь будет логика сортировки
     }
