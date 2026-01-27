@@ -178,10 +178,11 @@ final class ProfileViewController: UIViewController {
         navigationController?.pushViewController(editProfileVC, animated: true)
     }
     
-    // MARK: - Private Properties
+    // MARK: - Private Methods
     
     private func setupDelegates() {
         menuTableView.dataSource = self
+        menuTableView.delegate = self
     }
     
     private func setProfile(_ profile: Profile) {
@@ -197,9 +198,19 @@ final class ProfileViewController: UIViewController {
         return url.host()?.replacingOccurrences(of: "www", with: "")
     }
     
+    private func pushToMyNFTViewController() {
+        let myNFTVC = MyNFTViewController()
+        navigationController?.pushViewController(myNFTVC, animated: true)
+    }
+    
+    private func pushToFavouritesViewController() {
+        let favouritesVC = FavouritesViewController()
+        navigationController?.pushViewController(favouritesVC, animated: true)
+    }
+    
 }
 
-// MARK: - DataSource
+// MARK: - TableViewDataSource
 
 extension ProfileViewController: UITableViewDataSource {
     
@@ -217,6 +228,22 @@ extension ProfileViewController: UITableViewDataSource {
             cell.configure(title: item.title, count: mockProfile.favouritesCount)
         }
         return cell
+    }
+    
+}
+
+// MARK: - TableViewDelegate
+
+extension ProfileViewController: UITableViewDelegate {
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let item = menu[indexPath.row]
+        switch item {
+        case .myNFT:
+            pushToMyNFTViewController()
+        case .favourites:
+            pushToFavouritesViewController()
+        }
     }
     
 }
