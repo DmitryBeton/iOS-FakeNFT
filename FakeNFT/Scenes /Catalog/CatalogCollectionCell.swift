@@ -3,6 +3,7 @@ import UIKit
 final class CatalogCollectionCell: UITableViewCell {
     
     // MARK: - UI elements
+    
     private lazy var containerView: UIView = {
         let view = UIView()
         view.backgroundColor = UIColor(resource: .nftWhite)
@@ -12,6 +13,7 @@ final class CatalogCollectionCell: UITableViewCell {
     }()
     
     // MARK: - Initialization
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupUI()
@@ -22,6 +24,7 @@ final class CatalogCollectionCell: UITableViewCell {
     }
     
     // MARK: - Private methods
+    
     private func setupUI() {
         selectionStyle = .none
         backgroundColor = .clear
@@ -41,6 +44,7 @@ final class CatalogCollectionCell: UITableViewCell {
     }
     
     // MARK: - Public methods
+    
     func configure() {
         
     }

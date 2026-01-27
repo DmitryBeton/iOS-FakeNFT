@@ -3,9 +3,11 @@ import UIKit
 final class CatalogViewController: UIViewController {
     
     // MARK: - Properties
+    
     private let viewModel: CatalogViewModel
     
     // MARK: - UI Elements
+    
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
         tableView.backgroundColor = UIColor(resource: .nftWhite)
@@ -17,6 +19,7 @@ final class CatalogViewController: UIViewController {
     }()
     
     // MARK: - Initializer
+    
     init(viewModel: CatalogViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
@@ -27,6 +30,7 @@ final class CatalogViewController: UIViewController {
     }
     
     // MARK: - Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -35,6 +39,7 @@ final class CatalogViewController: UIViewController {
     }
     
     // MARK: - Private Methods
+    
     private func setupUI() {
         view.backgroundColor = UIColor(resource: .nftWhite)
         
@@ -60,6 +65,7 @@ final class CatalogViewController: UIViewController {
 }
 
 //MARK: - UITableViewDataSource
+
 extension CatalogViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         <#code#>
@@ -75,6 +81,7 @@ extension CatalogViewController: UITableViewDataSource {
 }
 
 //MARK: - UITableViewDelegate
+
 extension CatalogViewController: UITableViewDelegate {
     
 }
