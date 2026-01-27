@@ -12,7 +12,7 @@ final class CatalogViewController: UIViewController {
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
         tableView.backgroundColor = UIColor(resource: .nftWhite)
-        tableView.separatorStyle = .none  // Убираем сепараторы
+        tableView.separatorStyle = .none
         tableView.register(CatalogCollectionCell.self, forCellReuseIdentifier: CatalogCollectionCell.reuseIdentifier)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         return tableView
@@ -63,7 +63,7 @@ final class CatalogViewController: UIViewController {
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
@@ -136,12 +136,10 @@ final class CatalogViewController: UIViewController {
 //MARK: - UITableViewDataSource
 
 extension CatalogViewController: UITableViewDataSource {
-    // Количество секций = количество коллекций (для расстояния между ячейками)
     func numberOfSections(in tableView: UITableView) -> Int {
         return viewModel.numberOfCollections()
     }
 
-    // Одна ячейка в каждой секции
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 1
     }
@@ -154,7 +152,7 @@ extension CatalogViewController: UITableViewDataSource {
             return UITableViewCell()
         }
 
-        let collection = viewModel.collection(at: indexPath.section)  // используем section вместо row
+        let collection = viewModel.collection(at: indexPath.section)
         cell.configure(with: collection)
 
         return cell
@@ -169,7 +167,6 @@ extension CatalogViewController: UITableViewDelegate {
         return 179
     }
 
-    // Убираем расстояние между ячейками
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         return nil
     }
@@ -180,6 +177,6 @@ extension CatalogViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        // Переход на детальный экран коллекции (добавим позже)
+        // Переход на детальный экран коллекции 
     }
 }

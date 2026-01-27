@@ -16,8 +16,7 @@ final class TabBarController: UITabBarController {
         let catalogController = CatalogViewController(
             servicesAssembly: servicesAssembly
         )
-
-        // Оборачиваем в NavigationController для отображения кнопки сортировки
+        
         let catalogNavigationController = UINavigationController(rootViewController: catalogController)
         catalogNavigationController.tabBarItem = catalogTabBarItem
 
