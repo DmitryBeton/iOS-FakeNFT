@@ -74,11 +74,12 @@ final class CatalogViewController: UIViewController {
     
     private func setupNavigationBar() {
         let sortButton = UIBarButtonItem(
-            image: UIImage(systemName: "arrow.up.arrow.down"),
+            image: UIImage(systemName: "line.3.horizontal"),
             style: .plain,
             target: self,
             action: #selector(sortButtonTapped)
         )
+        sortButton.tintColor = .textPrimary
         navigationItem.rightBarButtonItem = sortButton
     }
     
@@ -158,7 +159,8 @@ extension CatalogViewController: UITableViewDataSource {
 
 extension CatalogViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 140  // Высота ячейки (настройте под свой дизайн)
+        // 140 (изображения) + 4 (отступ) + ~21 (текст) + 16 (нижний отступ) = ~181
+        return 181
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

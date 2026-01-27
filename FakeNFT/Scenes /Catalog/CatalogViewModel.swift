@@ -54,23 +54,34 @@ final class CatalogViewModel {
         return [
             CatalogCollectionModel(
                 id: "1",
-                name: "Bored Ape Yacht Club",
-                coverImageUrl: "mock_image_1", // пока используем имя из Assets
-                nftCount: 10000
+                name: "Peach",
+                coverImages: ["mock_image_1", "mock_image_2", "mock_image_3"],
+                nftCount: 11
             ),
             CatalogCollectionModel(
                 id: "2",
-                name: "CryptoPunks",
-                coverImageUrl: "mock_image_2",
-                nftCount: 10000
+                name: "Blue",
+                coverImages: ["mock_image_1", "mock_image_2", "mock_image_3"],
+                nftCount: 6
             ),
             CatalogCollectionModel(
                 id: "3",
-                name: "Azuki",
-                coverImageUrl: "mock_image_3",
-                nftCount: 10000
+                name: "Brown",
+                coverImages: ["mock_image_1", "mock_image_2", "mock_image_3"],
+                nftCount: 8
+            ),
+            CatalogCollectionModel(
+                id: "4",
+                name: "Green",
+                coverImages: ["mock_image_1", "mock_image_2", "mock_image_3"],
+                nftCount: 15
+            ),
+            CatalogCollectionModel(
+                id: "5",
+                name: "Purple",
+                coverImages: ["mock_image_1", "mock_image_2", "mock_image_3"],
+                nftCount: 20
             )
-            // Добавьте больше для тестирования скролла
         ]
     }
 }

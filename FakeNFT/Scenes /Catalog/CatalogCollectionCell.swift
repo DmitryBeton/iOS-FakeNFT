@@ -6,10 +6,54 @@ final class CatalogCollectionCell: UITableViewCell {
     static let reuseIdentifier: String = "CatalogCollectionCell"
     
     // MARK: - UI elements
-    
-    private let coverImageView = UIImageView()
-    private let nameLabel = UILabel()
-    private let nftCountLabel = UILabel()
+
+    private let coverImagesStackView: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .horizontal
+        stack.distribution = .fillEqually
+        stack.spacing = 0
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.layer.cornerRadius = 12
+        stack.clipsToBounds = true
+        return stack
+    }()
+
+    private let firstImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        return imageView
+    }()
+
+    private let secondImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        return imageView
+    }()
+
+    private let thirdImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        return imageView
+    }()
+
+    private let nameLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 17, weight: .bold)
+        label.textColor = .textPrimary
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    private let nftCountLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 17, weight: .regular)
+        label.textColor = .textPrimary
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
     
     // MARK: - Initialization
     
@@ -23,27 +67,62 @@ final class CatalogCollectionCell: UITableViewCell {
     }
     
     // MARK: - Private methods
-    
+
     private func setupUI() {
-        contentView.addSubview(coverImageView)
+        selectionStyle = .none
+        backgroundColor = .background
+
+        // Добавляем imageView в stackView
+        coverImagesStackView.addArrangedSubview(firstImageView)
+        coverImagesStackView.addArrangedSubview(secondImageView)
+        coverImagesStackView.addArrangedSubview(thirdImageView)
+
+        contentView.addSubview(coverImagesStackView)
         contentView.addSubview(nameLabel)
         contentView.addSubview(nftCountLabel)
-        
-        // TODO: Добавить constraints
-        // coverImageView.translatesAutoresizingMaskIntoConstraints = false
-        // NSLayoutConstraint.activate([...])
+
+        setupConstraints()
+    }
+
+    private func setupConstraints() {
+        NSLayoutConstraint.activate([
+            // StackView с картинками
+            coverImagesStackView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            coverImagesStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            coverImagesStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            coverImagesStackView.heightAnchor.constraint(equalToConstant: 140),
+
+            // Название коллекции
+            nameLabel.topAnchor.constraint(equalTo: coverImagesStackView.bottomAnchor, constant: 4),
+            nameLabel.leadingAnchor.constraint(equalTo: coverImagesStackView.leadingAnchor),
+            nameLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16),
+
+            // Количество NFT (справа от названия)
+            nftCountLabel.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
+            nftCountLabel.leadingAnchor.constraint(equalTo: nameLabel.trailingAnchor, constant: 4),
+            nftCountLabel.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -16)
+        ])
     }
     
     // MARK: - Public methods
-    
+
     func configure(with model: CatalogCollectionModel) {
         nameLabel.text = model.name
-        nftCountLabel.text = "\(model.nftCount) NFTs"
-        
-        // Пока используем placeholder или моковое изображение
-        coverImageView.image = UIImage(named: model.coverImageUrl)
+        nftCountLabel.text = "(\(model.nftCount))"
+
+        // Загружаем 3 изображения
+        if model.coverImages.count >= 3 {
+            firstImageView.image = UIImage(named: model.coverImages[0])
+            secondImageView.image = UIImage(named: model.coverImages[1])
+            thirdImageView.image = UIImage(named: model.coverImages[2])
+        }
+
         // Потом здесь будет загрузка через Kingfisher:
-        // coverImageView.kf.setImage(with: URL(string: model.coverImageUrl))
+        // if model.coverImages.count >= 3 {
+        //     firstImageView.kf.setImage(with: URL(string: model.coverImages[0]))
+        //     secondImageView.kf.setImage(with: URL(string: model.coverImages[1]))
+        //     thirdImageView.kf.setImage(with: URL(string: model.coverImages[2]))
+        // }
     }
     
 }
