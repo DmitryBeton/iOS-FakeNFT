@@ -29,6 +29,7 @@ final class ProfileViewController: UIViewController {
     
     private lazy var avatarImageView: AvatarView = {
         let avatarView = AvatarView()
+        avatarView.contentMode = .scaleAspectFill
         avatarView.kf.indicatorType = .activity
         return avatarView
     }()
@@ -54,6 +55,7 @@ final class ProfileViewController: UIViewController {
         tableView.register(MenuCell.self)
         tableView.rowHeight = 54
         tableView.separatorStyle = .none
+        tableView.isScrollEnabled = false
         return tableView
     }()
     
@@ -146,10 +148,8 @@ final class ProfileViewController: UIViewController {
     }
     
     private func setupConstraints() {
-        [
-            avatarImageView,
-            profileInfoStackView,
-            menuTableView
+        [profileInfoStackView,
+         menuTableView
         ].disableAutoresizingMasks()
         
         NSLayoutConstraint.activate([

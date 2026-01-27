@@ -47,7 +47,6 @@ final class MenuCell: UITableViewCell, ReuseIdentifying {
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        setupBehavior()
         setupViews()
         setupConstraints()
     }
@@ -59,11 +58,8 @@ final class MenuCell: UITableViewCell, ReuseIdentifying {
     
     // MARK: - UI Methods
     
-    private func setupBehavior() {
-        selectionStyle = .none
-    }
-    
     private func setupViews() {
+        selectionStyle = .none
         contentView.addSubview(stackView)
     }
     

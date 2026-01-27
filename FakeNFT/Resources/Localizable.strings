@@ -9,3 +9,7 @@
 "Tab.profile" = "Профиль";
 "Profile.myNFT" = "Мои NFT";
 "Profile.favourites" = "Избранные NFT";
+"EditProfile.name" = "Имя";
+"EditProfile.description" = "Описание";
+"EditProfile.website" = "Сайт";
+"EditProfile.save" = "Сохранить";
