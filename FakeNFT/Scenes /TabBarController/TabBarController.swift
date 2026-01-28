@@ -16,12 +16,15 @@ final class TabBarController: UITabBarController {
         let catalogController = CatalogViewController(
             servicesAssembly: servicesAssembly
         )
-        
+
         let catalogNavigationController = UINavigationController(rootViewController: catalogController)
         catalogNavigationController.tabBarItem = catalogTabBarItem
 
         viewControllers = [catalogNavigationController]
 
         view.backgroundColor = .systemBackground
+
+        // Устанавливаем цвет иконок TabBar
+        tabBar.unselectedItemTintColor = UIColor(resource: .nftBlack)
     }
 }

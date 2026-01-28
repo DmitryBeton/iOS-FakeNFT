@@ -1,18 +1,28 @@
 import Foundation
 
 final class CatalogViewModel {
-    
+
     // MARK: - Properties
-    
+
     var onCollectionsUpdated: (([CatalogCollectionModel]) -> Void)?
     var onLoadingStateChanged: ((Bool) -> Void)?
     var onError: ((String) -> Void)?
-    
+
     private var collections: [CatalogCollectionModel] = []
+    private var currentSortType: SortType? {
+        didSet {
+            saveSortType()
+        }
+    }
+
+    private enum UserDefaultsKeys {
+        static let sortType = "CatalogSortType"
+    }
     
     // MARK: - Public Methods
     
     func viewDidLoad() {
+        loadSortType()
         loadCollections()
     }
     
@@ -20,12 +30,13 @@ final class CatalogViewModel {
         return collections.count
     }
     
-    // Получить конкретную коллекцию по индексу
     func collection(at index: Int) -> CatalogCollectionModel {
         return collections[index]
     }
     
     func sortCollections(by sortType: SortType) {
+        currentSortType = sortType
+
         switch sortType {
         case .byName:
             collections.sort { $0.name < $1.name }
@@ -33,7 +44,6 @@ final class CatalogViewModel {
             collections.sort { $0.nftCount > $1.nftCount }
         }
 
-        // Уведомляем View что данные обновились
         onCollectionsUpdated?(collections)
     }
     
@@ -41,18 +51,52 @@ final class CatalogViewModel {
     
     private func loadCollections() {
         onLoadingStateChanged?(true)
-        
+
         // Симулируем загрузку с сервера (задержка 1 секунда)
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            guard let self = self else { return }
+
             // Создаём моковые данные
-            let mockCollections = self?.createMockCollections() ?? []
-            self?.collections = mockCollections
-            
-            self?.onLoadingStateChanged?(false)
-            
+            var mockCollections = self.createMockCollections()
+            self.collections = mockCollections
+
+            // Применяем сохраненную сортировку если она была
+            if let sortType = self.currentSortType {
+                self.applySorting(sortType, to: &mockCollections)
+            }
+
+            self.onLoadingStateChanged?(false)
+
             // Уведомляем View что данные обновились
-            self?.onCollectionsUpdated?(mockCollections)
+            self.onCollectionsUpdated?(mockCollections)
         }
+    }
+
+    private func applySorting(_ sortType: SortType, to collections: inout [CatalogCollectionModel]) {
+        switch sortType {
+        case .byName:
+            collections.sort { $0.name < $1.name }
+        case .byNftCount:
+            collections.sort { $0.nftCount > $1.nftCount }
+        }
+    }
+
+    // MARK: - UserDefaults
+
+    private func saveSortType() {
+        guard let sortType = currentSortType else {
+            UserDefaults.standard.removeObject(forKey: UserDefaultsKeys.sortType)
+            return
+        }
+        UserDefaults.standard.set(sortType.rawValue, forKey: UserDefaultsKeys.sortType)
+    }
+
+    private func loadSortType() {
+        guard let rawValue = UserDefaults.standard.string(forKey: UserDefaultsKeys.sortType),
+              let sortType = SortType(rawValue: rawValue) else {
+            return
+        }
+        currentSortType = sortType
     }
     
     // Создание моковых данных для тестирования верстки
@@ -92,8 +136,8 @@ final class CatalogViewModel {
     }
 }
 
-enum SortType {
-    case byName
-    case byNftCount
+enum SortType: String {
+    case byName = "name"
+    case byNftCount = "nftCount"
 }
 

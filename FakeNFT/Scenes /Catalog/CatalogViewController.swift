@@ -165,6 +165,12 @@ extension CatalogViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        // Переход на детальный экран коллекции
+
+        let collection = viewModel.collection(at: indexPath.row)
+        let detailViewController = CollectionDetailViewController(
+            collectionId: collection.id,
+            collectionName: collection.name
+        )
+        navigationController?.pushViewController(detailViewController, animated: true)
     }
 }
