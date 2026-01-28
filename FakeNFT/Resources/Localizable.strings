@@ -21,3 +21,6 @@
 "ProfileAlert.photoLink" = "Ссылка на фото";
 "ProfileAlert.cancel" = "Отмена";
 "ProfileAlert.save" = "Сохранить";
+"ProfileAlert.wantToExit" = "Уверены, что хотите выйти?";
+"ProfileAlert.stay" = "Остаться";
+"ProfileAlert.exit" = "Выйти";

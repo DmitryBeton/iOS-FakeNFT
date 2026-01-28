@@ -1,6 +1,7 @@
 protocol EditProfileViewModelProtocol {
     var onStateChange: ((EditProfileState) -> Void)? { get set }
     var profile: ProfileUI { get }
+    var hasChanges: Bool { get }
     
     func loadProfile()
     func changeAvatar(urlString: String)

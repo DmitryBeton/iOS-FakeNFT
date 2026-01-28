@@ -17,6 +17,9 @@ enum Localization {
         static let photoLink = "ProfileAlert.photoLink".localized
         static let cancel = "ProfileAlert.cancel".localized
         static let save = "ProfileAlert.save".localized
+        static let wantToExit = "ProfileAlert.wantToExit".localized
+        static let stay = "ProfileAlert.stay".localized
+        static let exit = "ProfileAlert.exit".localized
     }
 }
 

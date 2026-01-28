@@ -67,6 +67,13 @@ final class EditProfileViewController: UIViewController {
         return button
     }()
     
+    private lazy var backBarButtonItem = UIBarButtonItem(
+        image: UIImage(resource: .prBack),
+        style: .plain,
+        target: self,
+        action: #selector(backButtonTapped)
+    )
+    
     // MARK: - Private Properties
     
     private let viewModel: EditProfileViewModelProtocol = EditProfileViewModel(
@@ -95,6 +102,7 @@ final class EditProfileViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
+        setupNavigationBar()
         setupConstraints()
         setupActions()
     }
@@ -104,6 +112,11 @@ final class EditProfileViewController: UIViewController {
     private func setupViews() {
         view.backgroundColor = UIColor(resource: .nftWhite)
         view.addSubviews([scrollView, saveButton])
+    }
+    
+    private func setupNavigationBar() {
+        navigationItem.leftBarButtonItem = backBarButtonItem
+        navigationController?.navigationBar.tintColor = UIColor(resource: .nftBlack)
     }
     
     private func setupConstraints() {
@@ -169,6 +182,14 @@ final class EditProfileViewController: UIViewController {
         view.endEditing(true)
     }
     
+    @objc private func backButtonTapped() {
+        if viewModel.hasChanges {
+            showExitAlert()
+        } else {
+            navigationController?.popViewController(animated: true)
+        }
+    }
+    
     // MARK: - Private Methods
     
     private func showPhotoAlert() {
@@ -211,6 +232,23 @@ final class EditProfileViewController: UIViewController {
         
         alert.addAction(cancelAction)
         alert.addAction(saveAction)
+        
+        present(alert, animated: true)
+    }
+    
+    private func showExitAlert() {
+        let alert = UIAlertController(
+            title: Localization.ProfileAlert.wantToExit,
+            message: nil,
+            preferredStyle: .alert
+        )
+        let cancelAction = UIAlertAction(title: Localization.ProfileAlert.stay, style: .cancel)
+        let extitAction = UIAlertAction(title: Localization.ProfileAlert.exit, style: .default) { [weak self] _ in
+            self?.navigationController?.popViewController(animated: true)
+        }
+        
+        alert.addAction(cancelAction)
+        alert.addAction(extitAction)
         
         present(alert, animated: true)
     }

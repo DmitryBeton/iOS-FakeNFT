@@ -10,8 +10,12 @@ final class EditProfileViewModel: EditProfileViewModelProtocol {
     
     private(set) var profile: ProfileUI {
         didSet {
-            state = .editing(profile, isDifferentFromInitial)
+            state = .editing
         }
+    }
+    
+    var hasChanges: Bool {
+        profile != initialProfile
     }
     
     // MARK: - Public Methods
@@ -75,10 +79,6 @@ final class EditProfileViewModel: EditProfileViewModelProtocol {
     // MARK: - Private Properties
     
     private let initialProfile: ProfileUI
-    
-    private var isDifferentFromInitial: Bool {
-        profile != initialProfile
-    }
     
     // MARK: - Init
     
