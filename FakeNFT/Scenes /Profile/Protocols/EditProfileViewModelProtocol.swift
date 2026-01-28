@@ -1,5 +1,9 @@
-protocol EditProfileViewModelProtocol {
+protocol EditProfileViewModelProtocol: AnyObject {
     var onStateChange: ((EditProfileState) -> Void)? { get set }
+    var onAvatarChange: (() -> Void)? { get set }
+    
+    var onChangesSaved: (() -> Void)? { get set }
+    
     var profile: ProfileUI { get }
     var hasChanges: Bool { get }
     

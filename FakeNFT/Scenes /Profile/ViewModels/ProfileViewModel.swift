@@ -15,6 +15,10 @@ final class ProfileViewModel: ProfileViewModelProtocol {
         state = .data(profileUI)
     }
     
+    func getProfile() -> ProfileUI {
+        makeProfileUI(from: mockProfile)
+    }
+    
     func myNFTCount() -> Int {
         mockProfile.nfts.count
     }

@@ -93,6 +93,8 @@ final class ProfileViewController: UIViewController {
 
     // MARK: - Private Properties
     
+    private let viewModel: ProfileViewModelProtocol
+    
     // TODO: Should be deleted after network implementation
     private let mockProfile = ProfileUI(
         name: "Joaquin Phoenix",
@@ -107,6 +109,18 @@ final class ProfileViewController: UIViewController {
     )
     
     private let menu: [Menu] = [.myNFT, .favourites]
+    
+    // MARK: - Init
+    
+    init(viewModel: ProfileViewModelProtocol) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        assertionFailure("init(coder:) has not been implemented")
+        return nil
+    }
     
     // MARK: - Life Cycle
     
@@ -172,7 +186,13 @@ final class ProfileViewController: UIViewController {
     // MARK: - Actions
     
     @objc private func editBarButtonTapped() {
-        let editProfileVC = EditProfileViewController()
+        let initialProfile = viewModel.getProfile()
+        let editProfileVM = EditProfileViewModel(profile: initialProfile)
+        editProfileVM.onChangesSaved = { [weak self] in
+            self?.viewModel.loadProfile()
+        }
+        let editProfileVC = EditProfileViewController(viewModel: editProfileVM)
+        
         navigationController?.pushViewController(editProfileVC, animated: true)
     }
     
@@ -238,8 +258,4 @@ extension ProfileViewController: UITableViewDelegate {
         }
     }
     
-}
-
-#Preview {
-    UINavigationController(rootViewController: ProfileViewController())
 }

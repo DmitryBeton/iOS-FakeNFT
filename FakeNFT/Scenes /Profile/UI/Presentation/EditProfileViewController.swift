@@ -76,19 +76,7 @@ final class EditProfileViewController: UIViewController {
     
     // MARK: - Private Properties
     
-    private let viewModel: EditProfileViewModelProtocol = EditProfileViewModel(
-        profile: ProfileUI(
-            name: "Joaquin Phoenix",
-            avatarURL: URL(string: "https://i.pinimg.com/736x/fc/e2/8b/fce28b5c4414c3492084022cb908f760.jpg"),
-            description: """
-                Дизайнер из Казани, люблю цифровое искусство
-                и бейглы. В моей коллекции уже 100+ NFT,
-                и еще больше — на моём сайте. Открыт
-                к коллаборациям.
-                """,
-            link: "practicum.yandex.ru"
-        )
-    )
+    private let viewModel: EditProfileViewModelProtocol
     
     private lazy var singleTapRecognizer: UITapGestureRecognizer = {
         let recognizer = UITapGestureRecognizer(target: self, action: #selector(didSingleTap))
@@ -96,6 +84,18 @@ final class EditProfileViewController: UIViewController {
         recognizer.cancelsTouchesInView = false
         return recognizer
     }()
+    
+    // MARK: - Init
+    
+    init(viewModel: EditProfileViewModelProtocol) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        assertionFailure("init(coder:) has not been implemented")
+        return nil
+    }
     
     // MARK: - Life Cycle
     
@@ -171,6 +171,7 @@ final class EditProfileViewController: UIViewController {
     
     private func setupActions() {
         view.addGestureRecognizer(singleTapRecognizer)
+        saveButton.addTarget(self, action: #selector(saveButtonTapped), for: .touchUpInside)
         editAvatarView.onTap = { [weak self] in
             self?.showPhotoAlert()
         }
@@ -188,6 +189,10 @@ final class EditProfileViewController: UIViewController {
         } else {
             navigationController?.popViewController(animated: true)
         }
+    }
+    
+    @objc private func saveButtonTapped() {
+        viewModel.saveChanges()
     }
     
     // MARK: - Private Methods
@@ -271,8 +276,4 @@ extension EditProfileViewController: UITextViewDelegate {
         return true
     }
     
-}
-
-#Preview {
-    EditProfileViewController()
 }

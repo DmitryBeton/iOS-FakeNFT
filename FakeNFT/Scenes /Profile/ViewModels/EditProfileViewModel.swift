@@ -5,6 +5,8 @@ final class EditProfileViewModel: EditProfileViewModelProtocol {
     // MARK: - Bindings
     
     var onStateChange: ((EditProfileState) -> Void)?
+    var onAvatarChange: (() -> Void)?
+    var onChangesSaved: (() -> Void)?
     
     // MARK: - Public Properties
     
@@ -33,6 +35,7 @@ final class EditProfileViewModel: EditProfileViewModelProtocol {
             description: profile.description,
             link: profile.link
         )
+        onAvatarChange?()
     }
     
     func changeName(_ name: String) {
@@ -66,6 +69,7 @@ final class EditProfileViewModel: EditProfileViewModelProtocol {
     func saveChanges() {
         state = .saving
         state = .saved
+        onChangesSaved?()
     }
     
     // MARK: - State
