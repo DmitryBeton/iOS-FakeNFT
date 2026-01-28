@@ -23,8 +23,6 @@ final class TabBarController: UITabBarController {
         viewControllers = [catalogNavigationController]
 
         view.backgroundColor = .systemBackground
-
-        // Устанавливаем цвет иконок TabBar
         tabBar.unselectedItemTintColor = UIColor(resource: .nftBlack)
     }
 }

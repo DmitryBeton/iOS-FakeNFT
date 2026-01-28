@@ -52,22 +52,18 @@ final class CatalogViewModel {
     private func loadCollections() {
         onLoadingStateChanged?(true)
 
-        // Симулируем загрузку с сервера (задержка 1 секунда)
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
             guard let self = self else { return }
 
-            // Создаём моковые данные
             var mockCollections = self.createMockCollections()
             self.collections = mockCollections
 
-            // Применяем сохраненную сортировку если она была
             if let sortType = self.currentSortType {
                 self.applySorting(sortType, to: &mockCollections)
             }
 
             self.onLoadingStateChanged?(false)
 
-            // Уведомляем View что данные обновились
             self.onCollectionsUpdated?(mockCollections)
         }
     }
@@ -99,7 +95,6 @@ final class CatalogViewModel {
         currentSortType = sortType
     }
     
-    // Создание моковых данных для тестирования верстки
     private func createMockCollections() -> [CatalogCollectionModel] {
         return [
             CatalogCollectionModel(
