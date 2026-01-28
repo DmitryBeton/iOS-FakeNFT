@@ -39,15 +39,9 @@ final class OrderSummaryView: UIView {
         return view
     }()
     
-    private let paddingView: UIView = {
-        let view = UIView()
-        return view
-    }()
+    private let paddingView = UIView()
     
-    private let priceView: UIView = {
-        let view = UIView()
-        return view
-    }()
+    private let priceView = UIView()
     
     private let totalCountLabel: UILabel = {
         let label = UILabel()

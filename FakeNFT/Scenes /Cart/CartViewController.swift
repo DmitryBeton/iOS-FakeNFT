@@ -106,7 +106,7 @@ final class CartViewController: UIViewController {
     // MARK: - Private methods
     private func setupBindings() {
         viewModel.onItemsUpdated = { [weak self] in
-            guard let self = self else { return }
+            guard let self else { return }
             
             DispatchQueue.main.async {
                 self.tableView.reloadData()
@@ -119,7 +119,7 @@ final class CartViewController: UIViewController {
         }
         
         viewModel.onSortChanged = { [weak self] in
-            guard let self = self else { return }
+            guard let self else { return }
             
             DispatchQueue.main.async {
                 self.tableView.reloadData()
@@ -173,7 +173,7 @@ extension CartViewController: UITableViewDataSource {
         if let uiCartItem = viewModel.getUICartItem(at: indexPath.row) {
             cell.configure(data: uiCartItem)
             cell.onDeleteButtonTapped = { [weak self] in
-                guard let self = self,
+                guard let self,
                       let indexPath = self.tableView.indexPath(for: cell) else { return }
                 
                 let alertVC = DeleteConfirmationAlertViewController(image: uiCartItem.image)

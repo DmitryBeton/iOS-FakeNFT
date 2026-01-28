@@ -19,15 +19,9 @@ final class DeleteConfirmationAlertViewController: UIViewController {
         return view
     }()
     
-    private let containerView: UIView = {
-        let view = UIView()
-        return view
-    }()
+    private let containerView = UIView()
     
-    private let paddingView: UIView = {
-        let view = UIView()
-        return view
-    }()
+    private let paddingView = UIView()
     
     private lazy var imageView: UIImageView = {
         let imageView = UIImageView()
@@ -152,15 +146,11 @@ final class DeleteConfirmationAlertViewController: UIViewController {
     
     // MARK: - Actions
     @objc private func deleteButtonTapped() {
-        dismiss(animated: true) { [weak self] in
-            self?.onDeleteTapped?()
-        }
+        dismiss(animated: true) { self.onDeleteTapped?() }
     }
     
     @objc private func cancelButtonTapped() {
-        dismiss(animated: true) { [weak self] in
-            self?.onCancelTapped?()
-        }
+        dismiss(animated: true) { self.onCancelTapped?() }
     }
     
     // MARK: - Presentation

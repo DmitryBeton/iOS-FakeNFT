@@ -7,19 +7,42 @@
 
 import UIKit
 
+/// Протокол описывает интерфейс для ViewModel корзины, отвечающей за представление и управление товарами в корзине.
+/// Поддерживает обновление элементов, сортировку и удаление товаров.
 protocol CartViewModelProtocol: AnyObject {
+    /// Массив отображаемых элементов корзины для UI.
     var items: [UICartItem] { get }
+    
+    /// Количество элементов в корзине.
     var itemsCount: Int { get }
+    
+    /// Общая стоимость товаров в корзине.
     var totalPrice: Double { get }
+    
+    /// Текущий параметр сортировки.
     var sortOption: SortOption { get set }
+    
+    /// Замыкание вызывается при обновлении списка элементов.
     var onItemsUpdated: (() -> Void)? { get set }
+    
+    /// Замыкание вызывается при изменении способа сортировки.
     var onSortChanged: (() -> Void)? { get set }
     
+    /// Загружает все элементы корзины.
     func loadItems()
+    
+    /// Удаляет элемент корзины по индексу.
+    /// - Parameter index: Индекс элемента для удаления.
     func deleteItem(at index: Int)
+    
+    /// Сортирует элементы корзины согласно выбранному способу сортировки.
     func sortItems()
     
+    /// Возвращает элемент корзины для UI по индексу.
+    /// - Parameter index: Индекс элемента.
     func getUICartItem(at index: Int) -> UICartItem?
+    
+    /// Возвращает признак, пуста ли корзина.
     func isEmpty() -> Bool
 }
 

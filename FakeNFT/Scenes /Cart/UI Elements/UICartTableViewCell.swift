@@ -13,30 +13,15 @@ final class CartItemViewCell: UITableViewCell, ReuseIdentifying {
     var onDeleteButtonTapped: (() -> Void)?
     
     // MARK: - UI Elements
-    private lazy var cellContentView: UIView = {
-        let view = UIView()
-        return view
-    }()
+    private lazy var cellContentView = UIView()
     
-    private lazy var fullInfoContainerView: UIView = {
-        let view = UIView()
-        return view
-    }()
+    private lazy var fullInfoContainerView = UIView()
     
-    private lazy var shortInfoContainerView: UIView = {
-        let view = UIView()
-        return view
-    }()
+    private lazy var shortInfoContainerView = UIView()
     
-    private lazy var nameAndRatingContainerView: UIView = {
-        let view = UIView()
-        return view
-    }()
+    private lazy var nameAndRatingContainerView = UIView()
     
-    private lazy var priceContainerView: UIView = {
-        let view = UIView()
-        return view
-    }()
+    private lazy var priceContainerView = UIView()
     
     private lazy var nftImageView: UIImageView = {
         let imageView = UIImageView()

@@ -7,9 +7,24 @@
 
 import Foundation
 
+/// Протокол сервиса для работы с корзиной.
+/// Определяет методы для получения, удаления и сохранения элементов корзины.
 protocol CartServiceProtocol {
+    /// Загружает элементы корзины пользователя.
+    /// - Parameter completion: Замыкание, вызываемое после завершения загрузки.
+    /// Передает результат с массивом элементов или ошибкой.
     func fetchCartItems(completion: @escaping (Result<[CartItem], Error>) -> Void)
+
+    /// Удаляет элемент корзины по идентификатору.
+    /// - Parameters:
+    ///   - id: Уникальный идентификатор элемента корзины.
+    ///   - completion: Замыкание, вызываемое после удаления элемента.
     func deleteCartItem(id: String, completion: @escaping () -> Void)
+
+    /// Сохраняет все элементы корзины.
+    /// - Parameters:
+    ///   - items: Массив элементов корзины для сохранения.
+    ///   - completion: Замыкание, вызываемое после завершения сохранения.
     func saveCartItems(_ items: [CartItem], completion: @escaping () -> Void)
 }
 
@@ -43,4 +58,3 @@ final class CartService: CartServiceProtocol {
         completion()
     }
 }
-
