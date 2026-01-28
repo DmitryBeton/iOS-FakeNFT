@@ -1,0 +1,81 @@
+//
+//  CartRepository.swift
+//  FakeNFT
+//
+//  Created by Дмитрий Чалов on 25.01.2026.
+//
+
+import Foundation
+
+/// Протокол для работы с корзиной товаров.
+/// Позволяет получать, сохранять, удалять товары и очищать корзину.
+protocol CartRepositoryProtocol {
+    /// Получить все товары, добавленные в корзину.
+    /// - Returns: Список товаров в корзине.
+    func getCartItems() -> [CartItem]
+    
+    /// Сохранить список товаров в корзину, заменяя существующий.
+    /// - Parameter items: Новый список товаров для сохранения.
+    func saveCartItems(_ items: [CartItem])
+    
+    /// Удалить товар из корзины по идентификатору.
+    /// - Parameter id: Уникальный идентификатор товара для удаления.
+    func deleteCartItem(with id: String)
+    
+    /// Очистить корзину, удалив все товары.
+    func clearCart()
+}
+
+final class CartRepository: CartRepositoryProtocol {
+    
+    // MARK: - Properties
+    private let userDefaultsKey = "cart_items"
+    private var mockCartItems: [CartItem] = [
+        CartItem(
+            id: "b3907b86-37c4-4e15-95bc-7f8147a9a660",
+            name: "mel novum",
+            images: ["https://code.s3.yandex.net/Mobile/iOS/NFT/White/Lumpy/1.png",
+                     "https://code.s3.yandex.net/Mobile/iOS/NFT/White/Lumpy/2.png",
+                     "https://code.s3.yandex.net/Mobile/iOS/NFT/White/Lumpy/3.png"],
+            rating: 4,
+            price: 49.77,
+        ),
+        CartItem(
+            id: "739e293c-1067-43e5-8f1d-4377e744ddde",
+            name: "commodo porttitor",
+            images: ["https://code.s3.yandex.net/Mobile/iOS/NFT/Beige/April/1.png",
+                     "https://code.s3.yandex.net/Mobile/iOS/NFT/Beige/April/2.png",
+                     "https://code.s3.yandex.net/Mobile/iOS/NFT/Beige/April/3.png"],
+            rating: 3,
+            price: 36.54,
+        ),
+        CartItem(
+            id: "1e649115-1d4f-4026-ad56-9551a16763ee",
+            name: "dico eleifend",
+            images: ["https://code.s3.yandex.net/Mobile/iOS/NFT/Yellow/Helga/1.png",
+                     "https://code.s3.yandex.net/Mobile/iOS/NFT/Yellow/Helga/2.png",
+                     "https://code.s3.yandex.net/Mobile/iOS/NFT/Yellow/Helga/3.png"],
+            rating: 5,
+            price: 8.08,
+        )
+    ]
+    
+    // MARK: - Public Methods
+    func getCartItems() -> [CartItem] {
+        mockCartItems
+    }
+    
+    func saveCartItems(_ items: [CartItem]) {
+        mockCartItems = items
+    }
+    
+    func deleteCartItem(with id: String) {
+        var items = getCartItems()
+        items.removeAll { $0.id == id }
+        saveCartItems(items)
+    }
+    
+    func clearCart() {
+        mockCartItems = []
+    }
+}

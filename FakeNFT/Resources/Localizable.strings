@@ -4,3 +4,24 @@
 "Error.unknown" = "Произошла неизвестная ошибка";
 "Error.repeat" = "Повторить";
 "Error.title" = "Ошибка";
+
+// Cart
+"Tab.cart" = "Корзина";
+
+"Main.cart.empty" = "Корзина пуста";
+
+"Filter.cart.by_price" = "По цене";
+"Filter.cart.by_rating" = "По рейтингу";
+"Filter.cart.by_title" = "По названию";
+
+"Cell.Price" = "Цена";
+
+"Alert.sort" = "Сортировка";
+"Alert.close" = "Закрыть";
+
+"Button.to_pay" = "К оплате";
+
+"Delete.Alert.delete.confirmation" = "Вы уверены, что хотите\nудалить объект из корзины?";
+"Delete.Alert.cancel" = "Вернуться";
+"Delete.Alert.delete" = "Удалить";
+
