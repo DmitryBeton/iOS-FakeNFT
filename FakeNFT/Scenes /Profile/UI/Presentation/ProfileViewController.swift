@@ -192,12 +192,6 @@ final class ProfileViewController: UIViewController {
         linkButton.setTitle(profile.link, for: .normal)
     }
     
-    // TODO: Method should be moved to ViewModel
-    private func shortURLString(from url: URL?) -> String? {
-        guard let url else { return nil }
-        return url.host()?.replacingOccurrences(of: "www", with: "")
-    }
-    
     private func pushToMyNFTViewController() {
         let myNFTVC = MyNFTViewController()
         navigationController?.pushViewController(myNFTVC, animated: true)
