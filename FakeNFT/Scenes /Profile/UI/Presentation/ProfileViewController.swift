@@ -94,7 +94,7 @@ final class ProfileViewController: UIViewController {
     // MARK: - Private Properties
     
     // TODO: Should be deleted after network implementation
-    private let mockProfile = Profile(
+    private let mockProfile = ProfileUI(
         name: "Joaquin Phoenix",
         avatarURL: URL(string: "https://i.pinimg.com/736x/fc/e2/8b/fce28b5c4414c3492084022cb908f760.jpg"),
         description: """
@@ -103,7 +103,7 @@ final class ProfileViewController: UIViewController {
             и еще больше — на моём сайте. Открыт
             к коллаборациям.
             """,
-        link: URL(string: "https://practicum.yandex.ru/graphic-designer/")!,
+        link: "practicum.yandex.ru",
         myNFTCount: 112,
         favouritesCount: 11
     )
@@ -185,11 +185,11 @@ final class ProfileViewController: UIViewController {
         menuTableView.delegate = self
     }
     
-    private func setProfile(_ profile: Profile) {
+    private func setProfile(_ profile: ProfileUI) {
         avatarImageView.kf.setImage(with: profile.avatarURL, placeholder: UIImage(resource: .prDefaultAvatar))
         nameLabel.text = profile.name
         descriptionLabel.text = profile.description
-        linkButton.setTitle(shortURLString(from: profile.link), for: .normal)
+        linkButton.setTitle(profile.link, for: .normal)
     }
     
     // TODO: Method should be moved to ViewModel

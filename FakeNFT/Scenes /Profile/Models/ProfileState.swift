@@ -1,3 +1,3 @@
 enum ProfileState {
-    case initial, loading, failed(Error), data(Profile)
+    case initial, loading, failed(Error), data(ProfileUI)
 }

@@ -1,10 +1,11 @@
 import Foundation
 
-struct Profile {
+struct Profile: Codable {
+    let id: UUID
     let name: String
-    let avatarURL: URL?
+    let avatar: URL?
     let description: String
-    let link: URL?
-    let myNFTCount: Int
-    let favouritesCount: Int
+    let website: URL?
+    let nfts: [UUID]
+    let likes: [UUID]
 }
