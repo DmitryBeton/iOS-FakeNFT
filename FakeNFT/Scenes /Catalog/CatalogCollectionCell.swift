@@ -87,16 +87,16 @@ final class CatalogCollectionCell: UITableViewCell {
         NSLayoutConstraint.activate([
             coverImagesStackView.topAnchor.constraint(equalTo: contentView.topAnchor),
             coverImagesStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            coverImagesStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -13),
+            coverImagesStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             coverImagesStackView.heightAnchor.constraint(equalToConstant: 140),
 
             nameLabel.topAnchor.constraint(equalTo: coverImagesStackView.bottomAnchor, constant: 4),
             nameLabel.leadingAnchor.constraint(equalTo: coverImagesStackView.leadingAnchor),
-            nameLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -13),
+            nameLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -21),
 
             nftCountLabel.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
             nftCountLabel.leadingAnchor.constraint(equalTo: nameLabel.trailingAnchor, constant: 4),
-            nftCountLabel.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -13)
+            nftCountLabel.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -16)
         ])
     }
     
