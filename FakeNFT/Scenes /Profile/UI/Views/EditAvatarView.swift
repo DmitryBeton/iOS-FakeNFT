@@ -2,6 +2,10 @@ import UIKit
 
 final class EditAvatarView: UIView {
     
+    // MARK: - Binding
+    
+    var onTap: (() -> Void)?
+    
     // MARK: - Views
     
     lazy var avatarView = AvatarView()
@@ -18,6 +22,7 @@ final class EditAvatarView: UIView {
         super.init(frame: frame)
         setupViews()
         setupConstraints()
+        setupGesture()
     }
     
     required init?(coder: NSCoder) {
@@ -44,6 +49,22 @@ final class EditAvatarView: UIView {
             editIconImageView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
             editIconImageView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
         ])
+    }
+    
+    // MARK: - Actions
+    
+    @objc private func didTapView() {
+        onTap?()
+    }
+    
+    // MARK: - Private Methods
+    
+    private func setupGesture() {
+        let tap = UITapGestureRecognizer(
+            target: self,
+            action: #selector(didTapView)
+        )
+        addGestureRecognizer(tap)
     }
     
 }

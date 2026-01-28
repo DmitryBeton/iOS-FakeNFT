@@ -6,6 +6,14 @@ final class EditProfileViewModel: EditProfileViewModelProtocol {
     
     var onStateChange: ((EditProfileState) -> Void)?
     
+    // MARK: - Public Properties
+    
+    private(set) var profile: ProfileUI {
+        didSet {
+            state = .editing(profile, isDifferentFromInitial)
+        }
+    }
+    
     // MARK: - Public Methods
     
     func loadProfile() {
@@ -14,6 +22,7 @@ final class EditProfileViewModel: EditProfileViewModelProtocol {
     
     func changeAvatar(urlString: String) {
         let imageURL = URL(string: urlString)
+        guard imageURL != profile.avatarURL else { return }
         profile = ProfileUI(
             name: profile.name,
             avatarURL: imageURL,
@@ -51,7 +60,7 @@ final class EditProfileViewModel: EditProfileViewModelProtocol {
     
     // TODO: Should be changed with service implementation
     func saveChanges() {
-        state = .save
+        state = .saving
         state = .saved
     }
     
@@ -66,10 +75,9 @@ final class EditProfileViewModel: EditProfileViewModelProtocol {
     // MARK: - Private Properties
     
     private let initialProfile: ProfileUI
-    private var profile: ProfileUI {
-        didSet {
-            state = .editing(profile, isDifferentFromInitial())
-        }
+    
+    private var isDifferentFromInitial: Bool {
+        profile != initialProfile
     }
     
     // MARK: - Init
@@ -77,12 +85,6 @@ final class EditProfileViewModel: EditProfileViewModelProtocol {
     init(profile: ProfileUI) {
         initialProfile = profile
         self.profile = profile
-    }
-    
-    // MARK: - Private Methods
-    
-    func isDifferentFromInitial() -> Bool {
-        profile != initialProfile
     }
     
 }

@@ -13,3 +13,11 @@
 "EditProfile.description" = "Описание";
 "EditProfile.website" = "Сайт";
 "EditProfile.save" = "Сохранить";
+
+// Profile Alert
+"ProfileAlert.profilePhoto" = "Фото профиля";
+"ProfileAlert.changePhoto" = "Изменить фото";
+"ProfileAlert.deletePhoto" = "Удалить фото";
+"ProfileAlert.photoLink" = "Ссылка на фото";
+"ProfileAlert.cancel" = "Отмена";
+"ProfileAlert.save" = "Сохранить";

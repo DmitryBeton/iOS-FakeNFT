@@ -1,3 +1,3 @@
 enum EditProfileState {
-    case initial, initialData(ProfileUI), editing(ProfileUI, Bool), save, saved, error(Error)
+    case initial, initialData(ProfileUI), editing(ProfileUI, Bool), saving, saved, error(ErrorModel)
 }

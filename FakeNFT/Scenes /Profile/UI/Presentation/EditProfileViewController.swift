@@ -69,6 +69,20 @@ final class EditProfileViewController: UIViewController {
     
     // MARK: - Private Properties
     
+    private let viewModel: EditProfileViewModelProtocol = EditProfileViewModel(
+        profile: ProfileUI(
+            name: "Joaquin Phoenix",
+            avatarURL: URL(string: "https://i.pinimg.com/736x/fc/e2/8b/fce28b5c4414c3492084022cb908f760.jpg"),
+            description: """
+                Дизайнер из Казани, люблю цифровое искусство
+                и бейглы. В моей коллекции уже 100+ NFT,
+                и еще больше — на моём сайте. Открыт
+                к коллаборациям.
+                """,
+            link: "practicum.yandex.ru"
+        )
+    )
+    
     private lazy var singleTapRecognizer: UITapGestureRecognizer = {
         let recognizer = UITapGestureRecognizer(target: self, action: #selector(didSingleTap))
         recognizer.numberOfTapsRequired = 1
@@ -144,12 +158,61 @@ final class EditProfileViewController: UIViewController {
     
     private func setupActions() {
         view.addGestureRecognizer(singleTapRecognizer)
+        editAvatarView.onTap = { [weak self] in
+            self?.showPhotoAlert()
+        }
     }
     
     // MARK: - Actions
     
     @objc private func didSingleTap() {
         view.endEditing(true)
+    }
+    
+    // MARK: - Private Methods
+    
+    private func showPhotoAlert() {
+        let alert = UIAlertController(
+            title: nil,
+            message: Localization.ProfileAlert.profilePhoto,
+            preferredStyle: .actionSheet
+        )
+        let editAction = UIAlertAction(title: Localization.ProfileAlert.changePhoto, style: .default) { [weak self] _ in
+            self?.showEditPhotoAlert()
+        }
+        let deleteAction = UIAlertAction(title: Localization.ProfileAlert.deletePhoto, style: .destructive) { [weak self] _ in
+            self?.viewModel.changeAvatar(urlString: "")
+        }
+        let cancelAction = UIAlertAction(title: Localization.ProfileAlert.cancel, style: .cancel)
+        
+        alert.addAction(editAction)
+        alert.addAction(deleteAction)
+        alert.addAction(cancelAction)
+        
+        present(alert, animated: true)
+    }
+    
+    private func showEditPhotoAlert() {
+        let alert = UIAlertController(
+            title: Localization.ProfileAlert.photoLink,
+            message: nil,
+            preferredStyle: .alert
+        )
+        alert.addTextField { [weak self] textField in
+            let imageURLString = self?.viewModel.profile.avatarURL?.absoluteString
+            textField.text = imageURLString
+            textField.returnKeyType = .done
+        }
+        let cancelAction = UIAlertAction(title: Localization.ProfileAlert.cancel, style: .cancel)
+        let saveAction = UIAlertAction(title: Localization.ProfileAlert.save, style: .default) { [weak self] _ in
+            let newImageURLString = alert.textFields?.first?.text ?? ""
+            self?.viewModel.changeAvatar(urlString: newImageURLString)
+        }
+        
+        alert.addAction(cancelAction)
+        alert.addAction(saveAction)
+        
+        present(alert, animated: true)
     }
     
 }

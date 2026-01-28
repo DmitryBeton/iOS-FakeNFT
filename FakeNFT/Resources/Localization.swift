@@ -10,6 +10,14 @@ enum Localization {
         static let editWebsite = "EditProfile.website".localized
         static let saveEdit = "EditProfile.save".localized
     }
+    enum ProfileAlert {
+        static let profilePhoto = "ProfileAlert.profilePhoto".localized
+        static let changePhoto = "ProfileAlert.changePhoto".localized
+        static let deletePhoto = "ProfileAlert.deletePhoto".localized
+        static let photoLink = "ProfileAlert.photoLink".localized
+        static let cancel = "ProfileAlert.cancel".localized
+        static let save = "ProfileAlert.save".localized
+    }
 }
 
 extension String {
