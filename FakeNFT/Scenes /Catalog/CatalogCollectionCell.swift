@@ -42,7 +42,7 @@ final class CatalogCollectionCell: UITableViewCell {
     private let nameLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 17, weight: .bold)
-        label.textColor = .textPrimary
+        label.textColor = UIColor(resource: .nftBlack)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -50,7 +50,7 @@ final class CatalogCollectionCell: UITableViewCell {
     private let nftCountLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 17, weight: .bold)
-        label.textColor = .textPrimary
+        label.textColor = UIColor(resource: .nftBlack)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
