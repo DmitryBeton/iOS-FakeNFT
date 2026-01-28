@@ -56,17 +56,11 @@ final class CatalogViewModel {
             guard let self = self else { return }
 
             var mockCollections = self.createMockCollections()
-
-            // Применяем сохраненную сортировку если она была
             if let sortType = self.currentSortType {
                 self.applySorting(sortType, to: &mockCollections)
             }
-
-            // Сохраняем отсортированные коллекции
             self.collections = mockCollections
-
             self.onLoadingStateChanged?(false)
-
             self.onCollectionsUpdated?(mockCollections)
         }
     }
