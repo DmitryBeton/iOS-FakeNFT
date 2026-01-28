@@ -103,9 +103,7 @@ final class ProfileViewController: UIViewController {
             и еще больше — на моём сайте. Открыт
             к коллаборациям.
             """,
-        link: "practicum.yandex.ru",
-        myNFTCount: 112,
-        favouritesCount: 11
+        link: "practicum.yandex.ru"
     )
     
     private let menu: [Menu] = [.myNFT, .favourites]
@@ -217,9 +215,9 @@ extension ProfileViewController: UITableViewDataSource {
         let item = menu[indexPath.row]
         switch item {
         case .myNFT:
-            cell.configure(title: item.title, count: mockProfile.myNFTCount)
+            cell.configure(title: item.title, count: 10)
         case .favourites:
-            cell.configure(title: item.title, count: mockProfile.favouritesCount)
+            cell.configure(title: item.title, count: 10)
         }
         return cell
     }

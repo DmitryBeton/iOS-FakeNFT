@@ -1,18 +1,27 @@
 import Foundation
 
-final class ProfileViewModel {
+final class ProfileViewModel: ProfileViewModelProtocol {
+    
+    // MARK: - Bindings
+    
+    var onStateChange: ((ProfileState) -> Void)?
     
     // MARK: - Public Methods
     
+    // TODO: Should be changed with service implementation
     func loadProfile() {
         state = .loading
         let profileUI = makeProfileUI(from: mockProfile)
         state = .data(profileUI)
     }
     
-    // MARK: - Bindings
+    func myNFTCount() -> Int {
+        mockProfile.nfts.count
+    }
     
-    var onStateChange: ((ProfileState) -> Void)?
+    func favouritesCount() -> Int {
+        mockProfile.nfts.count
+    }
     
     // MARK: - State
     
@@ -48,8 +57,6 @@ final class ProfileViewModel {
             avatarURL: profile.avatar,
             description: profile.description,
             link: shortURLString(from: profile.website) ?? "",
-            myNFTCount: profile.nfts.count,
-            favouritesCount: profile.likes.count
         )
     }
     
