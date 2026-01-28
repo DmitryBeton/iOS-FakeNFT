@@ -6,7 +6,7 @@ final class TabBarController: UITabBarController {
 
     private let catalogTabBarItem = UITabBarItem(
         title: Localization.Catalog.catalog.localized,
-        image: UIImage(systemName: "square.stack.3d.up.fill"),
+        image: UIImage(resource: .catalogTab),
         tag: 0
     )
 

@@ -75,7 +75,7 @@ final class CatalogViewController: UIViewController {
     
     private func setupNavigationBar() {
         let sortButton = UIBarButtonItem(
-            image: UIImage(systemName: "line.3.horizontal"),
+            image: UIImage(resource: .catalogSort),
             style: .plain,
             target: self,
             action: #selector(sortButtonTapped)
