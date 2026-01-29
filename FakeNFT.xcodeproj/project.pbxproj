@@ -47,6 +47,9 @@
 		E19CD5AB2A98B56600CA39A5 /* NftImageCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E19CD5AA2A98B56600CA39A5 /* NftImageCollectionViewCell.swift */; };
 		E1A1B9DA2AA01CE400C3AFBC /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A1B9D92AA01CE400C3AFBC /* TabBarController.swift */; };
 		E1CD40DC2A96BECC00BE7FE8 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = E1CD40DB2A96BECC00BE7FE8 /* Localizable.strings */; };
+		FE8201402F2ADFB100AD4FD6 /* StatisticsUserDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE82013F2F2ADFAF00AD4FD6 /* StatisticsUserDTO.swift */; };
+		FE8201442F2AE00B00AD4FD6 /* UsersRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE8201432F2AE00800AD4FD6 /* UsersRequest.swift */; };
+		FE8201482F2AE06300AD4FD6 /* StatisticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE8201472F2AE06100AD4FD6 /* StatisticsService.swift */; };
 		FEE8125D2F27E1F800933409 /* StatisticsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEE8125C2F27E1F500933409 /* StatisticsViewController.swift */; };
 		FEE8125F2F27E20600933409 /* StatisticsPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEE8125E2F27E20400933409 /* StatisticsPresenter.swift */; };
 		FEE812612F27E21200933409 /* StatisticsUserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEE812602F27E21000933409 /* StatisticsUserCell.swift */; };
@@ -120,6 +123,9 @@
 		E1CD40D82A96BE7D00BE7FE8 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Main.strings; sourceTree = "<group>"; };
 		E1CD40D92A96BE7D00BE7FE8 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
 		E1CD40DB2A96BECC00BE7FE8 /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
+		FE82013F2F2ADFAF00AD4FD6 /* StatisticsUserDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsUserDTO.swift; sourceTree = "<group>"; };
+		FE8201432F2AE00800AD4FD6 /* UsersRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsersRequest.swift; sourceTree = "<group>"; };
+		FE8201472F2AE06100AD4FD6 /* StatisticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsService.swift; sourceTree = "<group>"; };
 		FEE8125C2F27E1F500933409 /* StatisticsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsViewController.swift; sourceTree = "<group>"; };
 		FEE8125E2F27E20400933409 /* StatisticsPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsPresenter.swift; sourceTree = "<group>"; };
 		FEE812602F27E21000933409 /* StatisticsUserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsUserCell.swift; sourceTree = "<group>"; };
@@ -350,6 +356,8 @@
 		3FC8C38F29D245250081F015 /* Requests */ = {
 			isa = PBXGroup;
 			children = (
+				FE8201462F2AE05900AD4FD6 /* Statistics */,
+				FE8201432F2AE00800AD4FD6 /* UsersRequest.swift */,
 				0C79EE622A76DD1900EE90EA /* RequestConstants.swift */,
 				3FC8C39029D2453B0081F015 /* ExamplePutRequest.swift */,
 				0C79EE602A76DCD600EE90EA /* NftByIdRequest.swift */,
@@ -386,6 +394,14 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
+		FE8201462F2AE05900AD4FD6 /* Statistics */ = {
+			isa = PBXGroup;
+			children = (
+				FE8201472F2AE06100AD4FD6 /* StatisticsService.swift */,
+			);
+			path = Statistics;
+			sourceTree = "<group>";
+		};
 		FEE8125A2F27E1D700933409 /* Statistics */ = {
 			isa = PBXGroup;
 			children = (
@@ -398,6 +414,7 @@
 		FEE8125B2F27E1E300933409 /* Rating */ = {
 			isa = PBXGroup;
 			children = (
+				FE82013F2F2ADFAF00AD4FD6 /* StatisticsUserDTO.swift */,
 				FEE8126B2F27F8AD00933409 /* StatisticsSortSheetViewController.swift */,
 				FEE812692F27F85400933409 /* StatisticsSortOption.swift */,
 				FEE812622F27E21F00933409 /* StatisticsUserCellModel.swift */,
@@ -559,6 +576,7 @@
 				E1A1B9DA2AA01CE400C3AFBC /* TabBarController.swift in Sources */,
 				FEE812612F27E21200933409 /* StatisticsUserCell.swift in Sources */,
 				3F478ED129DB476500F6D39E /* Fonts.swift in Sources */,
+				FE8201442F2AE00B00AD4FD6 /* UsersRequest.swift in Sources */,
 				FEE8126A2F27F85600933409 /* StatisticsSortOption.swift in Sources */,
 				0C79EE6A2A76DE1000EE90EA /* NftDetailAssembly.swift in Sources */,
 				3FC8C39329D246BA0081F015 /* DateFormatters+Presets.swift in Sources */,
@@ -567,10 +585,12 @@
 				0CF2C2DD2A783CE600FDC837 /* ErrorView.swift in Sources */,
 				FEE8125F2F27E20600933409 /* StatisticsPresenter.swift in Sources */,
 				0C79EE682A76DE0900EE90EA /* NftDetailPresenter.swift in Sources */,
+				FE8201482F2AE06300AD4FD6 /* StatisticsService.swift in Sources */,
 				3F68069B29CBBAF100B4F915 /* ProductDetailsTableViewController.swift in Sources */,
 				0CFCB7402A78002A0009A829 /* ExamplePutService.swift in Sources */,
 				3F6806D529CBBEC700B4F915 /* NetworkTask.swift in Sources */,
 				0CF2C2DB2A783C1B00FDC837 /* LoadingView.swift in Sources */,
+				FE8201402F2ADFB100AD4FD6 /* StatisticsUserDTO.swift in Sources */,
 				558E39E72C68CE0A00FB86AC /* NftService.swift in Sources */,
 				3F68069729CBBAF100B4F915 /* AppDelegate.swift in Sources */,
 				3F68069929CBBAF100B4F915 /* SceneDelegate.swift in Sources */,

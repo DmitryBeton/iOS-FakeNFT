@@ -95,7 +95,6 @@ final class StatisticsSortSheetViewController: UIViewController {
         nameButton.addTarget(self, action: #selector(nameTapped), for: .touchUpInside)
         ratingButton.addTarget(self, action: #selector(ratingTapped), for: .touchUpInside)
 
-        // separator внутри блока
         let separator = UIView()
         separator.backgroundColor = UIColor.black.withAlphaComponent(0.12)
         separator.translatesAutoresizingMaskIntoConstraints = false
@@ -119,7 +118,6 @@ final class StatisticsSortSheetViewController: UIViewController {
             ratingButton.bottomAnchor.constraint(equalTo: optionsContainer.bottomAnchor)
         ])
 
-        // close button (отдельная белая карточка)
         closeButton.setTitle("Закрыть", for: .normal)
         closeButton.setTitleColor(.systemBlue, for: .normal)
         closeButton.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .bold)

@@ -2,6 +2,9 @@ import Foundation
 
 protocol StatisticsPresenterProtocol: AnyObject {
     var onDataUpdated: (() -> Void)? { get set }
+    var onLoadingChanged: ((Bool) -> Void)? { get set }
+    var onError: ((String) -> Void)? { get set }
+
     var usersCount: Int { get }
 
     func viewDidLoad()
@@ -12,45 +15,64 @@ protocol StatisticsPresenterProtocol: AnyObject {
 final class StatisticsPresenter: StatisticsPresenterProtocol {
 
     var onDataUpdated: (() -> Void)?
+    var onLoadingChanged: ((Bool) -> Void)?
+    var onError: ((String) -> Void)?
 
     private struct User {
         let name: String
-        let nftCount: Int
+        let value: Int 
+        let avatarURL: String
     }
+
+    private let service: StatisticsServiceProtocol
 
     private var users: [User] = []
     private var sortOption: StatisticsSortOption = .rating
 
-    var usersCount: Int {
-        users.count
+    init(service: StatisticsServiceProtocol = StatisticsService()) {
+        self.service = service
     }
 
-    func viewDidLoad() {
-        users = [
-            .init(name: "Alex", nftCount: 112),
-            .init(name: "Bill", nftCount: 98),
-            .init(name: "Alla", nftCount: 72),
-            .init(name: "Mads", nftCount: 71),
-            .init(name: "Timothée", nftCount: 51),
-            .init(name: "Lea", nftCount: 23),
-            .init(name: "Eric", nftCount: 11)
-        ]
+    var usersCount: Int { users.count }
 
-        applySort(option: sortOption)
+    func viewDidLoad() {
+        onLoadingChanged?(true)
+
+        service.fetchUsers { [weak self] result in
+            guard let self else { return }
+
+            switch result {
+            case .success(let dto):
+                let mapped = dto.map {
+                    User(name: $0.name, value: $0.rating, avatarURL: $0.avatar)
+                }
+
+                self.users = mapped
+
+                DispatchQueue.main.async {
+                    self.onLoadingChanged?(false)
+                    self.onDataUpdated?()
+                }
+                
+            case .failure(let error):
+                print("Statistics load error:", error)
+                DispatchQueue.main.async {
+                    self.onLoadingChanged?(false)
+                    self.onError?("Не удалось загрузить статистику: \(error)")
+                }
+
+            }
+        }
     }
 
     func user(at index: Int) -> StatisticsUserCellModel {
         let sorted = sortedUsers()
         let user = sorted[index]
-        return .init(place: index + 1, name: user.name, nftCount: user.nftCount)
+        return .init(place: index + 1, name: user.name, nftCount: user.value)
     }
 
     func sort(by option: StatisticsSortOption) {
         sortOption = option
-        applySort(option: option)
-    }
-
-    private func applySort(option: StatisticsSortOption) {
         onDataUpdated?()
     }
 
@@ -59,7 +81,7 @@ final class StatisticsPresenter: StatisticsPresenterProtocol {
         case .name:
             return users.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
         case .rating:
-            return users.sorted { $0.nftCount > $1.nftCount }
+            return users.sorted { $0.value > $1.value }
         }
     }
 }
