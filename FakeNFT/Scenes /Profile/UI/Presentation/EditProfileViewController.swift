@@ -201,35 +201,39 @@ final class EditProfileViewController: UIViewController {
     
     private func bind() {
         viewModel.onStateChange = { [weak self] state in
-            switch state {
-            case .initial:
-                UIBlockingProgressHUD.dismiss()
-                assertionFailure("can't move to initial state")
-                
-            case .initialData(let profile):
-                UIBlockingProgressHUD.dismiss()
-                self?.setProfile(profile)
-                self?.updateSaveButtonState()
-                
-            case .editing:
-                UIBlockingProgressHUD.dismiss()
-                self?.updateSaveButtonState()
-                
-            case .saving:
-                UIBlockingProgressHUD.show()
-                
-            case .saved:
-                UIBlockingProgressHUD.dismiss()
-                self?.navigationController?.popViewController(animated: true)
-                
-            case .failed:
-                UIBlockingProgressHUD.dismiss()
-                self?.showErrorAlert()
+            DispatchQueue.main.async {
+                switch state {
+                case .initial:
+                    UIBlockingProgressHUD.dismiss()
+                    assertionFailure("can't move to initial state")
+                    
+                case .initialData(let profile):
+                    UIBlockingProgressHUD.dismiss()
+                    self?.setProfile(profile)
+                    self?.updateSaveButtonState()
+                    
+                case .editing:
+                    UIBlockingProgressHUD.dismiss()
+                    self?.updateSaveButtonState()
+                    
+                case .saving:
+                    UIBlockingProgressHUD.show()
+                    
+                case .saved:
+                    UIBlockingProgressHUD.dismiss()
+                    self?.navigationController?.popViewController(animated: true)
+                    
+                case .failed:
+                    UIBlockingProgressHUD.dismiss()
+                    self?.showErrorAlert()
+                }
             }
         }
         
         viewModel.onAvatarChange = { [weak self] in
-            self?.updateAvatar()
+            DispatchQueue.main.async {
+                self?.updateAvatar()
+            }
         }
     }
     

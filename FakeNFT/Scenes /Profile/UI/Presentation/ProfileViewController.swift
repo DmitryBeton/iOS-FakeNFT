@@ -188,21 +188,23 @@ final class ProfileViewController: UIViewController {
     
     private func bind() {
         viewModel.onStateChange = { [weak self] state in
-            switch state {
-            case .initial:
-                UIBlockingProgressHUD.dismiss()
-                assertionFailure("can't move to initial state")
-                
-            case .loading:
-                UIBlockingProgressHUD.show()
-                
-            case .data(let profile):
-                UIBlockingProgressHUD.dismiss()
-                self?.setProfile(profile)
-                
-            case .failed:
-                UIBlockingProgressHUD.dismiss()
-                self?.showErrorAlert()
+            DispatchQueue.main.async {
+                switch state {
+                case .initial:
+                    UIBlockingProgressHUD.dismiss()
+                    assertionFailure("can't move to initial state")
+                    
+                case .loading:
+                    UIBlockingProgressHUD.show()
+                    
+                case .data(let profile):
+                    UIBlockingProgressHUD.dismiss()
+                    self?.setProfile(profile)
+                    
+                case .failed:
+                    UIBlockingProgressHUD.dismiss()
+                    self?.showErrorAlert()
+                }
             }
         }
     }
