@@ -1,5 +1,9 @@
 import Foundation
 
+private enum Defaults {
+    static let sortKey = "statistics.sort.option"
+}
+
 protocol StatisticsPresenterProtocol: AnyObject {
     var onDataUpdated: (() -> Void)? { get set }
     var onLoadingChanged: ((Bool) -> Void)? { get set }
@@ -36,6 +40,7 @@ final class StatisticsPresenter: StatisticsPresenterProtocol {
     var usersCount: Int { users.count }
 
     func viewDidLoad() {
+        sortOption = loadSortOption()
         onLoadingChanged?(true)
 
         service.fetchUsers { [weak self] result in
@@ -73,6 +78,7 @@ final class StatisticsPresenter: StatisticsPresenterProtocol {
 
     func sort(by option: StatisticsSortOption) {
         sortOption = option
+        saveSortOption(option)
         onDataUpdated?()
     }
 
@@ -84,5 +90,16 @@ final class StatisticsPresenter: StatisticsPresenterProtocol {
             return users.sorted { $0.value > $1.value }
         }
     }
+    
+    private func loadSortOption() -> StatisticsSortOption {
+        let value = UserDefaults.standard.string(forKey: Defaults.sortKey)
+        return value == "name" ? .name : .rating
+    }
+
+    private func saveSortOption(_ option: StatisticsSortOption) {
+        let value = option == .name ? "name" : "rating"
+        UserDefaults.standard.set(value, forKey: Defaults.sortKey)
+    }
+
 }
 
