@@ -1,5 +1,6 @@
 import UIKit
 import Kingfisher
+import ProgressHUD
 
 final class ProfileViewController: UIViewController {
     
@@ -94,20 +95,6 @@ final class ProfileViewController: UIViewController {
     // MARK: - Private Properties
     
     private let viewModel: ProfileViewModelProtocol
-    
-    // TODO: Should be deleted after network implementation
-    private let mockProfile = ProfileUI(
-        name: "Joaquin Phoenix",
-        avatarURL: URL(string: "https://i.pinimg.com/736x/fc/e2/8b/fce28b5c4414c3492084022cb908f760.jpg"),
-        description: """
-            Дизайнер из Казани, люблю цифровое искусство
-            и бейглы. В моей коллекции уже 100+ NFT,
-            и еще больше — на моём сайте. Открыт
-            к коллаборациям.
-            """,
-        link: "practicum.yandex.ru"
-    )
-    
     private let menu: [Menu] = [.myNFT, .favourites]
     
     // MARK: - Init
@@ -130,7 +117,8 @@ final class ProfileViewController: UIViewController {
         setupNavigationBar()
         setupConstraints()
         setupDelegates()
-        setProfile(mockProfile)
+        bind()
+        viewModel.loadProfile()
     }
     
     // MARK: - UI Methods
@@ -198,6 +186,27 @@ final class ProfileViewController: UIViewController {
     
     // MARK: - Private Methods
     
+    private func bind() {
+        viewModel.onStateChange = { [weak self] state in
+            switch state {
+            case .initial:
+                UIBlockingProgressHUD.dismiss()
+                assertionFailure("can't move to initial state")
+                
+            case .loading:
+                UIBlockingProgressHUD.show()
+                
+            case .data(let profile):
+                UIBlockingProgressHUD.dismiss()
+                self?.setProfile(profile)
+                
+            case .failed:
+                UIBlockingProgressHUD.dismiss()
+                self?.showErrorAlert()
+            }
+        }
+    }
+    
     private func setupDelegates() {
         menuTableView.dataSource = self
         menuTableView.delegate = self
@@ -207,7 +216,13 @@ final class ProfileViewController: UIViewController {
         avatarImageView.kf.setImage(with: profile.avatarURL, placeholder: UIImage(resource: .prDefaultAvatar))
         nameLabel.text = profile.name
         descriptionLabel.text = profile.description
-        linkButton.setTitle(profile.link, for: .normal)
+        let shortLink = shortURLString(from: URL(string: profile.link))
+        linkButton.setTitle(shortLink, for: .normal)
+    }
+    
+    private func shortURLString(from url: URL?) -> String {
+        guard let url else { return "" }
+        return url.host()?.replacingOccurrences(of: "www", with: "") ?? ""
     }
     
     private func pushToMyNFTViewController() {
@@ -218,6 +233,23 @@ final class ProfileViewController: UIViewController {
     private func pushToFavouritesViewController() {
         let favouritesVC = FavouritesViewController()
         navigationController?.pushViewController(favouritesVC, animated: true)
+    }
+    
+    private func showErrorAlert() {
+        let alert = UIAlertController(
+            title: Localization.ProfileAlert.loadError,
+            message: nil,
+            preferredStyle: .alert
+        )
+        let cancelAction = UIAlertAction(title: Localization.ProfileAlert.cancel, style: .cancel)
+        let retryAction = UIAlertAction(title: Localization.ProfileAlert.retry, style: .default) { [weak self] _ in
+            self?.viewModel.loadProfile()
+        }
+        
+        alert.addAction(cancelAction)
+        alert.addAction(retryAction)
+        
+        present(alert, animated: true)
     }
     
 }
@@ -235,9 +267,9 @@ extension ProfileViewController: UITableViewDataSource {
         let item = menu[indexPath.row]
         switch item {
         case .myNFT:
-            cell.configure(title: item.title, count: 10)
+            cell.configure(title: item.title, count: viewModel.myNFTCount())
         case .favourites:
-            cell.configure(title: item.title, count: 10)
+            cell.configure(title: item.title, count: viewModel.favouritesCount())
         }
         return cell
     }

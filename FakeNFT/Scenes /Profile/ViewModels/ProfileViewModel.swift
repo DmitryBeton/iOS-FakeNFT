@@ -24,7 +24,7 @@ final class ProfileViewModel: ProfileViewModelProtocol {
     }
     
     func favouritesCount() -> Int {
-        mockProfile.nfts.count
+        mockProfile.likes.count
     }
     
     // MARK: - State
@@ -60,13 +60,8 @@ final class ProfileViewModel: ProfileViewModelProtocol {
             name: profile.name,
             avatarURL: profile.avatar,
             description: profile.description,
-            link: shortURLString(from: profile.website) ?? "",
+            link: profile.website?.absoluteString ?? ""
         )
-    }
-    
-    private func shortURLString(from url: URL?) -> String? {
-        guard let url else { return nil }
-        return url.host()?.replacingOccurrences(of: "www", with: "")
     }
     
 }

@@ -13,19 +13,19 @@ final class EditProfileViewController: UIViewController {
     }()
     
     private lazy var nameEditStackView: EditStackView = {
-        let editStackView = EditStackView(textViewDelegate: self)
+        let editStackView = EditStackView(fieldType: .name, textViewDelegate: self)
         editStackView.titleLabel.text = Localization.Profile.editName
         return editStackView
     }()
     
     private lazy var descriptionEditStackView: EditStackView = {
-        let editStackView = EditStackView(textViewDelegate: self)
+        let editStackView = EditStackView(fieldType: .description, textViewDelegate: self)
         editStackView.titleLabel.text = Localization.Profile.editDescription
         return editStackView
     }()
     
     private lazy var websiteEditStackView: EditStackView = {
-        let editStackView = EditStackView(textViewDelegate: self)
+        let editStackView = EditStackView(fieldType: .website, textViewDelegate: self)
         editStackView.titleLabel.text = Localization.Profile.editWebsite
         return editStackView
     }()
@@ -105,6 +105,8 @@ final class EditProfileViewController: UIViewController {
         setupNavigationBar()
         setupConstraints()
         setupActions()
+        bind()
+        viewModel.loadProfile()
     }
     
     // MARK: - UI Methods
@@ -197,6 +199,56 @@ final class EditProfileViewController: UIViewController {
     
     // MARK: - Private Methods
     
+    private func bind() {
+        viewModel.onStateChange = { [weak self] state in
+            switch state {
+            case .initial:
+                UIBlockingProgressHUD.dismiss()
+                assertionFailure("can't move to initial state")
+                
+            case .initialData(let profile):
+                UIBlockingProgressHUD.dismiss()
+                self?.setProfile(profile)
+                self?.updateSaveButtonState()
+                
+            case .editing:
+                UIBlockingProgressHUD.dismiss()
+                self?.updateSaveButtonState()
+                
+            case .saving:
+                UIBlockingProgressHUD.show()
+                
+            case .saved:
+                UIBlockingProgressHUD.dismiss()
+                self?.navigationController?.popViewController(animated: true)
+                
+            case .failed:
+                UIBlockingProgressHUD.dismiss()
+                self?.showErrorAlert()
+            }
+        }
+        
+        viewModel.onAvatarChange = { [weak self] in
+            self?.updateAvatar()
+        }
+    }
+    
+    private func setProfile(_ profile: ProfileUI) {
+        editAvatarView.avatarView.kf.setImage(with: profile.avatarURL)
+        nameEditStackView.fieldTextView.text = profile.name
+        descriptionEditStackView.fieldTextView.text = profile.description
+        websiteEditStackView.fieldTextView.text = profile.link
+    }
+    
+    private func updateAvatar() {
+        let imageURL = viewModel.profile.avatarURL
+        editAvatarView.avatarView.kf.setImage(with: imageURL, placeholder: UIImage(resource: .prDefaultAvatar))
+    }
+    
+    private func updateSaveButtonState() {
+        saveButton.isHidden = !viewModel.hasChanges
+    }
+    
     private func showPhotoAlert() {
         let alert = UIAlertController(
             title: nil,
@@ -258,6 +310,23 @@ final class EditProfileViewController: UIViewController {
         present(alert, animated: true)
     }
     
+    private func showErrorAlert() {
+        let alert = UIAlertController(
+            title: Localization.ProfileAlert.updateError,
+            message: nil,
+            preferredStyle: .alert
+        )
+        let cancelAction = UIAlertAction(title: Localization.ProfileAlert.cancel, style: .cancel)
+        let retryAction = UIAlertAction(title: Localization.ProfileAlert.retry, style: .default) { [weak self] _ in
+            self?.viewModel.saveChanges()
+        }
+        
+        alert.addAction(cancelAction)
+        alert.addAction(retryAction)
+        
+        present(alert, animated: true)
+    }
+    
 }
 
 // MARK: - TextFieldDelegate
@@ -274,6 +343,19 @@ extension EditProfileViewController: UITextViewDelegate {
             return false
         }
         return true
+    }
+    
+    func textViewDidChange(_ textView: UITextView) {
+        guard let stackView = textView.superview as? EditStackView else { return }
+        
+        switch stackView.fieldType {
+        case .name:
+            viewModel.changeName(textView.text)
+        case .description:
+            viewModel.changeDescription(textView.text)
+        case .website:
+            viewModel.changeWebsite(urlString: textView.text)
+        }
     }
     
 }

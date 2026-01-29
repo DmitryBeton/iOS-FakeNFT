@@ -24,3 +24,6 @@
 "ProfileAlert.wantToExit" = "Уверены, что хотите выйти?";
 "ProfileAlert.stay" = "Остаться";
 "ProfileAlert.exit" = "Выйти";
+"ProfileAlert.loadError" = "Не удалось получить данные";
+"ProfileAlert.updateError" = "Не удалось обновить данные";
+"ProfileAlert.retry" = "Повторить";

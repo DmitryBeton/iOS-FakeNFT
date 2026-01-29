@@ -2,6 +2,18 @@ import UIKit
 
 final class EditStackView: UIStackView {
     
+    // MARK: - Public Types
+    
+    enum EditFieldType {
+        case name
+        case description
+        case website
+    }
+    
+    // MARK: - Public Properties
+    
+    let fieldType: EditFieldType
+    
     // MARK: - Views
     
     lazy var titleLabel: UILabel = {
@@ -30,7 +42,8 @@ final class EditStackView: UIStackView {
     
     // MARK: - Init
     
-    init(textViewDelegate: UITextViewDelegate?) {
+    init(fieldType: EditFieldType, textViewDelegate: UITextViewDelegate?) {
+        self.fieldType = fieldType
         super.init(frame: .zero)
         fieldTextView.delegate = textViewDelegate
         setupViews()
@@ -38,6 +51,7 @@ final class EditStackView: UIStackView {
     
     required init(coder: NSCoder) {
         assertionFailure("init(coder:) has not been implemented")
+        self.fieldType = .name
         super.init(coder: coder)
     }
     
