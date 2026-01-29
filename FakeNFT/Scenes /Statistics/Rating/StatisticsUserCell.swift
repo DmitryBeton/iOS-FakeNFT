@@ -12,6 +12,10 @@ final class StatisticsUserCell: UITableViewCell {
     private let nftCountLabel = UILabel()
 
     private let stackView = UIStackView()
+    
+    private let placeholderImage = UIImage(named: "statisticAvatarTable")
+
+    private var imageTaskId: UUID?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -25,10 +29,13 @@ final class StatisticsUserCell: UITableViewCell {
 
     override func prepareForReuse() {
         super.prepareForReuse()
-        placeLabel.text = nil
-        nameLabel.text = nil
-        nftCountLabel.text = nil
-        avatarImageView.image = nil
+
+        if let id = imageTaskId {
+            ImageLoader.shared.cancel(id)
+            imageTaskId = nil
+        }
+
+        avatarImageView.image = placeholderImage
     }
 
     private func setupUI() {
@@ -104,10 +111,18 @@ final class StatisticsUserCell: UITableViewCell {
 
     func configure(with model: StatisticsUserCellModel) {
         placeLabel.text = "\(model.place)"
-        nameLabel.text = model.name
         nftCountLabel.text = "\(model.nftCount)"
+        nameLabel.text = model.name
 
-        avatarImageView.image = nil
+        avatarImageView.image = placeholderImage
+
+        guard let url = URL(string: model.avatarURL) else {
+            return
+        }
+
+        imageTaskId = ImageLoader.shared.load(url) { [weak self] image in
+            self?.avatarImageView.image = image ?? self?.placeholderImage
+        }
     }
 }
 

@@ -50,6 +50,7 @@
 		FE8201402F2ADFB100AD4FD6 /* StatisticsUserDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE82013F2F2ADFAF00AD4FD6 /* StatisticsUserDTO.swift */; };
 		FE8201442F2AE00B00AD4FD6 /* UsersRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE8201432F2AE00800AD4FD6 /* UsersRequest.swift */; };
 		FE8201482F2AE06300AD4FD6 /* StatisticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE8201472F2AE06100AD4FD6 /* StatisticsService.swift */; };
+		FE82014B2F2BE21C00AD4FD6 /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE82014A2F2BE21900AD4FD6 /* ImageLoader.swift */; };
 		FEE8125D2F27E1F800933409 /* StatisticsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEE8125C2F27E1F500933409 /* StatisticsViewController.swift */; };
 		FEE8125F2F27E20600933409 /* StatisticsPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEE8125E2F27E20400933409 /* StatisticsPresenter.swift */; };
 		FEE812612F27E21200933409 /* StatisticsUserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEE812602F27E21000933409 /* StatisticsUserCell.swift */; };
@@ -126,6 +127,7 @@
 		FE82013F2F2ADFAF00AD4FD6 /* StatisticsUserDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsUserDTO.swift; sourceTree = "<group>"; };
 		FE8201432F2AE00800AD4FD6 /* UsersRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsersRequest.swift; sourceTree = "<group>"; };
 		FE8201472F2AE06100AD4FD6 /* StatisticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsService.swift; sourceTree = "<group>"; };
+		FE82014A2F2BE21900AD4FD6 /* ImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoader.swift; sourceTree = "<group>"; };
 		FEE8125C2F27E1F500933409 /* StatisticsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsViewController.swift; sourceTree = "<group>"; };
 		FEE8125E2F27E20400933409 /* StatisticsPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsPresenter.swift; sourceTree = "<group>"; };
 		FEE812602F27E21000933409 /* StatisticsUserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsUserCell.swift; sourceTree = "<group>"; };
@@ -285,6 +287,7 @@
 		3F6806C629CBBC4E00B4F915 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				FE8201492F2BE21200AD4FD6 /* ImageLoader */,
 				3FC8C38F29D245250081F015 /* Requests */,
 				0C79EE6B2A76DE2E00EE90EA /* ServicesAssemly.swift */,
 				558E39E62C68CE0900FB86AC /* NftService.swift */,
@@ -402,6 +405,14 @@
 			path = Statistics;
 			sourceTree = "<group>";
 		};
+		FE8201492F2BE21200AD4FD6 /* ImageLoader */ = {
+			isa = PBXGroup;
+			children = (
+				FE82014A2F2BE21900AD4FD6 /* ImageLoader.swift */,
+			);
+			path = ImageLoader;
+			sourceTree = "<group>";
+		};
 		FEE8125A2F27E1D700933409 /* Statistics */ = {
 			isa = PBXGroup;
 			children = (
@@ -496,7 +507,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1420;
-				LastUpgradeCheck = 1420;
+				LastUpgradeCheck = 2620;
 				TargetAttributes = {
 					3F68069229CBBAF100B4F915 = {
 						CreatedOnToolsVersion = 14.2;
@@ -597,6 +608,7 @@
 				0C79EE6C2A76DE2E00EE90EA /* ServicesAssemly.swift in Sources */,
 				0CFCB74E2A7817DC0009A829 /* NftStorage.swift in Sources */,
 				FEE812682F27EAAA00933409 /* StatisticsModule.swift in Sources */,
+				FE82014B2F2BE21C00AD4FD6 /* ImageLoader.swift in Sources */,
 				3FC8C39129D2453B0081F015 /* ExamplePutRequest.swift in Sources */,
 				0CFCB7462A78064B0009A829 /* NftDetailCellModel.swift in Sources */,
 				0CFCB74B2A780EA80009A829 /* UIView+Constraints.swift in Sources */,
@@ -706,6 +718,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -725,6 +738,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -767,6 +781,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -779,6 +794,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				VALIDATE_PRODUCT = YES;
@@ -846,7 +862,6 @@
 		3F6806C129CBBAF200B4F915 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -865,7 +880,6 @@
 		3F6806C229CBBAF200B4F915 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -884,7 +898,6 @@
 		3F6806C429CBBAF200B4F915 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -901,7 +914,6 @@
 		3F6806C529CBBAF200B4F915 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;

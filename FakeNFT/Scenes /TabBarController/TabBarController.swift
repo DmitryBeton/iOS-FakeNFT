@@ -2,18 +2,20 @@ import UIKit
 
 final class TabBarController: UITabBarController {
 
-    var servicesAssembly: ServicesAssembly!
-
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupTabs()
+    }
 
-        let statisticsController = StatisticsModule.makeRoot()
+    private func setupTabs() {
+        let statistics = StatisticsModule.makeRoot()
+        statistics.tabBarItem = UITabBarItem(
+            title: "Статистика",
+            image: UIImage(named: "statisticTabBar"),
+            selectedImage: UIImage(named: "statisticTabBar")
+        )
 
-        viewControllers = [
-            statisticsController
-        ]
-
-        view.backgroundColor = .systemBackground
+        viewControllers = [statistics]
     }
 }
 

@@ -119,6 +119,11 @@ struct DefaultNetworkClient: NetworkClient {
         urlRequest.httpMethod = request.httpMethod.rawValue
 
         urlRequest.addValue(RequestConstants.token, forHTTPHeaderField: "X-Practicum-Mobile-Token")
+        
+        // 🔍 DEBUG PRINTS
+            print("➡️ URL:", urlRequest.url?.absoluteString ?? "nil")
+            print("➡️ Method:", urlRequest.httpMethod ?? "nil")
+            print("➡️ Headers:", urlRequest.allHTTPHeaderFields ?? [:])
 
         if let dtoDictionary = request.dto?.asDictionary() {
             var urlComponents = URLComponents()
@@ -147,3 +152,5 @@ struct DefaultNetworkClient: NetworkClient {
         }
     }
 }
+
+

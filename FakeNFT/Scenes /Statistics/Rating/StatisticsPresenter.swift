@@ -49,7 +49,7 @@ final class StatisticsPresenter: StatisticsPresenterProtocol {
             switch result {
             case .success(let dto):
                 let mapped = dto.map {
-                    User(name: $0.name, value: $0.rating, avatarURL: $0.avatar)
+                    User(name: $0.name, value: $0.nfts.count, avatarURL: $0.avatar)
                 }
 
                 self.users = mapped
@@ -73,7 +73,12 @@ final class StatisticsPresenter: StatisticsPresenterProtocol {
     func user(at index: Int) -> StatisticsUserCellModel {
         let sorted = sortedUsers()
         let user = sorted[index]
-        return .init(place: index + 1, name: user.name, nftCount: user.value)
+        return .init(
+            place: index + 1,
+            name: user.name,
+            nftCount: user.value,
+            avatarURL: user.avatarURL
+        )
     }
 
     func sort(by option: StatisticsSortOption) {
