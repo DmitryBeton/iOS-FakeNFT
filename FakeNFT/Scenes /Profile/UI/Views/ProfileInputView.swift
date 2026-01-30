@@ -61,12 +61,25 @@ final class ProfileInputView: UIStackView {
     
     private lazy var inputTextField: UITextField = {
         let textField = UITextField()
-        textField.borderStyle = .roundedRect
-        textField.backgroundColor = UIColor(resource: .nftLightGray)
         textField.textColor = UIColor(resource: .nftBlack)
         textField.font = .bodyRegular
         textField.returnKeyType = .done
         return textField
+    }()
+    
+    private lazy var inputTextFieldContainer: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor(resource: .nftLightGray)
+        view.layer.masksToBounds = true
+        view.layer.cornerRadius = 12
+        view.layoutMargins = UIEdgeInsets(
+            top: 11,
+            left: 16,
+            bottom: 11,
+            right: 16
+        )
+        view.addSubview(inputTextField)
+        return view
     }()
     
     // MARK: - Private Properties
@@ -101,7 +114,7 @@ final class ProfileInputView: UIStackView {
         
         switch inputType {
         case .textField:
-            addArrangedSubview(inputTextField)
+            addArrangedSubview(inputTextFieldContainer)
         case .textView:
             addArrangedSubview(inputTextView)
         }
@@ -110,7 +123,17 @@ final class ProfileInputView: UIStackView {
     private func setupConstraints() {
         switch inputType {
         case .textField:
-            inputTextField.heightAnchor.constraint(equalToConstant: 44).isActive = true
+            [inputTextField].disableAutoresizingMasks()
+            
+            NSLayoutConstraint.activate([
+                inputTextFieldContainer.heightAnchor.constraint(equalToConstant: 44),
+                
+                inputTextField.topAnchor.constraint(equalTo: inputTextFieldContainer.layoutMarginsGuide.topAnchor),
+                inputTextField.leadingAnchor.constraint(equalTo: inputTextFieldContainer.layoutMarginsGuide.leadingAnchor),
+                inputTextField.trailingAnchor.constraint(equalTo: inputTextFieldContainer.layoutMarginsGuide.trailingAnchor),
+                inputTextField.bottomAnchor.constraint(equalTo: inputTextFieldContainer.layoutMarginsGuide.bottomAnchor)
+            ])
+            
         case .textView:
             inputTextView.heightAnchor.constraint(equalToConstant: 132).isActive = true
         }
@@ -124,6 +147,12 @@ final class ProfileInputView: UIStackView {
                 action: #selector(inputTextFieldChanged),
                 for: .editingChanged
             )
+            inputTextField.addTarget(
+                self,
+                action: #selector(donePressed),
+                for: .editingDidEndOnExit
+            )
+            
         case .textView: break
         }
     }
@@ -134,6 +163,9 @@ final class ProfileInputView: UIStackView {
         onTextChange?(inputTextField.text ?? "")
     }
     
+    @objc private func donePressed() {
+        inputTextField.resignFirstResponder()
+    }
 }
 
 // MARK: - TextFieldDelegate

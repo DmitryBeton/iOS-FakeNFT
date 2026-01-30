@@ -12,27 +12,27 @@ final class EditProfileViewController: UIViewController {
         return editAvatarView
     }()
     
-    private lazy var nameEditStackView: EditStackView = {
-        let editStackView = EditStackView(fieldType: .name, textViewDelegate: self)
-        editStackView.titleLabel.text = Localization.Profile.editName
-        return editStackView
+    private lazy var nameInputView: ProfileInputView = {
+        let inputView = ProfileInputView(inputType: .textField)
+        inputView.title = Localization.Profile.editName
+        return inputView
     }()
     
-    private lazy var descriptionEditStackView: EditStackView = {
-        let editStackView = EditStackView(fieldType: .description, textViewDelegate: self)
-        editStackView.titleLabel.text = Localization.Profile.editDescription
-        return editStackView
+    private lazy var descriptionInputView: ProfileInputView = {
+        let inputView = ProfileInputView(inputType: .textView)
+        inputView.title = Localization.Profile.editDescription
+        return inputView
     }()
     
-    private lazy var websiteEditStackView: EditStackView = {
-        let editStackView = EditStackView(fieldType: .website, textViewDelegate: self)
-        editStackView.titleLabel.text = Localization.Profile.editWebsite
-        return editStackView
+    private lazy var websiteInputView: ProfileInputView = {
+        let inputView = ProfileInputView(inputType: .textField)
+        inputView.title = Localization.Profile.editWebsite
+        return inputView
     }()
     
-    private lazy var editFieldsStackView: UIStackView = {
+    private lazy var inputFieldsStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [
-            nameEditStackView, descriptionEditStackView, websiteEditStackView
+            nameInputView, descriptionInputView, websiteInputView
         ])
         stackView.axis = .vertical
         stackView.spacing = 24
@@ -45,7 +45,7 @@ final class EditProfileViewController: UIViewController {
         let view = UIView()
         view.addSubviews([
             editAvatarView,
-            editFieldsStackView
+            inputFieldsStackView
         ])
         return view
     }()
@@ -126,7 +126,7 @@ final class EditProfileViewController: UIViewController {
         [scrollView,
          containerView,
          editAvatarView,
-         editFieldsStackView,
+         inputFieldsStackView,
          saveButton
         ].disableAutoresizingMasks()
         
@@ -152,16 +152,10 @@ final class EditProfileViewController: UIViewController {
         ])
         
         NSLayoutConstraint.activate([
-            editFieldsStackView.topAnchor.constraint(equalTo: editAvatarView.bottomAnchor, constant: 24),
-            editFieldsStackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
-            editFieldsStackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
-            editFieldsStackView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -24)
-        ])
-        
-        NSLayoutConstraint.activate([
-            nameEditStackView.fieldTextView.heightAnchor.constraint(equalToConstant: 44),
-            descriptionEditStackView.fieldTextView.heightAnchor.constraint(equalToConstant: 132),
-            websiteEditStackView.fieldTextView.heightAnchor.constraint(equalToConstant: 44)
+            inputFieldsStackView.topAnchor.constraint(equalTo: editAvatarView.bottomAnchor, constant: 24),
+            inputFieldsStackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
+            inputFieldsStackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
+            inputFieldsStackView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -24)
         ])
         
         NSLayoutConstraint.activate([
@@ -236,13 +230,15 @@ final class EditProfileViewController: UIViewController {
                 self?.updateAvatar(imageURL: self?.viewModel.profile.avatarURL)
             }
         }
+        
+        bindInputViews()
     }
     
     private func setProfile(_ profile: ProfileUI) {
         updateAvatar(imageURL: profile.avatarURL)
-        nameEditStackView.fieldTextView.text = profile.name
-        descriptionEditStackView.fieldTextView.text = profile.description
-        websiteEditStackView.fieldTextView.text = profile.link
+        nameInputView.inputText = profile.name
+        descriptionInputView.inputText = profile.description
+        websiteInputView.inputText = profile.link
     }
     
     private func updateAvatar(imageURL: URL?) {
@@ -259,6 +255,18 @@ final class EditProfileViewController: UIViewController {
     
     private func updateSaveButtonState() {
         saveButton.isHidden = !viewModel.hasChanges
+    }
+    
+    private func bindInputViews() {
+        nameInputView.onTextChange = { [weak self] text in
+            self?.viewModel.changeName(text)
+        }
+        descriptionInputView.onTextChange = { [weak self] text in
+            self?.viewModel.changeDescription(text)
+        }
+        websiteInputView.onTextChange = { [weak self] text in
+            self?.viewModel.changeWebsite(urlString: text)
+        }
     }
     
     private func showPhotoAlert() {
@@ -337,37 +345,6 @@ final class EditProfileViewController: UIViewController {
         alert.addAction(retryAction)
         
         present(alert, animated: true)
-    }
-    
-}
-
-// MARK: - TextFieldDelegate
-
-extension EditProfileViewController: UITextViewDelegate {
-    
-    func textView(
-        _ textView: UITextView,
-        shouldChangeTextIn range: NSRange,
-        replacementText text: String
-    ) -> Bool {
-        if text == "\n" {
-            textView.resignFirstResponder()
-            return false
-        }
-        return true
-    }
-    
-    func textViewDidChange(_ textView: UITextView) {
-        guard let stackView = textView.superview as? EditStackView else { return }
-        
-        switch stackView.fieldType {
-        case .name:
-            viewModel.changeName(textView.text)
-        case .description:
-            viewModel.changeDescription(textView.text)
-        case .website:
-            viewModel.changeWebsite(urlString: textView.text)
-        }
     }
     
 }
