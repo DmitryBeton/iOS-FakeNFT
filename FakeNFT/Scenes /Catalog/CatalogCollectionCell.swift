@@ -4,6 +4,7 @@ import Kingfisher
 final class CatalogCollectionCell: UITableViewCell {
 
     // MARK: - Properties
+    
     static let reuseIdentifier: String = "CatalogCollectionCell"
 
     // MARK: - UI elements
