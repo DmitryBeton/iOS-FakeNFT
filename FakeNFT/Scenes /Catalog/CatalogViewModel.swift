@@ -8,6 +8,8 @@ final class CatalogViewModel {
     var onLoadingStateChanged: ((Bool) -> Void)?
     var onError: ((String) -> Void)?
 
+    private let collectionService: CollectionService
+
     private var collections: [CatalogCollectionModel] = []
     private var currentSortType: SortType? {
         didSet {
@@ -18,22 +20,28 @@ final class CatalogViewModel {
     private enum UserDefaultsKeys {
         static let sortType = "CatalogSortType"
     }
-    
+
+    // MARK: - Init
+
+    init(collectionService: CollectionService) {
+        self.collectionService = collectionService
+    }
+
     // MARK: - Public Methods
-    
+
     func viewDidLoad() {
         loadSortType()
         loadCollections()
     }
-    
+
     func numberOfCollections() -> Int {
         return collections.count
     }
-    
+
     func collection(at index: Int) -> CatalogCollectionModel {
         return collections[index]
     }
-    
+
     func sortCollections(by sortType: SortType) {
         currentSortType = sortType
 
@@ -46,22 +54,35 @@ final class CatalogViewModel {
 
         onCollectionsUpdated?(collections)
     }
-    
+
     // MARK: - Private Methods
-    
+
     private func loadCollections() {
         onLoadingStateChanged?(true)
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+        collectionService.loadCollections { [weak self] result in
             guard let self = self else { return }
 
-            var mockCollections = self.createMockCollections()
-            if let sortType = self.currentSortType {
-                self.applySorting(sortType, to: &mockCollections)
-            }
-            self.collections = mockCollections
             self.onLoadingStateChanged?(false)
-            self.onCollectionsUpdated?(mockCollections)
+
+            switch result {
+            case .success(let nftCollections):
+                var models = nftCollections.map { collection in
+                    CatalogCollectionModel(
+                        id: collection.id,
+                        name: collection.name,
+                        cover: collection.cover,
+                        nftCount: collection.nfts.count
+                    )
+                }
+                if let sortType = self.currentSortType {
+                    self.applySorting(sortType, to: &models)
+                }
+                self.collections = models
+                self.onCollectionsUpdated?(models)
+            case .failure(let error):
+                self.onError?(error.localizedDescription)
+            }
         }
     }
 
@@ -91,45 +112,9 @@ final class CatalogViewModel {
         }
         currentSortType = sortType
     }
-    
-    private func createMockCollections() -> [CatalogCollectionModel] {
-        return [
-            CatalogCollectionModel(
-                id: "1",
-                name: "Peach",
-                coverImages: ["mock_image_1", "mock_image_2", "mock_image_3"],
-                nftCount: 11
-            ),
-            CatalogCollectionModel(
-                id: "2",
-                name: "Blue",
-                coverImages: ["mock_image_1", "mock_image_2", "mock_image_3"],
-                nftCount: 6
-            ),
-            CatalogCollectionModel(
-                id: "3",
-                name: "Brown",
-                coverImages: ["mock_image_1", "mock_image_2", "mock_image_3"],
-                nftCount: 8
-            ),
-            CatalogCollectionModel(
-                id: "4",
-                name: "Green",
-                coverImages: ["mock_image_1", "mock_image_2", "mock_image_3"],
-                nftCount: 15
-            ),
-            CatalogCollectionModel(
-                id: "5",
-                name: "Purple",
-                coverImages: ["mock_image_1", "mock_image_2", "mock_image_3"],
-                nftCount: 20
-            )
-        ]
-    }
 }
 
 enum SortType: String {
     case byName = "name"
     case byNftCount = "nftCount"
 }
-

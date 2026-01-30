@@ -1,9 +1,8 @@
-import UIKit
+import Foundation
 
 struct CatalogCollectionModel {
     let id: String
     let name: String
-    let coverImages: [String]  
+    let cover: URL
     let nftCount: Int
 }
-

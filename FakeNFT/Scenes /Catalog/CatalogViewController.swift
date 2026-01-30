@@ -28,7 +28,7 @@ final class CatalogViewController: UIViewController {
 
     init(servicesAssembly: ServicesAssembly) {
         self.servicesAssembly = servicesAssembly
-        self.viewModel = CatalogViewModel()
+        self.viewModel = CatalogViewModel(collectionService: servicesAssembly.collectionService)
         super.init(nibName: nil, bundle: nil)
     }
     

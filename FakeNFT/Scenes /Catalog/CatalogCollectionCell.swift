@@ -1,41 +1,19 @@
 import UIKit
+import Kingfisher
 
 final class CatalogCollectionCell: UITableViewCell {
-    
+
     // MARK: - Properties
     static let reuseIdentifier: String = "CatalogCollectionCell"
-    
+
     // MARK: - UI elements
 
-    private let coverImagesStackView: UIStackView = {
-        let stack = UIStackView()
-        stack.axis = .horizontal
-        stack.distribution = .fillEqually
-        stack.spacing = 0
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        stack.layer.cornerRadius = 12
-        stack.clipsToBounds = true
-        return stack
-    }()
-
-    private let firstImageView: UIImageView = {
+    private let coverImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
-        return imageView
-    }()
-
-    private let secondImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
-        imageView.clipsToBounds = true
-        return imageView
-    }()
-
-    private let thirdImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
-        imageView.clipsToBounds = true
+        imageView.layer.cornerRadius = 12
+        imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
 
@@ -54,29 +32,25 @@ final class CatalogCollectionCell: UITableViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    
+
     // MARK: - Initialization
-    
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupUI()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     // MARK: - Private methods
 
     private func setupUI() {
         selectionStyle = .none
         backgroundColor = UIColor(resource: .nftWhite)
 
-        coverImagesStackView.addArrangedSubview(firstImageView)
-        coverImagesStackView.addArrangedSubview(secondImageView)
-        coverImagesStackView.addArrangedSubview(thirdImageView)
-
-        contentView.addSubview(coverImagesStackView)
+        contentView.addSubview(coverImageView)
         contentView.addSubview(nameLabel)
         contentView.addSubview(nftCountLabel)
 
@@ -85,13 +59,13 @@ final class CatalogCollectionCell: UITableViewCell {
 
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            coverImagesStackView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            coverImagesStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            coverImagesStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            coverImagesStackView.heightAnchor.constraint(equalToConstant: 140),
+            coverImageView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            coverImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            coverImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            coverImageView.heightAnchor.constraint(equalToConstant: 140),
 
-            nameLabel.topAnchor.constraint(equalTo: coverImagesStackView.bottomAnchor, constant: 4),
-            nameLabel.leadingAnchor.constraint(equalTo: coverImagesStackView.leadingAnchor),
+            nameLabel.topAnchor.constraint(equalTo: coverImageView.bottomAnchor, constant: 4),
+            nameLabel.leadingAnchor.constraint(equalTo: coverImageView.leadingAnchor),
             nameLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -21),
 
             nftCountLabel.centerYAnchor.constraint(equalTo: nameLabel.centerYAnchor),
@@ -99,36 +73,18 @@ final class CatalogCollectionCell: UITableViewCell {
             nftCountLabel.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -16)
         ])
     }
-    
+
     // MARK: - Public methods
 
     func configure(with model: CatalogCollectionModel) {
         nameLabel.text = model.name
         nftCountLabel.text = "(\(model.nftCount))"
-
-        if model.coverImages.count >= 3 {
-            firstImageView.image = createPlaceholder(color: .systemPink)
-            secondImageView.image = createPlaceholder(color: .systemBlue)
-            thirdImageView.image = createPlaceholder(color: .systemGreen)
-        }
-
-        // if model.coverImages.count >= 3 {
-        //     firstImageView.kf.setImage(with: URL(string: model.coverImages[0]))
-        //     secondImageView.kf.setImage(with: URL(string: model.coverImages[1]))
-        //     thirdImageView.kf.setImage(with: URL(string: model.coverImages[2]))
-        // }
+        coverImageView.kf.setImage(with: model.cover)
     }
 
-    // MARK: - Helper methods
-
-    private func createPlaceholder(color: UIColor) -> UIImage {
-        let size = CGSize(width: 100, height: 100)
-        let renderer = UIGraphicsImageRenderer(size: size)
-        return renderer.image { context in
-            color.setFill()
-            context.fill(CGRect(origin: .zero, size: size))
-        }
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        coverImageView.kf.cancelDownloadTask()
+        coverImageView.image = nil
     }
-    
 }
-
