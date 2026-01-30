@@ -215,11 +215,23 @@ final class ProfileViewController: UIViewController {
     }
     
     private func setProfile(_ profile: ProfileUI) {
-        avatarImageView.kf.setImage(with: profile.avatarURL, placeholder: UIImage(resource: .prDefaultAvatar))
+        setAvatar(imageURL: profile.avatarURL)
         nameLabel.text = profile.name
         descriptionLabel.text = profile.description
         let shortLink = shortURLString(from: URL(string: profile.link))
         linkButton.setTitle(shortLink, for: .normal)
+    }
+    
+    private func setAvatar(imageURL: URL?) {
+        if let imageURL {
+            avatarImageView.kf.setImage(
+                with: imageURL,
+                placeholder: UIImage(resource: .prPlaceholder),
+                options: [.onFailureImage(UIImage(resource: .prDefaultAvatar))]
+            )
+        } else {
+            avatarImageView.image = UIImage(resource: .prDefaultAvatar)
+        }
     }
     
     private func shortURLString(from url: URL?) -> String {

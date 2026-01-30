@@ -64,6 +64,7 @@ final class EditProfileViewController: UIViewController {
         button.backgroundColor = UIColor(resource: .nftBlack)
         button.layer.masksToBounds = true
         button.layer.cornerRadius = 16
+        button.isHidden = true
         return button
     }()
     
@@ -146,7 +147,7 @@ final class EditProfileViewController: UIViewController {
         NSLayoutConstraint.activate([
             editAvatarView.topAnchor.constraint(equalTo: containerView.topAnchor),
             editAvatarView.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
-            editAvatarView.widthAnchor.constraint(equalToConstant: 72.57),
+            editAvatarView.widthAnchor.constraint(equalToConstant: 70),
             editAvatarView.heightAnchor.constraint(equalToConstant: 70)
         ])
         
@@ -232,21 +233,28 @@ final class EditProfileViewController: UIViewController {
         
         viewModel.onAvatarChange = { [weak self] in
             DispatchQueue.main.async {
-                self?.updateAvatar()
+                self?.updateAvatar(imageURL: self?.viewModel.profile.avatarURL)
             }
         }
     }
     
     private func setProfile(_ profile: ProfileUI) {
-        editAvatarView.avatarView.kf.setImage(with: profile.avatarURL)
+        updateAvatar(imageURL: profile.avatarURL)
         nameEditStackView.fieldTextView.text = profile.name
         descriptionEditStackView.fieldTextView.text = profile.description
         websiteEditStackView.fieldTextView.text = profile.link
     }
     
-    private func updateAvatar() {
-        let imageURL = viewModel.profile.avatarURL
-        editAvatarView.avatarView.kf.setImage(with: imageURL, placeholder: UIImage(resource: .prDefaultAvatar))
+    private func updateAvatar(imageURL: URL?) {
+        if let imageURL {
+            editAvatarView.avatarView.kf.setImage(
+                with: imageURL,
+                placeholder: UIImage(resource: .prPlaceholder),
+                options: [.onFailureImage(UIImage(resource: .prDefaultAvatar))]
+            )
+        } else {
+            editAvatarView.avatarView.image = UIImage(resource: .prDefaultAvatar)
+        }
     }
     
     private func updateSaveButtonState() {
