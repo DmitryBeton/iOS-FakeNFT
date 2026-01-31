@@ -48,6 +48,7 @@
 		8C5228172F2514CF009DD9F4 /* CartState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C5228162F2514C9009DD9F4 /* CartState.swift */; };
 		8C52281B2F2519A0009DD9F4 /* UICartTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C52281A2F251996009DD9F4 /* UICartTableViewCell.swift */; };
 		8C52281D2F253EB6009DD9F4 /* RatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C52281C2F253EB2009DD9F4 /* RatingView.swift */; };
+		8C5915332F2DFA60005257A3 /* UICurrency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C5915322F2DFA55005257A3 /* UICurrency.swift */; };
 		8C5B6F322F25FAA1003328FB /* OrderSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C5B6F312F25FA7C003328FB /* OrderSummaryView.swift */; };
 		8C5B6F342F261E16003328FB /* CartViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C5B6F332F261E12003328FB /* CartViewModel.swift */; };
 		8C5B6F382F263BC5003328FB /* DeleteConfirmationAlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C5B6F372F263BC5003328FB /* DeleteConfirmationAlertViewController.swift */; };
@@ -123,6 +124,7 @@
 		8C5228162F2514C9009DD9F4 /* CartState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CartState.swift; sourceTree = "<group>"; };
 		8C52281A2F251996009DD9F4 /* UICartTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UICartTableViewCell.swift; sourceTree = "<group>"; };
 		8C52281C2F253EB2009DD9F4 /* RatingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RatingView.swift; sourceTree = "<group>"; };
+		8C5915322F2DFA55005257A3 /* UICurrency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UICurrency.swift; sourceTree = "<group>"; };
 		8C5B6F312F25FA7C003328FB /* OrderSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderSummaryView.swift; sourceTree = "<group>"; };
 		8C5B6F332F261E12003328FB /* CartViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CartViewModel.swift; sourceTree = "<group>"; };
 		8C5B6F372F263BC5003328FB /* DeleteConfirmationAlertViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteConfirmationAlertViewController.swift; sourceTree = "<group>"; };
@@ -370,6 +372,7 @@
 		8C5228112F2511DE009DD9F4 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				8C5915322F2DFA55005257A3 /* UICurrency.swift */,
 				8C6865992F267F59006A9E41 /* CartItem.swift */,
 				8C5228122F2511E7009DD9F4 /* UICartItem.swift */,
 				8C5228162F2514C9009DD9F4 /* CartState.swift */,
@@ -600,6 +603,7 @@
 				8C52281D2F253EB6009DD9F4 /* RatingView.swift in Sources */,
 				8C5228132F2511FF009DD9F4 /* UICartItem.swift in Sources */,
 				3F68069729CBBAF100B4F915 /* AppDelegate.swift in Sources */,
+				8C5915332F2DFA60005257A3 /* UICurrency.swift in Sources */,
 				3F68069929CBBAF100B4F915 /* SceneDelegate.swift in Sources */,
 				0C79EE6C2A76DE2E00EE90EA /* ServicesAssemly.swift in Sources */,
 				0CFCB74E2A7817DC0009A829 /* NftStorage.swift in Sources */,
