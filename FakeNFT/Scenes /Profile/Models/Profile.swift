@@ -1,6 +1,6 @@
 import Foundation
 
-struct Profile: Codable {
+struct Profile: Decodable {
     let id: UUID
     let name: String
     let avatar: URL?
