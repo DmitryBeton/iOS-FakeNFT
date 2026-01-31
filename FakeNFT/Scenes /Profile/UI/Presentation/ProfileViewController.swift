@@ -24,7 +24,9 @@ final class ProfileViewController: UIViewController {
         let label = UILabel()
         label.font = .headline3
         label.textColor = UIColor(resource: .nftBlack)
+        label.adjustsFontSizeToFitWidth = true
         label.minimumScaleFactor = 0.5
+        label.numberOfLines = 1
         return label
     }()
     
