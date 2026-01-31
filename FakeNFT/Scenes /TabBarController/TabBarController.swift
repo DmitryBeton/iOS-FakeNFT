@@ -7,13 +7,13 @@ final class TabBarController: UITabBarController {
     private let catalogTabBarItem = UITabBarItem(
         title: NSLocalizedString("Tab.catalog", comment: ""),
         image: UIImage(systemName: "square.stack.3d.up.fill"),
-        tag: 0
+        tag: 1
     )
     
     private let profileTabBarItem = UITabBarItem(
         title: Localization.Profile.tabProfile,
         image: UIImage(resource: .profileTabIcon),
-        tag: 2
+        tag: 0
     )
 
     override func viewDidLoad() {
@@ -24,13 +24,19 @@ final class TabBarController: UITabBarController {
         )
         catalogController.tabBarItem = catalogTabBarItem
         
-        let profileViewModel = ProfileViewModel(service: ProfileService(networkClient: DefaultNetworkClient(), storage: ProfileStorage()))
-        let profileController = ProfileViewController(viewModel: profileViewModel)
-        let profileNavController = UINavigationController(rootViewController: profileController)
-        profileNavController.tabBarItem = profileTabBarItem
+        let profileController = buildProfileController()
 
-        viewControllers = [profileNavController, catalogController]
+        viewControllers = [profileController, catalogController]
 
         view.backgroundColor = .systemBackground
+    }
+    
+    private func buildProfileController() -> UINavigationController {
+        let viewModel = ProfileViewModel(service: servicesAssembly.profileService)
+        let controller = ProfileViewController(viewModel: viewModel)
+        let navController = UINavigationController(rootViewController: controller)
+        navController.tabBarItem = profileTabBarItem
+        
+        return navController
     }
 }
