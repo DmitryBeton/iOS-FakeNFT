@@ -21,6 +21,8 @@ final class OrderSummaryView: UIView {
         }
     }
     
+    var onPayTapped: (() -> Void)?
+    
     // MARK: - UI Elements
     private let totalView: UIView = {
         let view = UIView()
@@ -59,13 +61,14 @@ final class OrderSummaryView: UIView {
         return label
     }()
     
-    private let payButton: UIButton = {
+    private lazy var payButton: UIButton = {
         let button = UIButton()
         button.setTitle(Localization.Cart.payButton.localized, for: .normal)
         button.titleLabel?.font = UIFont.bodyBold
         button.setTitleColor(UIColor(resource: .nftWhite), for: .normal)
         button.backgroundColor = UIColor(resource: .nftBlack)
         button.layer.cornerRadius = Layout.Style.cornerRadius
+        button.addTarget(self, action: #selector(payTapped), for: .touchUpInside)
         return button
     }()
     
@@ -142,6 +145,10 @@ final class OrderSummaryView: UIView {
     
     private func updateTotalPrice() {
         totalPriceLabel.text = "\(totalPrice) ETH"
+    }
+    
+    @objc private func payTapped() {
+        onPayTapped?()
     }
     
     // MARK: - Public Methods

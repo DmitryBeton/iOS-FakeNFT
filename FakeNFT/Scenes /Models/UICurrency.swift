@@ -8,7 +8,7 @@
 import UIKit
 
 struct UICurrency {
-    let fullName: String
-    let shortName: String
+    let title: String
+    let name: String
     let logo: UIImage
 }

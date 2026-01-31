@@ -125,6 +125,13 @@ final class CartViewController: UIViewController {
                 self.tableView.reloadData()
             }
         }
+        
+        orderSummaryView.onPayTapped = { [weak self] in
+            guard let self else { return }
+            let vc = PaymentViewController()
+            vc.modalPresentationStyle = .fullScreen
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
     }
     
     private func updateCartState() {
