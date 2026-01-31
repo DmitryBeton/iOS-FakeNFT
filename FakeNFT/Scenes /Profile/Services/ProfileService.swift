@@ -16,7 +16,7 @@ final class ProfileService {
         
     }
     
-    func updateProfile(completion: @escaping ProfileCompletion) {
+    func updateProfile(with profile: ProfileDto, completion: @escaping ProfileCompletion) {
         
     }
     
