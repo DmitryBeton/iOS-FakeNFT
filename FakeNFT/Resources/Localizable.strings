@@ -4,3 +4,26 @@
 "Error.unknown" = "Произошла неизвестная ошибка";
 "Error.repeat" = "Повторить";
 "Error.title" = "Ошибка";
+
+// Profile
+"Tab.profile" = "Профиль";
+"Profile.myNFT" = "Мои NFT";
+"Profile.favourites" = "Избранные NFT";
+"EditProfile.name" = "Имя";
+"EditProfile.description" = "Описание";
+"EditProfile.website" = "Сайт";
+"EditProfile.save" = "Сохранить";
+
+// Profile Alert
+"ProfileAlert.profilePhoto" = "Фото профиля";
+"ProfileAlert.changePhoto" = "Изменить фото";
+"ProfileAlert.deletePhoto" = "Удалить фото";
+"ProfileAlert.photoLink" = "Ссылка на фото";
+"ProfileAlert.cancel" = "Отмена";
+"ProfileAlert.save" = "Сохранить";
+"ProfileAlert.wantToExit" = "Уверены, что хотите выйти?";
+"ProfileAlert.stay" = "Остаться";
+"ProfileAlert.exit" = "Выйти";
+"ProfileAlert.loadError" = "Не удалось получить данные";
+"ProfileAlert.updateError" = "Не удалось обновить данные";
+"ProfileAlert.retry" = "Повторить";
