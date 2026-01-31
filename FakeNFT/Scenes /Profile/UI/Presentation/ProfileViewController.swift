@@ -32,6 +32,7 @@ final class ProfileViewController: UIViewController {
         let avatarView = AvatarView()
         avatarView.contentMode = .scaleAspectFill
         avatarView.kf.indicatorType = .activity
+        avatarView.image = UIImage(resource: .prDefaultAvatar)
         return avatarView
     }()
     
@@ -175,7 +176,9 @@ final class ProfileViewController: UIViewController {
     
     @objc private func editBarButtonTapped() {
         let initialProfile = viewModel.getProfile()
-        let editProfileVM = EditProfileViewModel(profile: initialProfile)
+        let service = viewModel.service
+        
+        let editProfileVM = EditProfileViewModel(profile: initialProfile,service: service)
         editProfileVM.onChangesSaved = { [weak self] in
             self?.viewModel.loadProfile()
         }
@@ -200,6 +203,7 @@ final class ProfileViewController: UIViewController {
                 case .data(let profile):
                     UIBlockingProgressHUD.dismiss()
                     self?.setProfile(profile)
+                    self?.menuTableView.reloadData()
                     
                 case .failed:
                     UIBlockingProgressHUD.dismiss()

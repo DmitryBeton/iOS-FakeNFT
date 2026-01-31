@@ -6,25 +6,39 @@ final class ProfileViewModel: ProfileViewModelProtocol {
     
     var onStateChange: ((ProfileState) -> Void)?
     
+    // MARK: - Public Properties
+    
+    private(set) var service: ProfileServiceProtocol
+    
     // MARK: - Public Methods
     
-    // TODO: Should be changed with service implementation
     func loadProfile() {
         state = .loading
-        let profileUI = makeProfileUI(from: mockProfile)
-        state = .data(profileUI)
+        
+        service.loadProfile() { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success(let profileResult):
+                profile = profileResult
+                let profileUI = mapToProfileUI(profileResult)
+                state = .data(profileUI)
+            case .failure(let error):
+                state = .failed
+                print("❌[ProfileService] failed to load data, error: \(error)")
+            }
+        }
     }
     
     func getProfile() -> ProfileUI {
-        makeProfileUI(from: mockProfile)
+        mapToProfileUI(profile)
     }
     
     func myNFTCount() -> Int {
-        mockProfile.nfts.count
+        profile?.nfts.count ?? 0
     }
     
     func favouritesCount() -> Int {
-        mockProfile.likes.count
+        profile?.likes.count ?? 0
     }
     
     // MARK: - State
@@ -37,30 +51,22 @@ final class ProfileViewModel: ProfileViewModelProtocol {
     
     // MARK: - Private Properties
     
-    // TODO: Should be replaced with data from service later
-    private let mockProfile = Profile(
-        id: UUID(),
-        name: "Joaquin Phoenix",
-        avatar: URL(string: "https://i.pinimg.com/736x/fc/e2/8b/fce28b5c4414c3492084022cb908f760.jpg"),
-        description: """
-            Дизайнер из Казани, люблю цифровое искусство
-            и бейглы. В моей коллекции уже 100+ NFT,
-            и еще больше — на моём сайте. Открыт
-            к коллаборациям.
-            """,
-        website: URL(string: "https://practicum.yandex.ru/qa-automation-engineer-java/"),
-        nfts: Array(repeating: UUID(), count: 11),
-        likes: Array(repeating: UUID(), count: 6)
-    )
+    private var profile: Profile?
+    
+    // MARK: - Init
+    
+    init(service: ProfileServiceProtocol) {
+        self.service = service
+    }
     
     // MARK: - Private Methods
     
-    private func makeProfileUI(from profile: Profile) -> ProfileUI {
+    private func mapToProfileUI(_ profile: Profile?) -> ProfileUI {
         ProfileUI(
-            name: profile.name,
-            avatarURL: profile.avatar,
-            description: profile.description,
-            link: profile.website?.absoluteString ?? ""
+            name: profile?.name ?? "",
+            avatarURL: profile?.avatar,
+            description: profile?.description ?? "",
+            link: profile?.website?.absoluteString ?? ""
         )
     }
     

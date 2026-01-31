@@ -65,11 +65,21 @@ final class EditProfileViewModel: EditProfileViewModelProtocol {
         )
     }
     
-    // TODO: Should be changed with service implementation
     func saveChanges() {
         state = .saving
-        state = .saved
-        onChangesSaved?()
+        
+        let dto = mapToProfileDto(profile)
+        service.updateProfile(with: dto) { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success(_):
+                state = .saved
+                onChangesSaved?()
+            case .failure(let error):
+                state = .failed
+                print("❌[ProfileService] failed to update data, error: \(error)")
+            }
+        }
     }
     
     // MARK: - State
@@ -83,12 +93,25 @@ final class EditProfileViewModel: EditProfileViewModelProtocol {
     // MARK: - Private Properties
     
     private let initialProfile: ProfileUI
+    private let service: ProfileServiceProtocol
     
     // MARK: - Init
     
-    init(profile: ProfileUI) {
+    init(profile: ProfileUI, service: ProfileServiceProtocol) {
         initialProfile = profile
         self.profile = profile
+        self.service = service
+    }
+    
+    // MARK: - Private Methods
+    
+    private func mapToProfileDto(_ profileUI: ProfileUI) -> ProfileDto {
+        return ProfileDto(
+            name: profileUI.name,
+            description: profileUI.description,
+            avatar: profileUI.avatarURL,
+            website: URL(string: profileUI.link)
+        )
     }
     
 }
