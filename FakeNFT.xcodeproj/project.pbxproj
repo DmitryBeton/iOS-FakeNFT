@@ -312,7 +312,6 @@
 		3F6806C729CBBC5B00B4F915 /* Scenes  */ = {
 			isa = PBXGroup;
 			children = (
-				8C59153B2F2E0019005257A3 /* Models */,
 				8C5915382F2DFFFE005257A3 /* Payment */,
 				8C702BB02F250E5B00D58B6A /* Cart */,
 				E1A1B9D82AA01C9700C3AFBC /* TabBarController */,
@@ -403,6 +402,7 @@
 		8C5915382F2DFFFE005257A3 /* Payment */ = {
 			isa = PBXGroup;
 			children = (
+				8C59153B2F2E0019005257A3 /* Models */,
 				8C2F774B2F2E32CC00BDC47C /* UI Elements */,
 				8C5915392F2E0006005257A3 /* PaymentViewController.swift */,
 			);
