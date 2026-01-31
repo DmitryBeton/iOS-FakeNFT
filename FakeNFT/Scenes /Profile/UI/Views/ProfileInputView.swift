@@ -2,16 +2,16 @@ import UIKit
 
 final class ProfileInputView: UIStackView {
     
-    // MARK: - Bindings
-    
-    var onTextChange: ((String) -> Void)?
-    
     // MARK: - Public Types
     
     enum InputFieldType {
         case textField
         case textView
     }
+    
+    // MARK: - Bindings
+    
+    var onTextChange: ((String) -> Void)?
     
     // MARK: - Public Properties
     
