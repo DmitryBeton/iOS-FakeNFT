@@ -9,7 +9,7 @@ import UIKit
 
 final class PaymentViewController: UIViewController {
     // MARK: - Properties
-    let mockData = [
+    private let mockData = [
         UICurrency(title: "Bitcoin", name: "BTC", logo: UIImage(resource: .bitcoin)),
         UICurrency(title: "Dogecoin", name: "DOGE", logo: UIImage(resource: .dogecoin)),
         UICurrency(title: "Tether", name: "USDT", logo: UIImage(resource: .tether)),
@@ -21,13 +21,15 @@ final class PaymentViewController: UIViewController {
     ]
     
     // MARK: - UI Elements
-    let collection: UICollectionView = {
+    private let collection: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         let collection = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collection.backgroundColor = .clear
         collection.register(UICurrencyCollectionViewCell.self)
         return collection
     }()
+    
+    private let paymentFooterView = PaymentFooterView()
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -48,12 +50,21 @@ final class PaymentViewController: UIViewController {
         collection.dataSource = self
         
         view.addSubview(collection)
+        view.addSubview(paymentFooterView)
+
         collection.translatesAutoresizingMaskIntoConstraints = false
+        paymentFooterView.translatesAutoresizingMaskIntoConstraints = false
+
         NSLayoutConstraint.activate([
             collection.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             collection.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             collection.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-            collection.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            collection.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            
+            paymentFooterView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            paymentFooterView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            paymentFooterView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            paymentFooterView.heightAnchor.constraint(equalToConstant: 186)
         ])
     }
     
@@ -90,41 +101,36 @@ extension PaymentViewController: UICollectionViewDataSource {
 }
 
 extension PaymentViewController: UICollectionViewDelegateFlowLayout {
-    // Размер ячейки
     func collectionView(_ collectionView: UICollectionView,
                        layout collectionViewLayout: UICollectionViewLayout,
                        sizeForItemAt indexPath: IndexPath) -> CGSize {
         
-        let padding: CGFloat = 16 // Отступы слева и справа
-        let spacing: CGFloat = 7 // Межячеечный отступ
-        let itemsPerRow: CGFloat = 2 // Количество ячеек в ряду
+        let padding: CGFloat = 16
+        let spacing: CGFloat = 7
+        let itemsPerRow: CGFloat = 2
         
-        // Рассчитываем доступную ширину
         let availableWidth = collectionView.frame.width - padding * 2 - spacing * (itemsPerRow - 1)
         let widthPerItem = availableWidth / itemsPerRow
-        
-        // Высота может быть фиксированной или пропорциональной
-        return CGSize(width: widthPerItem, height: widthPerItem * 0.2738) // height = width * 1.2
+        let height = widthPerItem * 0.2738 //  height:width from figma = 0.2738
+
+        return CGSize(width: widthPerItem, height: height)
     }
     
-    // Отступы от краев collectionView
     func collectionView(_ collectionView: UICollectionView,
                        layout collectionViewLayout: UICollectionViewLayout,
                        insetForSectionAt section: Int) -> UIEdgeInsets {
-        return UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
+        UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
     }
     
-    // Минимальный межстрочный отступ
     func collectionView(_ collectionView: UICollectionView,
                        layout collectionViewLayout: UICollectionViewLayout,
                        minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return 7
+        7
     }
     
-    // Минимальный межячеечный отступ (в строке)
     func collectionView(_ collectionView: UICollectionView,
                        layout collectionViewLayout: UICollectionViewLayout,
                        minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return 7
+        7
     }
 }

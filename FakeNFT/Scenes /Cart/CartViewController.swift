@@ -129,7 +129,7 @@ final class CartViewController: UIViewController {
         orderSummaryView.onPayTapped = { [weak self] in
             guard let self else { return }
             let vc = PaymentViewController()
-            vc.modalPresentationStyle = .fullScreen
+            vc.hidesBottomBarWhenPushed = true
             self.navigationController?.pushViewController(vc, animated: true)
         }
     }
