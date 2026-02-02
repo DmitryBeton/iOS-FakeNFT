@@ -152,4 +152,8 @@ extension CollectionDetailViewController: UICollectionViewDelegate {
     
 }
 
+// MARK: - UICollectionViewDelegateFlowLayout
+extension CollectionDetailViewController: UICollectionViewDelegateFlowLayout {
+    
+}
 
