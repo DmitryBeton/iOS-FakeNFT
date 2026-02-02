@@ -1,9 +1,9 @@
 import UIKit
 
-final class CollectionViewDetailCell: UICollectionViewCell {
+final class DetailCollectionViewCell: UICollectionViewCell {
     
     // MARK: - Properties
-    private static let reuseIdentifier = "CollectionViewDetailCell"
+    static let reuseIdentifier = "DetailCollectionViewCell"
     
     // MARK: - Initialization
     override init(frame: CGRect) {
