@@ -8,6 +8,9 @@
 import UIKit
 
 final class PaymentFooterView: UIView {
+    // MARK: - Properties
+    var onPayTapped: (() -> Void)?
+
     // MARK: - UI Elements
     private let agreementView = UIView()
     
@@ -27,13 +30,14 @@ final class PaymentFooterView: UIView {
         return label
     }()
 
-    private let payButton: UIButton = {
+    private lazy var payButton: UIButton = {
         let button = UIButton()
         button.setTitle("Оплатить", for: .normal)
         button.setTitleColor(UIColor(resource: .nftWhite), for: .normal)
         button.titleLabel?.font = UIFont.bodyBold
         button.backgroundColor = UIColor(resource: .nftBlack)
         button.layer.cornerRadius = 16
+        button.addTarget(self, action: #selector(processPayment), for: .touchUpInside)
         return button
     }()
     
@@ -82,5 +86,11 @@ final class PaymentFooterView: UIView {
             payButton.heightAnchor.constraint(equalToConstant: 60)
         ])
 
+    }
+    
+    // MARK: - Actions
+    @objc
+    private func processPayment() {
+        onPayTapped?()
     }
 }

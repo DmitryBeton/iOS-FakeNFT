@@ -39,10 +39,10 @@ final class PaymentViewController: UIViewController {
         
         setupUI()
         applyNavigationTitleStyle()
-
+        setupBindings()
     }
     
-    // MARK: - Setup UI
+    // MARK: - Setup
     private func setupUI() {
         view.backgroundColor = UIColor(resource: .nftWhite)
         
@@ -66,6 +66,15 @@ final class PaymentViewController: UIViewController {
             paymentFooterView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
             paymentFooterView.heightAnchor.constraint(equalToConstant: 186)
         ])
+    }
+    
+    
+    private func setupBindings() {
+        paymentFooterView.onPayTapped = { [weak self] in
+            guard let self else { return }
+            let vc = PaymentSuccessViewController()
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
     }
     
     // MARK: - Private Methods
