@@ -9,16 +9,7 @@ import UIKit
 
 final class PaymentViewController: UIViewController {
     // MARK: - Properties
-    private let mockData = [
-        UICurrency(title: "Bitcoin", name: "BTC", logo: UIImage(resource: .bitcoin)),
-        UICurrency(title: "Dogecoin", name: "DOGE", logo: UIImage(resource: .dogecoin)),
-        UICurrency(title: "Tether", name: "USDT", logo: UIImage(resource: .tether)),
-        UICurrency(title: "Apecoin", name: "APE", logo: UIImage(resource: .apecoin)),
-        UICurrency(title: "Solana", name: "SOL", logo: UIImage(resource: .solana)),
-        UICurrency(title: "Ethereum", name: "ETH", logo: UIImage(resource: .ethereum)),
-        UICurrency(title: "Cardano", name: "ADA", logo: UIImage(resource: .cardano)),
-        UICurrency(title: "Shiba Inu", name: "SHIB", logo: UIImage(resource: .shibaInu))
-    ]
+    private let viewModel: PaymentViewModelProtocol
     
     // MARK: - UI Elements
     private let collection: UICollectionView = {
@@ -31,6 +22,17 @@ final class PaymentViewController: UIViewController {
     
     private let paymentFooterView = PaymentFooterView()
     
+    // MARK: - Initialization
+    init(viewModel: PaymentViewModelProtocol = PaymentViewModel()) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        nil
+    }
+
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -101,13 +103,15 @@ final class PaymentViewController: UIViewController {
 
 extension PaymentViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        mockData.count
+        viewModel.itemsCount
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell: UICurrencyCollectionViewCell = collection.dequeueReusableCell(indexPath: indexPath)
         
-        cell.configure(currency: mockData[indexPath.row])
+        if let uiCurrency = viewModel.getUICurrency(at: indexPath.row) {
+            cell.configure(currency: uiCurrency)
+        }
         
         return cell
     }

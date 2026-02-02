@@ -62,6 +62,7 @@
 		8C702BAF2F250CD600D58B6A /* CartViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C702BAD2F250CD100D58B6A /* CartViewController.swift */; };
 		8C7CF5AD2F30FFE800FD10E4 /* PaymentSuccessViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C7CF5AC2F30FF9300FD10E4 /* PaymentSuccessViewController.swift */; };
 		8CB5A1ED2F26B19700A5F2C0 /* SortOptionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CB5A1EC2F26B19700A5F2C0 /* SortOptionStore.swift */; };
+		8CD465542F313B9F003C74E8 /* PaymentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CD465532F313B99003C74E8 /* PaymentViewModel.swift */; };
 		9D00C62B2F23D072000528BC /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D00C62A2F23D062000528BC /* Localization.swift */; };
 		9D261CF62F2E1FEA008CBB3F /* Secrets.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9D261CF52F2E1FEA008CBB3F /* Secrets.plist */; };
 		9D261CF82F2E2026008CBB3F /* Secrets.example.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9D261CF72F2E2026008CBB3F /* Secrets.example.plist */; };
@@ -145,6 +146,7 @@
 		8C702BAD2F250CD100D58B6A /* CartViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CartViewController.swift; sourceTree = "<group>"; };
 		8C7CF5AC2F30FF9300FD10E4 /* PaymentSuccessViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentSuccessViewController.swift; sourceTree = "<group>"; };
 		8CB5A1EC2F26B19700A5F2C0 /* SortOptionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SortOptionStore.swift; sourceTree = "<group>"; };
+		8CD465532F313B99003C74E8 /* PaymentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentViewModel.swift; sourceTree = "<group>"; };
 		9D00C62A2F23D062000528BC /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
 		9D261CF52F2E1FEA008CBB3F /* Secrets.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Secrets.plist; sourceTree = "<group>"; };
 		9D261CF72F2E2026008CBB3F /* Secrets.example.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Secrets.example.plist; sourceTree = "<group>"; };
@@ -410,6 +412,7 @@
 				8C7CF5AC2F30FF9300FD10E4 /* PaymentSuccessViewController.swift */,
 				8C59153B2F2E0019005257A3 /* Models */,
 				8C2F774B2F2E32CC00BDC47C /* UI Elements */,
+				8CD465532F313B99003C74E8 /* PaymentViewModel.swift */,
 				8C5915392F2E0006005257A3 /* PaymentViewController.swift */,
 			);
 			path = Payment;
@@ -657,6 +660,7 @@
 				3F68069929CBBAF100B4F915 /* SceneDelegate.swift in Sources */,
 				0C79EE6C2A76DE2E00EE90EA /* ServicesAssemly.swift in Sources */,
 				0CFCB74E2A7817DC0009A829 /* NftStorage.swift in Sources */,
+				8CD465542F313B9F003C74E8 /* PaymentViewModel.swift in Sources */,
 				3FC8C39129D2453B0081F015 /* ExamplePutRequest.swift in Sources */,
 				0CFCB7462A78064B0009A829 /* NftDetailCellModel.swift in Sources */,
 				0CFCB74B2A780EA80009A829 /* UIView+Constraints.swift in Sources */,
