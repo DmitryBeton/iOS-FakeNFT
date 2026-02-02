@@ -127,3 +127,29 @@ final class CollectionDetailViewController: UIViewController {
         collectionView.register(TrackersCollectionViewCell.self, forCellWithReuseIdentifier: "trackerCell")
     }
 }
+
+//MARK: - UICollectionViewDataSource
+extension CollectionDetailViewController: UICollectionViewDataSource {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return 1
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: "trackerCell",
+            for: indexPath
+        ) as? TrackersCollectionViewCell else {
+            return UICollectionViewCell()
+        }
+        
+        cell.configure(with: collection)
+        return cell
+    }
+}
+
+//MARK: - UICollectionViewDelegate
+extension CollectionDetailViewController: UICollectionViewDelegate {
+    
+}
+
+
