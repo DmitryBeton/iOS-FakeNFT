@@ -1,7 +1,5 @@
-//
-//  CollectionDetailModel.swift
-//  FakeNFT
-//
-//  Created by Alina on 02/02/2026.
-//
+import Foundation
 
+struct CollectionDetailModel {
+    
+}
