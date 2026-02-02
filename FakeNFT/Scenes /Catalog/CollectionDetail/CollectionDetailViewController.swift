@@ -12,7 +12,7 @@ final class CollectionDetailViewController: UIViewController {
 
     // MARK: - UI Elements
     
-    private let coverCollectionImageView: UIImageView = {
+    private let coverImageView: UIImageView = {
         let imageView = UIImageView(image: UIImage(resource: .mockCover))
         imageView.clipsToBounds = true
         imageView.contentMode = .scaleAspectFill
@@ -78,16 +78,30 @@ final class CollectionDetailViewController: UIViewController {
     private func setupUI() {
         view.backgroundColor = UIColor(resource: .nftWhite)
         
-        view.addSubview(coverCollectionImageView)
+        view.addSubview(coverImageView)
         view.addSubview(titleLabel)
         view.addSubview(authorLabel)
         view.addSubview(descriptionLabel)
 
         NSLayoutConstraint.activate([
+            coverImageView.topAnchor.constraint(equalTo: view.topAnchor),
+            coverImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            coverImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            coverImageView.heightAnchor.constraint(equalToConstant: 310),
             
+            titleLabel.topAnchor.constraint(equalTo: coverImageView.bottomAnchor, constant: 16),
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 16),
+            titleLabel.heightAnchor.constraint(equalToConstant: 28),
             
-            titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            titleLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            authorLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
+            authorLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            authorLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 16),
+            authorLabel.heightAnchor.constraint(equalToConstant: 28),
+            
+            descriptionLabel.topAnchor.constraint(equalTo: authorLabel.bottomAnchor),
+            descriptionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            descriptionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 16)
         ])
     }
 }
