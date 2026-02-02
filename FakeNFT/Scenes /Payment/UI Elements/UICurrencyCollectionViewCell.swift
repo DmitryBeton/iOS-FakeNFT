@@ -66,7 +66,7 @@ final class UICurrencyCollectionViewCell: UICollectionViewCell,ReuseIdentifying 
     }
     
     private func updateSelectionAppearance() {
-        contentView.layer.borderColor = UIColor.black.cgColor
+        contentView.layer.borderColor = UIColor(resource: .nftBlack).cgColor
         contentView.layer.borderWidth = isSelected ? 1 : 0
     }
 
