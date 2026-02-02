@@ -48,6 +48,14 @@ final class CollectionDetailViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
+    
+    private let collectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.backgroundColor = .clear
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        return collectionView
+    }()
 
     // MARK: - Init
 
@@ -70,7 +78,6 @@ final class CollectionDetailViewController: UIViewController {
         super.viewDidLoad()
 
         setupUI()
-        titleLabel.text = "Коллекция: \(collectionName)"
     }
 
     // MARK: - Setup
@@ -82,6 +89,9 @@ final class CollectionDetailViewController: UIViewController {
         view.addSubview(titleLabel)
         view.addSubview(authorLabel)
         view.addSubview(descriptionLabel)
+        view.addSubview(collectionView)
+        
+        setupCollectionView()
 
         NSLayoutConstraint.activate([
             coverImageView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -101,7 +111,19 @@ final class CollectionDetailViewController: UIViewController {
             
             descriptionLabel.topAnchor.constraint(equalTo: authorLabel.bottomAnchor),
             descriptionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            descriptionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 16)
+            descriptionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 16),
+            
+            collectionView.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 24),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
+    }
+    
+    private func setupCollectionView() {
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        
+        collectionView.register(TrackersCollectionViewCell.self, forCellWithReuseIdentifier: "trackerCell")
     }
 }
