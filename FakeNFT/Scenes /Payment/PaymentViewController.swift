@@ -72,8 +72,12 @@ final class PaymentViewController: UIViewController {
     private func setupBindings() {
         paymentFooterView.onPayTapped = { [weak self] in
             guard let self else { return }
-            let vc = PaymentSuccessViewController()
-            self.navigationController?.pushViewController(vc, animated: true)
+            
+            let successVC = PaymentSuccessViewController()
+            successVC.onBackToCartTapped = { [weak self] in
+                self?.navigationController?.popToViewController(ofType: CartViewController.self, animated: true)
+            }
+            self.navigationController?.pushViewController(successVC, animated: true)
         }
     }
     
@@ -141,5 +145,13 @@ extension PaymentViewController: UICollectionViewDelegateFlowLayout {
                        layout collectionViewLayout: UICollectionViewLayout,
                        minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         7
+    }
+}
+
+extension UINavigationController {
+    func popToViewController<T: UIViewController>(ofType type: T.Type, animated: Bool) {
+        if let target = viewControllers.first(where: { $0 is T }) {
+            popToViewController(target, animated: animated)
+        }
     }
 }

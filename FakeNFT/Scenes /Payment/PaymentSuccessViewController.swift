@@ -43,6 +43,7 @@ final class PaymentSuccessViewController: UIViewController {
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
+        super.viewDidLoad()
         setupUI()
     }
     
@@ -78,5 +79,12 @@ final class PaymentSuccessViewController: UIViewController {
             button.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             button.heightAnchor.constraint(equalToConstant: 60)
         ])
+        
+        button.addTarget(self, action: #selector(backToCartTapped), for: .touchUpInside)
+    }
+    
+    // MARK: - Actions
+    @objc private func backToCartTapped() {
+        onBackToCartTapped?()
     }
 }
