@@ -6,4 +6,5 @@ protocol ProfileViewModelProtocol: AnyObject {
     func getProfile() -> ProfileUI
     func myNFTCount() -> Int
     func favouritesCount() -> Int
+    func shortURLString(from urlString: String) -> String
 }

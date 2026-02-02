@@ -224,7 +224,7 @@ final class ProfileViewController: UIViewController {
         setAvatar(imageURL: profile.avatarURL)
         nameLabel.text = profile.name
         descriptionLabel.text = profile.description
-        let shortLink = shortURLString(from: URL(string: profile.link))
+        let shortLink = viewModel.shortURLString(from: profile.link)
         linkButton.setTitle(shortLink, for: .normal)
     }
     
@@ -238,11 +238,6 @@ final class ProfileViewController: UIViewController {
         } else {
             avatarImageView.image = UIImage(resource: .prDefaultAvatar)
         }
-    }
-    
-    private func shortURLString(from url: URL?) -> String {
-        guard let url else { return "" }
-        return url.host()?.replacingOccurrences(of: "www", with: "") ?? ""
     }
     
     private func pushToMyNFTViewController() {
