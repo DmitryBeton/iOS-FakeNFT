@@ -5,8 +5,8 @@ final class ProfileStorage: ProfileStorageProtocol {
     // MARK: - Public Methods
     
     func saveProfile(_ profile: Profile) {
-        concurrentQueue.async(flags: .barrier) { [weak self] in
-            self?.storage = profile
+        concurrentQueue.async(flags: .barrier) {
+            self.storage = profile
         }
     }
     
