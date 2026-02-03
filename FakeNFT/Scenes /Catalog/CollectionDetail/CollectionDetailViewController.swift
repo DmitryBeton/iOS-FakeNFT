@@ -25,6 +25,7 @@ final class CollectionDetailViewController: UIViewController {
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.contentInsetAdjustmentBehavior = .never
         return scrollView
     }()
 
@@ -92,7 +93,7 @@ final class CollectionDetailViewController: UIViewController {
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.minimumInteritemSpacing = 9
-        layout.minimumLineSpacing = 8
+        layout.minimumLineSpacing = 28
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .clear
         collectionView.isScrollEnabled = false
@@ -239,14 +240,11 @@ final class CollectionDetailViewController: UIViewController {
     private func updateCollectionViewHeight() {
         let itemsCount = mockNFTs.count
         let columns: CGFloat = 3
-        let spacing: CGFloat = 9
-        let horizontalInsets: CGFloat = 32
-        let availableWidth = view.bounds.width - horizontalInsets
-        let itemWidth = (availableWidth - spacing * (columns - 1)) / columns
-        let itemHeight = itemWidth + 56
+        let itemHeight: CGFloat = 192
+        let lineSpacing: CGFloat = 28
 
         let rows = ceil(CGFloat(itemsCount) / columns)
-        let totalHeight = rows * itemHeight + (rows - 1) * 8
+        let totalHeight = rows * itemHeight + (rows - 1) * lineSpacing
 
         collectionViewHeightConstraint?.constant = totalHeight
     }
@@ -300,7 +298,7 @@ extension CollectionDetailViewController: UICollectionViewDelegateFlowLayout {
         let horizontalInsets: CGFloat = 32
         let availableWidth = view.bounds.width - horizontalInsets
         let itemWidth = (availableWidth - spacing * (columns - 1)) / columns
-        let itemHeight = itemWidth + 56
+        let itemHeight: CGFloat = 172
         return CGSize(width: itemWidth, height: itemHeight)
     }
 }
