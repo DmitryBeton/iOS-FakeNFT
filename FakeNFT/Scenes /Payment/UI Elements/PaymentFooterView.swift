@@ -10,6 +10,7 @@ import UIKit
 final class PaymentFooterView: UIView {
     // MARK: - Properties
     var onPayTapped: (() -> Void)?
+    var onAgreementTapped: (() -> Void)?
 
     // MARK: - UI Elements
     private let agreementView = UIView()
@@ -27,6 +28,7 @@ final class PaymentFooterView: UIView {
         label.text = "Пользовательского соглашения"
         label.font = UIFont.caption2
         label.textColor = UIColor(resource: .nftBlue)
+        label.isUserInteractionEnabled = true
         return label
     }()
 
@@ -45,6 +47,7 @@ final class PaymentFooterView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupView()
+        setupGestures()
     }
     
     @available(*, unavailable)
@@ -85,12 +88,21 @@ final class PaymentFooterView: UIView {
             payButton.widthAnchor.constraint(equalToConstant: 343),
             payButton.heightAnchor.constraint(equalToConstant: 60)
         ])
+    }
 
+    private func setupGestures() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(linkTapped))
+        linkLabel.addGestureRecognizer(tap)
     }
     
     // MARK: - Actions
     @objc
     private func processPayment() {
         onPayTapped?()
+    }
+
+    @objc
+    private func linkTapped() {
+        onAgreementTapped?()
     }
 }

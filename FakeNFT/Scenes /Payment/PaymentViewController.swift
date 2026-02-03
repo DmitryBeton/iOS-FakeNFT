@@ -81,6 +81,11 @@ final class PaymentViewController: UIViewController {
             self?.startPayment()
         }
         
+        paymentFooterView.onAgreementTapped = { [weak self] in
+            let vc = AgreementWebViewController(urlString: "https://yandex.ru/legal/practicum_termsofuse")
+            self?.navigationController?.pushViewController(vc, animated: true)
+        }
+        
         viewModel.onItemsUpdated = { [weak self] in
             self?.collection.reloadData()
             UIBlockingProgressHUD.dismiss()
