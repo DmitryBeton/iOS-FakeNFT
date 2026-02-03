@@ -11,14 +11,16 @@ final class CollectionDetailViewController: UIViewController {
     private let collectionDescription: String
 
     // Mock data для проверки вёрстки
-    private let mockNFTs: [(name: String, price: String, rating: Int, isLiked: Bool, isInCart: Bool)] = [
-        ("Archie", "1 ETH", 2, true, false),
-        ("Ruby", "1 ETH", 2, true, true),
-        ("Nacho", "1 ETH", 2, true, false),
-        ("Biscuit", "1 ETH", 1, false, false),
-        ("Daisy", "1 ETH", 3, true, false),
-        ("Susan", "1 ETH", 2, false, false)
+    private let mockNFTs: [(id: String, name: String, price: String, rating: Int, isInCart: Bool)] = [
+        ("1", "Archie", "1 ETH", 2, false),
+        ("2", "Ruby", "1 ETH", 2, true),
+        ("3", "Nacho", "1 ETH", 2, false),
+        ("4", "Biscuit", "1 ETH", 1, false),
+        ("5", "Daisy", "1 ETH", 3, false),
+        ("6", "Susan", "1 ETH", 2, false)
     ]
+
+    private let favoritesStorage: FavoritesStorage = FavoritesStorageImpl.shared
 
     // MARK: - UI Elements
 
@@ -267,14 +269,22 @@ extension CollectionDetailViewController: UICollectionViewDataSource {
         }
 
         let nft = mockNFTs[indexPath.item]
+        let isLiked = favoritesStorage.isFavorite(nftId: nft.id)
+
         cell.configure(
             imageURL: nil,
             name: nft.name,
             rating: nft.rating,
             price: nft.price,
-            isLiked: nft.isLiked,
+            isLiked: isLiked,
             isInCart: nft.isInCart
         )
+
+        cell.onLikeButtonTapped = { [weak self] in
+            guard let self = self else { return }
+            let newState = self.favoritesStorage.toggleFavorite(nftId: nft.id)
+            cell.setLiked(newState)
+        }
 
         return cell
     }
