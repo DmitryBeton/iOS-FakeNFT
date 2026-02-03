@@ -119,6 +119,15 @@ struct DefaultNetworkClient: NetworkClient {
         urlRequest.httpMethod = request.httpMethod.rawValue
 
         urlRequest.addValue(RequestConstants.token, forHTTPHeaderField: "X-Practicum-Mobile-Token")
+        
+        let url = urlRequest.url?.absoluteString ?? "nil"
+        let method = urlRequest.httpMethod ?? "nil"
+        let headers = urlRequest.allHTTPHeaderFields ?? [:]
+
+        AppLog.network.debug("URL: \(url, privacy: .public)")
+        AppLog.network.debug("Method: \(method, privacy: .public)")
+        AppLog.network.debug("Headers: \(headers, privacy: .public)")
+
 
         if let dtoDictionary = request.dto?.asDictionary() {
             var urlComponents = URLComponents()
@@ -147,3 +156,5 @@ struct DefaultNetworkClient: NetworkClient {
         }
     }
 }
+
+

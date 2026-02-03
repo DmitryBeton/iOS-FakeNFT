@@ -2,24 +2,31 @@ import UIKit
 
 final class TabBarController: UITabBarController {
 
-    var servicesAssembly: ServicesAssembly!
+    let servicesAssembly: ServicesAssembly
 
-    private let catalogTabBarItem = UITabBarItem(
-        title: NSLocalizedString("Tab.catalog", comment: ""),
-        image: UIImage(systemName: "square.stack.3d.up.fill"),
-        tag: 0
-    )
+    init(servicesAssembly: ServicesAssembly) {
+        self.servicesAssembly = servicesAssembly
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupTabs()
+    }
 
-        let catalogController = TestCatalogViewController(
-            servicesAssembly: servicesAssembly
+    private func setupTabs() {
+        let statistics = StatisticsModule.makeRoot(servicesAssembly: servicesAssembly)
+        statistics.tabBarItem = UITabBarItem(
+            title: "Статистика",
+            image: UIImage(named: "statisticTabBar"),
+            selectedImage: UIImage(named: "statisticTabBar")
         )
-        catalogController.tabBarItem = catalogTabBarItem
 
-        viewControllers = [catalogController]
-
-        view.backgroundColor = .systemBackground
+        viewControllers = [statistics]
     }
 }
+
