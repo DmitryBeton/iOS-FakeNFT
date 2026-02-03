@@ -145,12 +145,12 @@ final class CollectionDetailViewController: UIViewController {
 
     private func setupUI() {
         view.backgroundColor = UIColor(resource: .nftWhite)
-
+        
         view.addSubview(scrollView)
+        view.addSubview(backButton)
         scrollView.addSubview(contentView)
 
         contentView.addSubview(coverImageView)
-        contentView.addSubview(backButton)
         contentView.addSubview(titleLabel)
         contentView.addSubview(authorTitleLabel)
         contentView.addSubview(authorNameLabel)
@@ -200,8 +200,8 @@ final class CollectionDetailViewController: UIViewController {
             coverImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             coverImageView.heightAnchor.constraint(equalToConstant: 310),
 
-            backButton.topAnchor.constraint(equalTo: contentView.safeAreaLayoutGuide.topAnchor, constant: 9),
-            backButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 9),
+            backButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 9),
+            backButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 9),
             backButton.widthAnchor.constraint(equalToConstant: 24),
             backButton.heightAnchor.constraint(equalToConstant: 24),
 
