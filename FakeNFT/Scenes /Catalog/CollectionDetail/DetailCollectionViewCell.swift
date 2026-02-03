@@ -87,7 +87,7 @@ final class DetailCollectionViewCell: UICollectionViewCell {
         for _ in 0..<5 {
             let starImageView = UIImageView()
             starImageView.contentMode = .scaleAspectFit
-            starImageView.image = UIImage(resource: .ratingDefault)
+            starImageView.image = UIImage(resource: .starNoactive)
             ratingStackView.addArrangedSubview(starImageView)
         }
     }
@@ -148,7 +148,9 @@ final class DetailCollectionViewCell: UICollectionViewCell {
     private func updateRating(_ rating: Int) {
         for (index, view) in ratingStackView.arrangedSubviews.enumerated() {
             guard let starView = view as? UIImageView else { continue }
-            starView.tintColor = index < rating ? UIColor(resource: .nftYellow) : UIColor(resource: .nftLightGray)
+            starView.image = index < rating
+                ? UIImage(resource: .starActive)
+                : UIImage(resource: .starNoactive)
         }
     }
 
