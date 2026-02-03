@@ -46,7 +46,7 @@ final class CollectionDetailViewController: UIViewController {
 
     private lazy var backButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setImage(UIImage(systemName: "chevron.left"), for: .normal)
+        button.setImage(UIImage(resource: .backButton), for: .normal)
         button.tintColor = UIColor(resource: .nftBlack)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
