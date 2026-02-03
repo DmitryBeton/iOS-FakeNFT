@@ -4,21 +4,7 @@ final class CollectionDetailViewController: UIViewController {
 
     // MARK: - Properties
 
-    private let collectionId: String
-    private let collectionName: String
-    private let collectionCover: URL?
-    private let collectionAuthor: String
-    private let collectionDescription: String
-
-    // Mock data для проверки вёрстки
-    private let mockNFTs: [(name: String, price: String, rating: Int, isLiked: Bool, isInCart: Bool)] = [
-        ("Archie", "1 ETH", 2, true, false),
-        ("Ruby", "1 ETH", 2, true, true),
-        ("Nacho", "1 ETH", 2, true, false),
-        ("Biscuit", "1 ETH", 1, false, false),
-        ("Daisy", "1 ETH", 3, true, false),
-        ("Susan", "1 ETH", 2, false, false)
-    ]
+    private let viewModel: CollectionDetailViewModel
 
     // MARK: - UI Elements
 
@@ -112,11 +98,13 @@ final class CollectionDetailViewController: UIViewController {
         collectionAuthor: String = "",
         collectionDescription: String = ""
     ) {
-        self.collectionId = collectionId
-        self.collectionName = collectionName
-        self.collectionCover = collectionCover
-        self.collectionAuthor = collectionAuthor
-        self.collectionDescription = collectionDescription
+        self.viewModel = CollectionDetailViewModel(
+            collectionId: collectionId,
+            collectionName: collectionName,
+            collectionCover: collectionCover,
+            collectionAuthor: collectionAuthor,
+            collectionDescription: collectionDescription
+        )
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -129,7 +117,8 @@ final class CollectionDetailViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        configureWithData()
+        bindViewModel()
+        viewModel.viewDidLoad()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -147,7 +136,7 @@ final class CollectionDetailViewController: UIViewController {
 
     private func setupUI() {
         view.backgroundColor = UIColor(resource: .nftWhite)
-        
+
         view.addSubview(scrollView)
         view.addSubview(backButton)
         scrollView.addSubview(contentView)
@@ -162,10 +151,29 @@ final class CollectionDetailViewController: UIViewController {
         setupCollectionView()
         setupConstraints()
         setupNavigationBar()
+        configureWithData()
     }
 
     private func setupNavigationBar() {
         navigationController?.setNavigationBarHidden(true, animated: false)
+    }
+
+    private func bindViewModel() {
+        viewModel.onNFTsUpdated = { [weak self] in
+            DispatchQueue.main.async {
+                self?.collectionView.reloadData()
+                self?.updateCollectionViewHeight()
+            }
+        }
+
+        viewModel.onNFTLikeUpdated = { [weak self] index, isLiked in
+            DispatchQueue.main.async {
+                let indexPath = IndexPath(item: index, section: 0)
+                if let cell = self?.collectionView.cellForItem(at: indexPath) as? DetailCollectionViewCell {
+                    cell.setLiked(isLiked)
+                }
+            }
+        }
     }
 
     @objc private func backButtonTapped() {
@@ -231,15 +239,15 @@ final class CollectionDetailViewController: UIViewController {
     }
 
     private func configureWithData() {
-        titleLabel.text = collectionName.isEmpty ? "Peach" : collectionName
-        authorNameLabel.text = collectionAuthor.isEmpty ? "John Doe" : collectionAuthor
-        descriptionLabel.text = collectionDescription.isEmpty
+        titleLabel.text = viewModel.collectionName.isEmpty ? "Peach" : viewModel.collectionName
+        authorNameLabel.text = viewModel.collectionAuthor.isEmpty ? "John Doe" : viewModel.collectionAuthor
+        descriptionLabel.text = viewModel.collectionDescription.isEmpty
             ? "Персиковый — как облака над закатным солнцем в океане. В этой коллекции совмещены трогательная нежность и живая игривость сказочных зефирных зверей."
-            : collectionDescription
+            : viewModel.collectionDescription
     }
 
     private func updateCollectionViewHeight() {
-        let itemsCount = mockNFTs.count
+        let itemsCount = viewModel.numberOfNFTs()
         let columns: CGFloat = 3
         let itemHeight: CGFloat = 192
         let lineSpacing: CGFloat = 28
@@ -255,7 +263,7 @@ final class CollectionDetailViewController: UIViewController {
 
 extension CollectionDetailViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return mockNFTs.count
+        return viewModel.numberOfNFTs()
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -266,15 +274,24 @@ extension CollectionDetailViewController: UICollectionViewDataSource {
             return UICollectionViewCell()
         }
 
-        let nft = mockNFTs[indexPath.item]
+        let nft = viewModel.nft(at: indexPath.item)
+
         cell.configure(
-            imageURL: nil,
+            imageURL: nft.imageURL,
             name: nft.name,
             rating: nft.rating,
             price: nft.price,
             isLiked: nft.isLiked,
             isInCart: nft.isInCart
         )
+
+        cell.onLikeButtonTapped = { [weak self] in
+            self?.viewModel.toggleLike(at: indexPath.item)
+        }
+
+        cell.onCartButtonTapped = { [weak self] in
+            self?.viewModel.toggleCart(at: indexPath.item)
+        }
 
         return cell
     }

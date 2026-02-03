@@ -7,6 +7,11 @@ final class DetailCollectionViewCell: UICollectionViewCell {
 
     static let reuseIdentifier = "DetailCollectionViewCell"
 
+    var onLikeButtonTapped: (() -> Void)?
+    var onCartButtonTapped: (() -> Void)?
+
+    private var isLiked: Bool = false
+
     // MARK: - UI Elements
 
     private let nftImageView: UIImageView = {
@@ -81,6 +86,20 @@ final class DetailCollectionViewCell: UICollectionViewCell {
 
         setupRatingStars()
         setupConstraints()
+        setupActions()
+    }
+
+    private func setupActions() {
+        likeButton.addTarget(self, action: #selector(likeButtonTapped), for: .touchUpInside)
+        cartButton.addTarget(self, action: #selector(cartButtonTapped), for: .touchUpInside)
+    }
+
+    @objc private func likeButtonTapped() {
+        onLikeButtonTapped?()
+    }
+
+    @objc private func cartButtonTapped() {
+        onCartButtonTapped?()
     }
 
     private func setupRatingStars() {
@@ -145,6 +164,17 @@ final class DetailCollectionViewCell: UICollectionViewCell {
         updateRating(rating)
     }
 
+    func setLiked(_ isLiked: Bool) {
+        self.isLiked = isLiked
+        let likeImage = isLiked ? UIImage(resource: .likePressed) : UIImage(resource: .likeDefault)
+        likeButton.setImage(likeImage, for: .normal)
+    }
+
+    func setInCart(_ isInCart: Bool) {
+        let cartImage = isInCart ? UIImage(resource: .cartDelete) : UIImage(resource: .cartAdd)
+        cartButton.setImage(cartImage, for: .normal)
+    }
+
     private func updateRating(_ rating: Int) {
         for (index, view) in ratingStackView.arrangedSubviews.enumerated() {
             guard let starView = view as? UIImageView else { continue }
@@ -158,5 +188,7 @@ final class DetailCollectionViewCell: UICollectionViewCell {
         super.prepareForReuse()
         nftImageView.kf.cancelDownloadTask()
         nftImageView.image = nil
+        onLikeButtonTapped = nil
+        onCartButtonTapped = nil
     }
 }
