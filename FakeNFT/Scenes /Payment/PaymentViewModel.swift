@@ -12,6 +12,7 @@ protocol PaymentViewModelProtocol: AnyObject {
     var itemsCount: Int { get }
     func loadItems()
     func getUICurrency(at index: Int) -> UICurrency?
+    func pay(completion: @escaping (Result<Void, Error>) -> Void)
 }
 
 final class PaymentViewModel: PaymentViewModelProtocol {
@@ -28,7 +29,14 @@ final class PaymentViewModel: PaymentViewModelProtocol {
     ]
     
     var itemsCount: Int { items.count }
-
+    
+    private let paymentService: PaymentServiceProtocol
+    
+    // MARK: - Initialization
+    init(paymentService: PaymentServiceProtocol = MockPaymentService()) {
+        self.paymentService = paymentService
+    }
+    
     // MARK: - Public Methods
     func loadItems() {
         // TODO: - добавить загрузку из сети
@@ -38,6 +46,8 @@ final class PaymentViewModel: PaymentViewModelProtocol {
         guard index < items.count else { return nil }
         return items[index]
     }
-
     
+    func pay(completion: @escaping (Result<Void, Error>) -> Void) {
+        paymentService.pay(completion: completion)
+    }
 }

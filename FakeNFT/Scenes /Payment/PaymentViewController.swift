@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import ProgressHUD
 
 final class PaymentViewController: UIViewController {
     // MARK: - Properties
@@ -21,6 +22,7 @@ final class PaymentViewController: UIViewController {
     }()
     
     private let paymentFooterView = PaymentFooterView()
+    private var isPaying = false
     
     // MARK: - Initialization
     init(viewModel: PaymentViewModelProtocol = PaymentViewModel()) {
@@ -70,20 +72,51 @@ final class PaymentViewController: UIViewController {
         ])
     }
     
-    
     private func setupBindings() {
         paymentFooterView.onPayTapped = { [weak self] in
-            guard let self else { return }
-            
-            let successVC = PaymentSuccessViewController()
-            successVC.onBackToCartTapped = { [weak self] in
-                self?.navigationController?.popToViewController(ofType: CartViewController.self, animated: true)
-            }
-            self.navigationController?.pushViewController(successVC, animated: true)
+            self?.startPayment()
         }
     }
     
     // MARK: - Private Methods
+    
+    private func startPayment() {
+        guard !isPaying else { return }
+        isPaying = true
+        view.isUserInteractionEnabled = false
+
+        ProgressHUD.show("Оплата...")
+        viewModel.pay { [weak self] result in
+            guard let self else { return }
+            self.isPaying = false
+            view.isUserInteractionEnabled = true
+            ProgressHUD.dismiss()
+            switch result {
+            case .success:
+                let successVC = PaymentSuccessViewController()
+                successVC.onBackToCartTapped = { [weak self] in
+                    self?.navigationController?.popToViewController(ofType: CartViewController.self, animated: true)
+                }
+                self.navigationController?.pushViewController(successVC, animated: true)
+            case .failure:
+                self.showRetryAlert()
+            }
+        }
+    }
+    
+    private func showRetryAlert() {
+        let alert = UIAlertController(
+            title: "Ошибка оплаты",
+            message: "Не удалось выполнить оплату. Попробовать еще раз?",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "Повторить", style: .default) { [weak self] _ in
+            self?.startPayment()
+        })
+        alert.addAction(UIAlertAction(title: "Отмена", style: .cancel))
+        present(alert, animated: true)
+    }
+
     private func applyNavigationTitleStyle() {
         let paragraph = NSMutableParagraphStyle()
         paragraph.minimumLineHeight = 22
