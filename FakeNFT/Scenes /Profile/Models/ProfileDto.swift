@@ -11,18 +11,12 @@ struct ProfileDto: Dto {
     }
     
     func asDictionary() -> [String : String] {
-        var dictionary: [String : String] = [
+        let dictionary: [String : String] = [
             CodingKeys.name.rawValue: name,
-            CodingKeys.description.rawValue: description
+            CodingKeys.description.rawValue: description,
+            CodingKeys.avatar.rawValue: avatar?.absoluteString ?? "",
+            CodingKeys.website.rawValue: website?.absoluteString ?? ""
         ]
-        if let avatar {
-            let avatarString = avatar.absoluteString
-            dictionary.updateValue(avatarString, forKey: CodingKeys.avatar.rawValue)
-        }
-        if let website {
-            let websiteString = website.absoluteString
-            dictionary.updateValue(websiteString, forKey: CodingKeys.website.rawValue)
-        }
         return dictionary
     }
 }
