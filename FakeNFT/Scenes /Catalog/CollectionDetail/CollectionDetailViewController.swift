@@ -140,6 +140,7 @@ final class CollectionDetailViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         updateCollectionViewHeight()
+        scrollView.contentInset.bottom = view.safeAreaInsets.bottom
     }
 
     // MARK: - Setup
