@@ -12,6 +12,10 @@ final class PaymentViewController: UIViewController {
     // MARK: - Properties
     private let viewModel: PaymentViewModelProtocol
     
+    private var isPaying = false
+    private var blockingOverlay: UIView?
+    private var originalLeftBarButtonItem: UIBarButtonItem?
+    
     // MARK: - UI Elements
     private let collection: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -22,7 +26,6 @@ final class PaymentViewController: UIViewController {
     }()
     
     private let paymentFooterView = PaymentFooterView()
-    private var isPaying = false
     
     // MARK: - Initialization
     init(viewModel: PaymentViewModelProtocol = PaymentViewModel()) {
@@ -34,7 +37,7 @@ final class PaymentViewController: UIViewController {
     required init?(coder: NSCoder) {
         nil
     }
-
+    
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -55,10 +58,10 @@ final class PaymentViewController: UIViewController {
         
         view.addSubview(collection)
         view.addSubview(paymentFooterView)
-
+        
         collection.translatesAutoresizingMaskIntoConstraints = false
         paymentFooterView.translatesAutoresizingMaskIntoConstraints = false
-
+        
         NSLayoutConstraint.activate([
             collection.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             collection.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
@@ -79,21 +82,22 @@ final class PaymentViewController: UIViewController {
     }
     
     // MARK: - Private Methods
-    
     private func startPayment() {
         guard !isPaying else { return }
         isPaying = true
-        view.isUserInteractionEnabled = false
-
-        ProgressHUD.show("Оплата...")
+        
+        UIBlockingProgressHUD.show()
+        
         viewModel.pay { [weak self] result in
             guard let self else { return }
+            
             self.isPaying = false
-            view.isUserInteractionEnabled = true
-            ProgressHUD.dismiss()
+            UIBlockingProgressHUD.dismiss()
+            
             switch result {
             case .success:
                 let successVC = PaymentSuccessViewController()
+                successVC.navigationItem.hidesBackButton = true
                 successVC.onBackToCartTapped = { [weak self] in
                     self?.navigationController?.popToViewController(ofType: CartViewController.self, animated: true)
                 }
@@ -106,8 +110,8 @@ final class PaymentViewController: UIViewController {
     
     private func showRetryAlert() {
         let alert = UIAlertController(
-            title: "Ошибка оплаты",
-            message: "Не удалось выполнить оплату. Попробовать еще раз?",
+            title: "Не удалось произвести оплату",
+            message: nil,
             preferredStyle: .alert
         )
         alert.addAction(UIAlertAction(title: "Повторить", style: .default) { [weak self] _ in
@@ -116,7 +120,7 @@ final class PaymentViewController: UIViewController {
         alert.addAction(UIAlertAction(title: "Отмена", style: .cancel))
         present(alert, animated: true)
     }
-
+    
     private func applyNavigationTitleStyle() {
         let paragraph = NSMutableParagraphStyle()
         paragraph.minimumLineHeight = 22
@@ -152,8 +156,8 @@ extension PaymentViewController: UICollectionViewDataSource {
 
 extension PaymentViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView,
-                       layout collectionViewLayout: UICollectionViewLayout,
-                       sizeForItemAt indexPath: IndexPath) -> CGSize {
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        sizeForItemAt indexPath: IndexPath) -> CGSize {
         
         let padding: CGFloat = 16
         let spacing: CGFloat = 7
@@ -162,25 +166,25 @@ extension PaymentViewController: UICollectionViewDelegateFlowLayout {
         let availableWidth = collectionView.frame.width - padding * 2 - spacing * (itemsPerRow - 1)
         let widthPerItem = availableWidth / itemsPerRow
         let height = widthPerItem * 0.2738 //  height:width from figma = 0.2738
-
+        
         return CGSize(width: widthPerItem, height: height)
     }
     
     func collectionView(_ collectionView: UICollectionView,
-                       layout collectionViewLayout: UICollectionViewLayout,
-                       insetForSectionAt section: Int) -> UIEdgeInsets {
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        insetForSectionAt section: Int) -> UIEdgeInsets {
         UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
     }
     
     func collectionView(_ collectionView: UICollectionView,
-                       layout collectionViewLayout: UICollectionViewLayout,
-                       minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         7
     }
     
     func collectionView(_ collectionView: UICollectionView,
-                       layout collectionViewLayout: UICollectionViewLayout,
-                       minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         7
     }
 }
