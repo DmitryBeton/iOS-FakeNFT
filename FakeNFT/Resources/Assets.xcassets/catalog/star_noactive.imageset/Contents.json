@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "Property 1=zero.png",
+      "filename" : "Property 1=12x12, Property 2=Star, Property 3=No Active.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "Property 1=zero@2x.png",
+      "filename" : "Property 1=12x12, Property 2=Star, Property 3=No Active@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "Property 1=zero@3x.png",
+      "filename" : "Property 1=12x12, Property 2=Star, Property 3=No Active@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }
