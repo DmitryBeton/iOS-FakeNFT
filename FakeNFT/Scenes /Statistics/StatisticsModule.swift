@@ -4,8 +4,11 @@ enum StatisticsModule {
 
     static func makeRoot(servicesAssembly: ServicesAssembly) -> UIViewController {
 
-        let presenter = StatisticsPresenter() 
-        let viewController = StatisticsViewController(presenter: presenter)
+        let viewModel = StatisticsViewModel(
+            service: servicesAssembly.statisticsService
+        )
+
+        let viewController = StatisticsViewController(viewModel: viewModel)
 
         let nav = UINavigationController(rootViewController: viewController)
         nav.navigationBar.tintColor = .label

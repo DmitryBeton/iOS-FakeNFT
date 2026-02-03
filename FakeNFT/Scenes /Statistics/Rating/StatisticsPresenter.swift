@@ -12,7 +12,7 @@ protocol StatisticsPresenterProtocol: AnyObject {
     var usersCount: Int { get }
 
     func viewDidLoad()
-    func user(at index: Int) -> StatisticsUserCellModel
+    func getUser(at index: Int) -> StatisticsUserCellModel
     func sort(by option: StatisticsSortOption)
 }
 
@@ -30,7 +30,7 @@ final class StatisticsPresenter: StatisticsPresenterProtocol {
 
     private let service: StatisticsServiceProtocol
 
-    private var users: [User] = []
+    private var users: [StatisticsUser] = []
     private var sortOption: StatisticsSortOption = .rating
 
     init(service: StatisticsServiceProtocol = StatisticsService()) {
@@ -49,7 +49,7 @@ final class StatisticsPresenter: StatisticsPresenterProtocol {
             switch result {
             case .success(let dto):
                 let mapped = dto.map {
-                    User(name: $0.name, value: $0.nfts.count, avatarURL: $0.avatar)
+                    StatisticsUser(name: $0.name, value: $0.nfts.count, avatarURL: $0.avatar)
                 }
 
                 self.users = mapped
@@ -70,7 +70,7 @@ final class StatisticsPresenter: StatisticsPresenterProtocol {
         }
     }
 
-    func user(at index: Int) -> StatisticsUserCellModel {
+    func getUser(at index: Int) -> StatisticsUserCellModel {
         let sorted = sortedUsers()
         let user = sorted[index]
         return .init(

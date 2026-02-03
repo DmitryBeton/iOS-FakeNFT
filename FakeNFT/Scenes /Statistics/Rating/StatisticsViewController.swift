@@ -2,14 +2,14 @@ import UIKit
 
 final class StatisticsViewController: UIViewController {
     
-    private let presenter: StatisticsPresenterProtocol
+    private let viewModel: StatisticsViewModelProtocol
     private let tableView = UITableView()
     private var sortOption: StatisticsSortOption = .rating
     
     private let loader = UIActivityIndicatorView(style: .medium)
-    
-    init(presenter: StatisticsPresenterProtocol) {
-        self.presenter = presenter
+
+    init(viewModel: StatisticsViewModelProtocol) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -23,7 +23,7 @@ final class StatisticsViewController: UIViewController {
         setupTableView()
         setupLoader()
         bindPresenter()
-        presenter.viewDidLoad()
+        viewModel.viewDidLoad()
     }
     
     private func setupUI() {
@@ -74,13 +74,13 @@ final class StatisticsViewController: UIViewController {
     }
     
     private func bindPresenter() {
-        presenter.onDataUpdated = { [weak self] in
+        viewModel.onDataUpdated = { [weak self] in
             DispatchQueue.main.async {
                 self?.tableView.reloadData()
             }
         }
         
-        presenter.onLoadingChanged = { [weak self] isLoading in
+        viewModel.onLoadingChanged = { [weak self] isLoading in
             DispatchQueue.main.async {
                 if isLoading {
                     self?.loader.startAnimating()
@@ -90,7 +90,7 @@ final class StatisticsViewController: UIViewController {
             }
         }
         
-        presenter.onError = { [weak self] message in
+        viewModel.onError = { [weak self] message in
             DispatchQueue.main.async {
                 let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "ОК", style: .default))
@@ -110,14 +110,14 @@ final class StatisticsViewController: UIViewController {
         alert.addAction(UIAlertAction(title: nameTitle, style: .default) { [weak self] _ in
             guard let self else { return }
             self.sortOption = .name
-            self.presenter.sort(by: .name)
+            self.viewModel.sort(by: .name)
         })
 
         let ratingTitle = (sortOption == .rating) ? "По рейтингу" : "По рейтингу"
         alert.addAction(UIAlertAction(title: ratingTitle, style: .default) { [weak self] _ in
             guard let self else { return }
             self.sortOption = .rating
-            self.presenter.sort(by: .rating)
+            self.viewModel.sort(by: .rating)
         })
 
         alert.addAction(UIAlertAction(title: "Отмена", style: .cancel))
@@ -129,7 +129,7 @@ final class StatisticsViewController: UIViewController {
 extension StatisticsViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        presenter.usersCount
+        viewModel.usersCount
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -138,7 +138,7 @@ extension StatisticsViewController: UITableViewDataSource {
             for: indexPath
         ) as? StatisticsUserCell else { return UITableViewCell() }
 
-        cell.configure(with: presenter.user(at: indexPath.row))
+        cell.configure(with: viewModel.getUser(at: indexPath.row))
         return cell
     }
 }

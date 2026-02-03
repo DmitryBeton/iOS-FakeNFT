@@ -1,15 +1,11 @@
-import Foundation
-
-enum StatisticsSortOption: Equatable {
-    case name
+enum StatisticsSortOption: String, CaseIterable {
     case rating
+    case name
 
     var title: String {
         switch self {
-        case .name:
-            return "По имени"
-        case .rating:
-            return "По рейтингу"
+        case .rating: return "По рейтингу"
+        case .name: return "По имени"
         }
     }
 }
