@@ -41,8 +41,9 @@ final class PaymentViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         navigationItem.title = "Выберите способ оплаты"
+        
+        startLoadCurrency()
         
         setupUI()
         applyNavigationTitleStyle()
@@ -79,6 +80,14 @@ final class PaymentViewController: UIViewController {
         paymentFooterView.onPayTapped = { [weak self] in
             self?.startPayment()
         }
+        
+        viewModel.onItemsUpdated = { [weak self] in
+            self?.collection.reloadData()
+            UIBlockingProgressHUD.dismiss()
+            if self?.viewModel.itemsCount == 0 {
+                self?.showRetryCurrencyAlert()
+            }
+        }
     }
     
     // MARK: - Private Methods
@@ -103,12 +112,30 @@ final class PaymentViewController: UIViewController {
                 }
                 self.navigationController?.pushViewController(successVC, animated: true)
             case .failure:
-                self.showRetryAlert()
+                self.showRetryPayAlert()
             }
         }
     }
     
-    private func showRetryAlert() {
+    private func startLoadCurrency() {
+        viewModel.loadItems()
+        UIBlockingProgressHUD.show()
+    }
+    
+    private func showRetryCurrencyAlert() {
+        let alert = UIAlertController(
+            title: "Не удалось загрузить данные",
+            message: nil,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "Повторить", style: .default) { [weak self] _ in
+            self?.startLoadCurrency()
+        })
+        alert.addAction(UIAlertAction(title: "Отмена", style: .cancel))
+        present(alert, animated: true)
+    }
+    
+    private func showRetryPayAlert() {
         let alert = UIAlertController(
             title: "Не удалось произвести оплату",
             message: nil,
