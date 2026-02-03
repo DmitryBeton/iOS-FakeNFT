@@ -12,10 +12,10 @@ final class StatisticsUserCell: UITableViewCell {
     private let nftCountLabel = UILabel()
 
     private let stackView = UIStackView()
-    
-    private let placeholderImage = UIImage(named: "statisticAvatarTable")
 
-    private var imageTaskId: UUID?
+    private let placeholderImage = UIImage(resource: .statisticAvatarTable)
+
+    private(set) var currentAvatarURLString: String?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -29,13 +29,11 @@ final class StatisticsUserCell: UITableViewCell {
 
     override func prepareForReuse() {
         super.prepareForReuse()
-
-        if let id = imageTaskId {
-            ImageLoader.shared.cancel(id)
-            imageTaskId = nil
-        }
-
+        currentAvatarURLString = nil
         avatarImageView.image = placeholderImage
+        placeLabel.text = nil
+        nameLabel.text = nil
+        nftCountLabel.text = nil
     }
 
     private func setupUI() {
@@ -57,12 +55,13 @@ final class StatisticsUserCell: UITableViewCell {
         avatarImageView.backgroundColor = .systemGray4
         avatarImageView.contentMode = .scaleAspectFill
         avatarImageView.translatesAutoresizingMaskIntoConstraints = false
+
         NSLayoutConstraint.activate([
             avatarImageView.widthAnchor.constraint(equalToConstant: 28),
             avatarImageView.heightAnchor.constraint(equalToConstant: 28)
         ])
 
-        nameLabel.font = UIFont.systemFont(ofSize: 22, weight: .bold)
+        nameLabel.font = .systemFont(ofSize: 22, weight: .bold)
         nameLabel.textColor = .label
         nameLabel.numberOfLines = 1
         nameLabel.lineBreakMode = .byTruncatingTail
@@ -111,18 +110,15 @@ final class StatisticsUserCell: UITableViewCell {
 
     func configure(with model: StatisticsUserCellModel) {
         placeLabel.text = "\(model.place)"
-        nftCountLabel.text = "\(model.nftCount)"
         nameLabel.text = model.name
+        nftCountLabel.text = "\(model.nftCount)"
 
+        currentAvatarURLString = model.avatarURL
         avatarImageView.image = placeholderImage
+    }
 
-        guard let url = URL(string: model.avatarURL) else {
-            return
-        }
-
-        imageTaskId = ImageLoader.shared.load(url) { [weak self] image in
-            self?.avatarImageView.image = image ?? self?.placeholderImage
-        }
+    func setAvatarImage(_ image: UIImage?) {
+        avatarImageView.image = image ?? placeholderImage
     }
 }
 

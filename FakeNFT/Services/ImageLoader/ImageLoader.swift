@@ -1,11 +1,14 @@
 import UIKit
 
 final class ImageLoader {
+
     static let shared = ImageLoader()
 
     private let cache = NSCache<NSString, UIImage>()
     private var runningTasks: [UUID: URLSessionDataTask] = [:]
     private let lock = NSLock()
+
+    private init() {}
 
     @discardableResult
     func load(_ url: URL, completion: @escaping (UIImage?) -> Void) -> UUID? {
@@ -21,7 +24,7 @@ final class ImageLoader {
             guard let self else { return }
 
             var image: UIImage?
-            if let data = data {
+            if let data {
                 image = UIImage(data: data)
             }
 
@@ -29,7 +32,9 @@ final class ImageLoader {
                 self.cache.setObject(image, forKey: key)
             }
 
-            DispatchQueue.main.async { completion(image) }
+            DispatchQueue.main.async {
+                completion(image)
+            }
 
             self.lock.lock()
             self.runningTasks.removeValue(forKey: uuid)

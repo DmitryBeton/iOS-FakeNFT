@@ -5,6 +5,8 @@ final class StatisticsViewController: UIViewController {
     private let viewModel: StatisticsViewModelProtocol
     private let tableView = UITableView()
     private var sortOption: StatisticsSortOption = .rating
+    private var imageTasks: [IndexPath: UUID] = [:]
+
     
     private let loader = UIActivityIndicatorView(style: .medium)
 
@@ -138,8 +140,28 @@ extension StatisticsViewController: UITableViewDataSource {
             for: indexPath
         ) as? StatisticsUserCell else { return UITableViewCell() }
 
-        cell.configure(with: viewModel.getUser(at: indexPath.row))
+        let model = viewModel.getUser(at: indexPath.row)
+        cell.configure(with: model)
+
+        guard let url = URL(string: model.avatarURL) else { return cell }
+
+        let taskId = ImageLoader.shared.load(url) { [weak self] image in
+            DispatchQueue.main.async {
+                guard let self else { return }
+
+                guard
+                    let visibleCell = self.tableView.cellForRow(at: indexPath) as? StatisticsUserCell,
+                    visibleCell.currentAvatarURLString == model.avatarURL
+                else { return }
+
+                visibleCell.setAvatarImage(image)
+            }
+        }
+
+        imageTasks[indexPath] = taskId
         return cell
+
     }
+
 }
 
