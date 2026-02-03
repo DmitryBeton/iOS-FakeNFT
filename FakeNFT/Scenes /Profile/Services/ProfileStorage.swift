@@ -5,13 +5,13 @@ final class ProfileStorage: ProfileStorageProtocol {
     // MARK: - Public Methods
     
     func saveProfile(_ profile: Profile) {
-        syncQueue.async { [weak self] in
+        concurrentQueue.async(flags: .barrier) { [weak self] in
             self?.storage = profile
         }
     }
     
     func getProfile() -> Profile? {
-        syncQueue.sync {
+        concurrentQueue.sync {
             storage
         }
     }
@@ -19,6 +19,8 @@ final class ProfileStorage: ProfileStorageProtocol {
     // MARK: - Private Properties
     
     private var storage: Profile?
-    private let syncQueue = DispatchQueue(label: "sync-profile-queue")
-    
+    private let concurrentQueue = DispatchQueue(
+        label: "profile-storage-queue",
+        attributes: .concurrent
+    )
 }
