@@ -5,13 +5,15 @@
 //  Created by Дмитрий Чалов on 03.02.2026.
 //
 
-
 import UIKit
 import ProgressHUD
 
 final class UIBlockingProgressHUD {
     private static var window: UIWindow? {
-        return UIApplication.shared.windows.first
+        let windowScene = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first { $0.activationState == .foregroundActive }
+        return windowScene?.windows.first { $0.isKeyWindow }
     }
     
     static func show() {
