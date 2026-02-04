@@ -30,13 +30,6 @@ final class PaymentViewController: UIViewController {
             // Footer
             static let footerHeight: CGFloat = 186
         }
-        enum Colors {
-            static let background = UIColor(resource: .nftWhite)
-            static let title = UIColor(resource: .nftBlack)
-        }
-        enum Typography {
-            static let titleFont = UIFont.bodyBold
-        }
     }
 
     // MARK: - Properties
@@ -82,7 +75,7 @@ final class PaymentViewController: UIViewController {
     
     // MARK: - Setup
     private func setupUI() {
-        view.backgroundColor = Constants.Colors.background
+        view.backgroundColor = UIColor(resource: .nftWhite)
         
         collection.delegate = self
         collection.dataSource = self
@@ -190,10 +183,10 @@ final class PaymentViewController: UIViewController {
         paragraph.alignment = .center
         
         let attributes: [NSAttributedString.Key: Any] = [
-            .font: Constants.Typography.titleFont,
+            .font: UIFont.bodyBold,
             .paragraphStyle: paragraph,
             .kern: 0,
-            .foregroundColor: Constants.Colors.title
+            .foregroundColor: UIColor(resource: .nftBlack)
         ]
         
         navigationController?.navigationBar.titleTextAttributes = attributes
@@ -258,3 +251,4 @@ extension UINavigationController {
         }
     }
 }
+

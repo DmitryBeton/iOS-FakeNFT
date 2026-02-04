@@ -21,18 +21,6 @@ final class UICurrencyCollectionViewCell: UICollectionViewCell, ReuseIdentifying
             static let currencyViewLeading: CGFloat = 4
             static let imageInset: CGFloat = 2.25
         }
-        enum Colors {
-            static let contentBackground = UIColor(resource: .nftLightGray)
-            static let contentBorder = UIColor.black
-            static let selectedBorder = UIColor(resource: .nftBlack)
-            static let imageContainer = UIColor(resource: .nftBlackUni)
-            static let title = UIColor(resource: .nftBlack)
-            static let name = UIColor(resource: .nftGreen)
-        }
-        enum Typography {
-            static let title = UIFont.caption2
-            static let name = UIFont.caption2
-        }
     }
 
     // MARK: - UI Elements
@@ -41,7 +29,7 @@ final class UICurrencyCollectionViewCell: UICollectionViewCell, ReuseIdentifying
     private let paddingImageView: UIView = {
         let view = UIView()
         view.layer.cornerRadius = Constants.Layout.imageContainerCornerRadius
-        view.backgroundColor = Constants.Colors.imageContainer
+        view.backgroundColor = UIColor(resource: .nftBlackUni)
         return view
     }()
     
@@ -55,15 +43,15 @@ final class UICurrencyCollectionViewCell: UICollectionViewCell, ReuseIdentifying
     
     private let currencyTitleLabel: UILabel = {
         let label = UILabel()
-        label.font = Constants.Typography.title
-        label.textColor = Constants.Colors.title
+        label.font = UIFont.caption2
+        label.textColor = UIColor(resource: .nftBlack)
         return label
     }()
     
     private let currencyNameLabel: UILabel = {
         let label = UILabel()
-        label.font = Constants.Typography.name
-        label.textColor = Constants.Colors.name
+        label.font = UIFont.caption2
+        label.textColor = UIColor(resource: .nftGreen)
         return label
     }()
     
@@ -93,16 +81,16 @@ final class UICurrencyCollectionViewCell: UICollectionViewCell, ReuseIdentifying
     }
     
     private func updateSelectionAppearance() {
-        contentView.layer.borderColor = Constants.Colors.selectedBorder.cgColor
+        contentView.layer.borderColor = UIColor(resource: .nftBlack).cgColor
         contentView.layer.borderWidth = isSelected ? Constants.Layout.borderWidthSelected : Constants.Layout.borderWidthDefault
     }
 
     // MARK: - Setup UI
     private func setupUI() {
-        contentView.backgroundColor = Constants.Colors.contentBackground
+        contentView.backgroundColor = UIColor(resource: .nftLightGray)
         contentView.layer.cornerRadius = Constants.Layout.contentCornerRadius
         contentView.layer.masksToBounds = true
-        contentView.layer.borderColor = Constants.Colors.contentBorder.cgColor
+        contentView.layer.borderColor = UIColor.black.cgColor
         contentView.layer.borderWidth = Constants.Layout.borderWidthDefault
         
         contentView.addSubview(paddingView)
@@ -152,3 +140,4 @@ final class UICurrencyCollectionViewCell: UICollectionViewCell, ReuseIdentifying
         ])
     }
 }
+

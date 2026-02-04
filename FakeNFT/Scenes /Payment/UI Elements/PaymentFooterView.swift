@@ -25,17 +25,6 @@ final class PaymentFooterView: UIView {
             static let payWidth: CGFloat = 343
             static let payHeight: CGFloat = 60
         }
-        enum Colors {
-            static let background = UIColor(resource: .nftLightGray)
-            static let text = UIColor(resource: .nftBlack)
-            static let link = UIColor(resource: .nftBlue)
-            static let payTitle = UIColor(resource: .nftWhite)
-            static let payBackground = UIColor(resource: .nftBlack)
-        }
-        enum Typography {
-            static let body = UIFont.caption2
-            static let button = UIFont.bodyBold
-        }
     }
 
     // MARK: - Properties
@@ -48,16 +37,16 @@ final class PaymentFooterView: UIView {
     private let agreementLabel: UILabel = {
         let label = UILabel()
         label.text = Constants.Text.agreementPrefix
-        label.font = Constants.Typography.body
-        label.textColor = Constants.Colors.text
+        label.font = UIFont.caption2
+        label.textColor = UIColor(resource: .nftBlack)
         return label
     }()
     
     private let linkLabel: UILabel = {
         let label = UILabel()
         label.text = Constants.Text.agreementLink
-        label.font = Constants.Typography.body
-        label.textColor = Constants.Colors.link
+        label.font = UIFont.caption2
+        label.textColor = UIColor(resource: .nftBlue)
         label.isUserInteractionEnabled = true
         return label
     }()
@@ -65,9 +54,9 @@ final class PaymentFooterView: UIView {
     private lazy var payButton: UIButton = {
         let button = UIButton()
         button.setTitle(Constants.Text.payButton, for: .normal)
-        button.setTitleColor(Constants.Colors.payTitle, for: .normal)
-        button.titleLabel?.font = Constants.Typography.button
-        button.backgroundColor = Constants.Colors.payBackground
+        button.setTitleColor(UIColor(resource: .nftWhite), for: .normal)
+        button.titleLabel?.font = UIFont.bodyBold
+        button.backgroundColor = UIColor(resource: .nftBlack)
         button.layer.cornerRadius = Constants.Layout.cornerRadius
         button.addTarget(self, action: #selector(processPayment), for: .touchUpInside)
         return button
@@ -88,7 +77,7 @@ final class PaymentFooterView: UIView {
     // MARK: - Setup UI
     private func setupView() {
         layer.cornerRadius = Constants.Layout.cornerRadius
-        backgroundColor = Constants.Colors.background
+        backgroundColor = UIColor(resource: .nftLightGray)
         
         [agreementView, agreementLabel, linkLabel, payButton].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false

@@ -19,16 +19,6 @@ final class PaymentSuccessViewController: UIViewController {
             static let buttonHeight: CGFloat = 60
             static let cornerRadius: CGFloat = 16
         }
-        enum Text {
-            static let successMessage = Localization.Payment.successMessage.localized
-            static let backToCart = Localization.Payment.backToCart.localized
-        }
-        enum Colors {
-            static let buttonTitle = UIColor(resource: .nftWhite)
-            static let buttonBackground = UIColor(resource: .nftBlack)
-            static let label = UIColor(resource: .nftBlack)
-            static let viewBackground = UIColor(resource: .nftWhite)
-        }
         enum Images {
             static let success = UIImage(resource: .success)
         }
@@ -50,19 +40,19 @@ final class PaymentSuccessViewController: UIViewController {
     private let label: UILabel = {
         let label = UILabel()
         label.font = UIFont.headline3
-        label.text = Constants.Text.successMessage
+        label.text = Localization.Payment.successMessage.localized
         label.textAlignment = .center
-        label.textColor = Constants.Colors.label
+        label.textColor = UIColor(resource: .nftBlack)
         label.numberOfLines = 2
         return label
     }()
     
     private let button: UIButton = {
         let button = UIButton()
-        button.setTitle(Constants.Text.backToCart, for: .normal)
-        button.setTitleColor(Constants.Colors.buttonTitle, for: .normal)
+        button.setTitle(Localization.Payment.backToCart.localized, for: .normal)
+        button.setTitleColor(UIColor(resource: .nftWhite), for: .normal)
         button.titleLabel?.font = UIFont.bodyBold
-        button.backgroundColor = Constants.Colors.buttonBackground
+        button.backgroundColor = UIColor(resource: .nftBlack)
         button.layer.cornerRadius = Constants.Layout.cornerRadius
         return button
     }()
@@ -75,7 +65,7 @@ final class PaymentSuccessViewController: UIViewController {
     
     // MARK: - Setup
     private func setupUI() {
-        view.backgroundColor = Constants.Colors.viewBackground
+        view.backgroundColor = UIColor(resource: .nftWhite)
         
         [successView ,imageView, label, button].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
@@ -114,3 +104,4 @@ final class PaymentSuccessViewController: UIViewController {
         onBackToCartTapped?()
     }
 }
+
