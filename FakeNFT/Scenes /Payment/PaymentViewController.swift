@@ -101,15 +101,25 @@ final class PaymentViewController: UIViewController {
             guard let self else { return }
             self.collection.reloadData()
             UIBlockingProgressHUD.dismiss()
+
             if self.viewModel.itemsCount == 0 {
                 if connectivity.isOfflineNow() {
-                    self.showNoInternetAlert { [weak self] in
-                        self?.startLoadCurrency()
-                    }
+                    // Офлайн — универсальный офлайн-алерт
+                    self.showRetryAlert(
+                        title: Localization.Payment.noInternet.localized,
+                        message: Localization.Payment.noInternetMessage.localized,
+                        retryAction: { [weak self] in self?.startLoadCurrency() }
+                    )
                 } else {
-                    self.showRetryCurrencyAlert()
+                    // Прочая ошибка — универсальный retry-алерт с заголовком загрузки валют
+                    self.showRetryAlert(
+                        title: Constants.Text.currencyLoadErrorTitle,
+                        message: nil,
+                        retryAction: { [weak self] in self?.startLoadCurrency() }
+                    )
                 }
             }
+
             self.clearSelectionAndDisablePay()
         }
     }
@@ -135,13 +145,22 @@ final class PaymentViewController: UIViewController {
                     self?.navigationController?.popToViewController(ofType: CartViewController.self, animated: true)
                 }
                 self.navigationController?.pushViewController(successVC, animated: true)
+
             case .failure:
                 if connectivity.isOfflineNow() {
-                    self.showNoInternetAlert { [weak self] in
-                        self?.startPayment()
-                    }
+                    // Офлайн — универсальный офлайн-алерт
+                    self.showRetryAlert(
+                        title: Localization.Payment.noInternet.localized,
+                        message: Localization.Payment.noInternetMessage.localized,
+                        retryAction: { [weak self] in self?.startPayment() }
+                    )
                 } else {
-                    self.showRetryPayAlert()
+                    // Прочая ошибка оплаты — универсальный retry-алерт
+                    self.showRetryAlert(
+                        title: Constants.Text.payErrorTitle,
+                        message: nil,
+                        retryAction: { [weak self] in self?.startPayment() }
+                    )
                 }
             }
         }
@@ -152,41 +171,15 @@ final class PaymentViewController: UIViewController {
         UIBlockingProgressHUD.show()
     }
 
-    private func showRetryCurrencyAlert() {
-        let alert = UIAlertController(
-            title: Constants.Text.currencyLoadErrorTitle,
-            message: nil,
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(title: Constants.Text.retry, style: .default) { [weak self] _ in
-            self?.startLoadCurrency()
-        })
-        alert.addAction(UIAlertAction(title: Constants.Text.cancel, style: .cancel))
-        present(alert, animated: true)
-    }
-
-    private func showRetryPayAlert() {
-        let alert = UIAlertController(
-            title: Constants.Text.payErrorTitle,
-            message: nil,
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(title: Constants.Text.retry, style: .default) { [weak self] _ in
-            self?.startPayment()
-        })
-        alert.addAction(UIAlertAction(title: Constants.Text.cancel, style: .cancel))
-        present(alert, animated: true)
-    }
-
-    private func showNoInternetAlert(retry: @escaping () -> Void) {
-        let title = Localization.Payment.noInternet.localized
-        let message = Localization.Payment.noInternetMessage.localized
+    // MARK: - Generic alerts
+    private func showRetryAlert(title: String, message: String?, retryAction: @escaping () -> Void) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
 
         alert.addAction(UIAlertAction(title: Constants.Text.retry, style: .default) { _ in
-            retry()
+            retryAction()
         })
         alert.addAction(UIAlertAction(title: Constants.Text.cancel, style: .cancel))
+
         present(alert, animated: true)
     }
 

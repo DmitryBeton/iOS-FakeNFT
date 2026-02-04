@@ -404,6 +404,16 @@
 			path = Requests;
 			sourceTree = "<group>";
 		};
+		8C14C5BF2F3400AE00D427DC /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				8C14C5BD2F33FD2500D427DC /* ConnectivityService.swift */,
+				8C5EE84B2F333CD400128266 /* CurrencyServiceProtocol.swift */,
+				8C5EE84C2F333CD400128266 /* PaymentServiceProtocol.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
 		8C5EE8342F333CD400128266 /* Models */ = {
 			isa = PBXGroup;
 			children = (
@@ -455,6 +465,7 @@
 			children = (
 				8C5EE8472F333CD400128266 /* PaymentFooterView.swift */,
 				8C5EE8482F333CD400128266 /* UICurrencyCollectionViewCell.swift */,
+				8C5EE8502F333CD400128266 /* UIBlockingProgressHUD.swift */,
 			);
 			path = "UI Elements";
 			sourceTree = "<group>";
@@ -462,16 +473,13 @@
 		8C5EE8512F333CD400128266 /* Payment */ = {
 			isa = PBXGroup;
 			children = (
+				8C14C5BF2F3400AE00D427DC /* Services */,
 				8C4568532F33B28B0030DE66 /* Extensions */,
 				8C5EE8452F333CD400128266 /* Models */,
 				8C5EE8492F333CD400128266 /* UI Elements */,
-				8C14C5BD2F33FD2500D427DC /* ConnectivityService.swift */,
-				8C5EE84B2F333CD400128266 /* CurrencyServiceProtocol.swift */,
-				8C5EE84C2F333CD400128266 /* PaymentServiceProtocol.swift */,
 				8C5EE84D2F333CD400128266 /* PaymentSuccessViewController.swift */,
 				8C5EE84E2F333CD400128266 /* PaymentViewController.swift */,
 				8C5EE84F2F333CD400128266 /* PaymentViewModel.swift */,
-				8C5EE8502F333CD400128266 /* UIBlockingProgressHUD.swift */,
 			);
 			path = Payment;
 			sourceTree = "<group>";
