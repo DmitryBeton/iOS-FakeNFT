@@ -31,6 +31,14 @@ final class PaymentFooterView: UIView {
     var onPayTapped: (() -> Void)?
     var onAgreementTapped: (() -> Void)?
 
+    var isPayEnabled: Bool {
+        get { payButton.isEnabled }
+        set {
+            payButton.isEnabled = newValue
+            updatePayButtonAppearance()
+        }
+    }
+
     // MARK: - UI Elements
     private let agreementView = UIView()
     
@@ -59,6 +67,7 @@ final class PaymentFooterView: UIView {
         button.backgroundColor = UIColor(resource: .nftBlack)
         button.layer.cornerRadius = Constants.Layout.cornerRadius
         button.addTarget(self, action: #selector(processPayment), for: .touchUpInside)
+        button.isEnabled = false
         return button
     }()
     
@@ -67,6 +76,7 @@ final class PaymentFooterView: UIView {
         super.init(frame: frame)
         setupView()
         setupGestures()
+        updatePayButtonAppearance()
     }
     
     @available(*, unavailable)
@@ -111,6 +121,10 @@ final class PaymentFooterView: UIView {
     private func setupGestures() {
         let tap = UITapGestureRecognizer(target: self, action: #selector(linkTapped))
         linkLabel.addGestureRecognizer(tap)
+    }
+    
+    private func updatePayButtonAppearance() {
+        payButton.alpha = payButton.isEnabled ? 1.0 : 0.5
     }
     
     // MARK: - Actions

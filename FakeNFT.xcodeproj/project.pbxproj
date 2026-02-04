@@ -164,6 +164,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		8C4568532F33B28B0030DE66 /* Extensions */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Extensions; sourceTree = "<group>"; };
 		FD05033A2F24F14200E304AC /* docs */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = docs; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
@@ -451,6 +452,7 @@
 		8C5EE8512F333CD400128266 /* Payment */ = {
 			isa = PBXGroup;
 			children = (
+				8C4568532F33B28B0030DE66 /* Extensions */,
 				8C5EE8452F333CD400128266 /* Models */,
 				8C5EE8492F333CD400128266 /* UI Elements */,
 				8C5EE84B2F333CD400128266 /* CurrencyServiceProtocol.swift */,
@@ -516,6 +518,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				8C4568532F33B28B0030DE66 /* Extensions */,
 				FD05033A2F24F14200E304AC /* docs */,
 			);
 			name = FakeNFT;

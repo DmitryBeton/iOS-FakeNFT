@@ -45,6 +45,7 @@ final class PaymentViewController: UIViewController {
         let collection = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collection.backgroundColor = .clear
         collection.register(UICurrencyCollectionViewCell.self)
+        collection.allowsMultipleSelection = false
         return collection
     }()
     
@@ -71,6 +72,8 @@ final class PaymentViewController: UIViewController {
         setupUI()
         applyNavigationTitleStyle()
         setupBindings()
+        
+        paymentFooterView.isPayEnabled = false
     }
     
     // MARK: - Setup
@@ -110,11 +113,13 @@ final class PaymentViewController: UIViewController {
         }
         
         viewModel.onItemsUpdated = { [weak self] in
-            self?.collection.reloadData()
+            guard let self else { return }
+            self.collection.reloadData()
             UIBlockingProgressHUD.dismiss()
-            if self?.viewModel.itemsCount == 0 {
-                self?.showRetryCurrencyAlert()
+            if self.viewModel.itemsCount == 0 {
+                self.showRetryCurrencyAlert()
             }
+            self.clearSelectionAndDisablePay()
         }
     }
     
@@ -191,6 +196,13 @@ final class PaymentViewController: UIViewController {
         
         navigationController?.navigationBar.titleTextAttributes = attributes
     }
+    
+    private func clearSelectionAndDisablePay() {
+        collection.indexPathsForSelectedItems?.forEach { indexPath in
+            collection.deselectItem(at: indexPath, animated: false)
+        }
+        paymentFooterView.isPayEnabled = false
+    }
 }
 
 extension PaymentViewController: UICollectionViewDataSource {
@@ -244,11 +256,14 @@ extension PaymentViewController: UICollectionViewDelegateFlowLayout {
     }
 }
 
-extension UINavigationController {
-    func popToViewController<T: UIViewController>(ofType type: T.Type, animated: Bool) {
-        if let target = viewControllers.first(where: { $0 is T }) {
-            popToViewController(target, animated: animated)
-        }
+// MARK: - Selection handling
+extension PaymentViewController: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        paymentFooterView.isPayEnabled = true
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        let hasSelection = !(collectionView.indexPathsForSelectedItems?.isEmpty ?? true)
+        paymentFooterView.isPayEnabled = hasSelection
     }
 }
-
