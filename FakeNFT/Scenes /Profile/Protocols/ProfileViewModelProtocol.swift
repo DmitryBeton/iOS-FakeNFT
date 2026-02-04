@@ -32,6 +32,6 @@ protocol ProfileViewModelProtocol: AnyObject {
     /// - Returns: Короткая строка URL  для отображения в UI
     func shortURLString(from urlString: String) -> String
     
-    /// Получить URL сайта профиля
-    func websiteURL() -> URL?
+    /// Получить полную строку URL сайта профиля
+    func websiteURLString() -> String
 }

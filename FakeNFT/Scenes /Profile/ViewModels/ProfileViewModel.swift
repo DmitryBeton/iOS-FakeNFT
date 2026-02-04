@@ -46,8 +46,8 @@ final class ProfileViewModel: ProfileViewModelProtocol {
         return url.host()?.replacingOccurrences(of: "www", with: "") ?? ""
     }
     
-    func websiteURL() -> URL? {
-        profile?.website
+    func websiteURLString() -> String {
+        profile?.website?.absoluteString ?? ""
     }
     
     // MARK: - State

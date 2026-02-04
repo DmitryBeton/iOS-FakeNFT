@@ -195,11 +195,8 @@ final class ProfileViewController: UIViewController {
     }
     
     @objc private func linkButtonTapped() {
-        guard let url = viewModel.websiteURL() else {
-            showErrorAlert()
-            return
-        }
-        let controller = AgreementWebViewController(urlString: url.absoluteString)
+        let urlString = viewModel.websiteURLString()
+        let controller = AgreementWebViewController(urlString: urlString)
         navigationController?.pushViewController(controller, animated: true)
     }
     
