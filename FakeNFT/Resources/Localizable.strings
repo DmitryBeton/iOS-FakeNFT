@@ -27,3 +27,7 @@
 "ProfileAlert.loadError" = "Не удалось получить данные";
 "ProfileAlert.updateError" = "Не удалось обновить данные";
 "ProfileAlert.retry" = "Повторить";
+
+// MyNFT
+"MyNFT.title" = "Мои NFT";
+"MyNFT.empty" = "У Вас ещё нет NFT";

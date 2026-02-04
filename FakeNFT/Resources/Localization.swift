@@ -24,6 +24,10 @@ enum Localization {
         static let updateError = "ProfileAlert.updateError".localized
         static let retry = "ProfileAlert.retry".localized
     }
+    enum MyNFT {
+        static let title = "MyNFT.title".localized
+        static let empty = "MyNFT.empty".localized
+    }
 }
 
 extension String {

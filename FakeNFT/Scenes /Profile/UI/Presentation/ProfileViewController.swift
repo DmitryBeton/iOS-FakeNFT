@@ -145,6 +145,10 @@ final class ProfileViewController: UIViewController {
             UIImage(resource: .prBack),
             transitionMaskImage: UIImage(resource: .prBack)
         )
+        appearance.titleTextAttributes = [
+            .foregroundColor: UIColor(resource: .nftBlack),
+            .font: UIFont.bodyBold
+        ]
         
         navigationController?.navigationBar.standardAppearance = appearance
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
