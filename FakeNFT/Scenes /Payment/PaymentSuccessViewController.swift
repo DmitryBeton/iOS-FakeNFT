@@ -10,17 +10,17 @@ import UIKit
 final class PaymentSuccessViewController: UIViewController {
     // MARK: - Properties
     var onBackToCartTapped: (() -> Void)?
-    
+
     // MARK: - UI Elements
     private let successView = UIView()
-    
+
     private let imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = Constants.Images.success
         imageView.contentMode = .scaleAspectFit
         return imageView
     }()
-    
+
     private let label: UILabel = {
         let label = UILabel()
         label.font = UIFont.headline3
@@ -30,7 +30,7 @@ final class PaymentSuccessViewController: UIViewController {
         label.numberOfLines = 2
         return label
     }()
-    
+
     private let button: UIButton = {
         let button = UIButton()
         button.setTitle(Localization.Payment.backToCart.localized, for: .normal)
@@ -40,17 +40,17 @@ final class PaymentSuccessViewController: UIViewController {
         button.layer.cornerRadius = Constants.Layout.cornerRadius
         return button
     }()
-    
+
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
     }
-    
+
     // MARK: - Setup
     private func setupUI() {
         view.backgroundColor = UIColor(resource: .nftWhite)
-        
+
         [successView, imageView, label, button].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
         }
@@ -58,31 +58,31 @@ final class PaymentSuccessViewController: UIViewController {
         view.addSubview(button)
         successView.addSubview(imageView)
         successView.addSubview(label)
-        
+
         NSLayoutConstraint.activate([
             successView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             successView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             successView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             successView.bottomAnchor.constraint(equalTo: button.topAnchor),
-            
+
             imageView.centerXAnchor.constraint(equalTo: successView.centerXAnchor),
             imageView.centerYAnchor.constraint(equalTo: successView.centerYAnchor, constant: Constants.Layout.imageCenterYOffset),
             imageView.widthAnchor.constraint(equalToConstant: Constants.Layout.imageSide),
             imageView.heightAnchor.constraint(equalToConstant: Constants.Layout.imageSide),
-            
+
             label.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: Constants.Layout.labelTopSpacing),
             label.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.Layout.labelHorizontalInset),
             label.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constants.Layout.labelHorizontalInset),
-            
+
             button.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -Constants.Layout.buttonBottomInset),
             button.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.Layout.buttonHorizontalInset),
             button.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constants.Layout.buttonHorizontalInset),
             button.heightAnchor.constraint(equalToConstant: Constants.Layout.buttonHeight)
         ])
-        
+
         button.addTarget(self, action: #selector(backToCartTapped), for: .touchUpInside)
     }
-    
+
     // MARK: - Actions
     @objc private func backToCartTapped() {
         onBackToCartTapped?()

@@ -15,12 +15,12 @@ final class UIBlockingProgressHUD {
             .first { $0.activationState == .foregroundActive }
         return windowScene?.windows.first { $0.isKeyWindow }
     }
-    
+
     static func show() {
         window?.isUserInteractionEnabled = false
         ProgressHUD.show()
     }
-    
+
     static func dismiss() {
         window?.isUserInteractionEnabled = true
         ProgressHUD.dismiss()
