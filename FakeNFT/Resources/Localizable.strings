@@ -25,3 +25,18 @@
 "Delete.Alert.cancel" = "Вернуться";
 "Delete.Alert.delete" = "Удалить";
 
+// PaymentVC
+"Payment.navigation_title" = "Выберите способ оплаты";
+"Payment.error.currency_load" = "Не удалось загрузить данные";
+"Payment.error.pay" = "Не удалось произвести оплату";
+"Payment.retry" = "Повторить";
+"Payment.cancel" = "Отмена";
+
+// PaymentFooter
+"Payment.agreement_prefix" = "Совершая покупку, вы соглашаетесь с условиями";
+"Payment.agreement_link" = "Пользовательского соглашения";
+"Payment.pay" = "Оплатить";
+
+// PaymentSuccessVC
+"Payment.success" = "Успех! Оплата прошла,\nпоздравляем с покупкой!";
+"Payment.back_to_cart" = "Вернуться в корзину";

@@ -16,7 +16,7 @@ enum Localization {
         
         static let sort = "Alert.sort"
         static let close = "Alert.close"
-
+        
         static let payButton = "Button.to_pay"
         
         static let confirmationOfDeletion = "Delete.Alert.delete.confirmation"
@@ -24,6 +24,20 @@ enum Localization {
         static let deleteButton = "Delete.Alert.delete"
     }
     
+    enum Payment {
+        static let navTitle = "Payment.navigation.title"
+        static let currencyLoadErrorTitle = "Payment.error.currency.load"
+        static let payErrorTitle = "Payment.error.pay"
+        static let retry = "Payment.retry"
+        static let cancel = "Payment.cancel"
+        
+        static let successMessage = "Payment.success";
+        static let backToCart = "Payment.back_to_cart";
+        
+        static let agreementPrefix = "Payment.agreement_prefix"
+        static let agreementLink = "Payment.agreement_link"
+        static let payButton = "Payment.pay"
+    }
 }
 
 extension String {

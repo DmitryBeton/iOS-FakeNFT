@@ -20,8 +20,8 @@ final class PaymentSuccessViewController: UIViewController {
             static let cornerRadius: CGFloat = 16
         }
         enum Text {
-            static let successMessage = "Успех! Оплата прошла,\nпоздравляем с покупкой!"
-            static let backToCart = "Вернуться в корзину"
+            static let successMessage = Localization.Payment.successMessage.localized
+            static let backToCart = Localization.Payment.backToCart.localized
         }
         enum Colors {
             static let buttonTitle = UIColor(resource: .nftWhite)

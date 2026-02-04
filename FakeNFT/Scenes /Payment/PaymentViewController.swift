@@ -11,12 +11,12 @@ import ProgressHUD
 final class PaymentViewController: UIViewController {
     private enum Constants {
         enum Text {
-            static let navTitle = "Выберите способ оплаты"
+            static let navTitle = Localization.Payment.navTitle.localized
             static let agreementURL = "https://yandex.ru/legal/practicum_termsofuse"
-            static let currencyLoadErrorTitle = "Не удалось загрузить данные"
-            static let payErrorTitle = "Не удалось произвести оплату"
-            static let retry = "Повторить"
-            static let cancel = "Отмена"
+            static let currencyLoadErrorTitle = Localization.Payment.currencyLoadErrorTitle.localized
+            static let payErrorTitle = Localization.Payment.payErrorTitle.localized
+            static let retry = Localization.Payment.retry.localized
+            static let cancel = Localization.Payment.cancel.localized
         }
         enum Layout {
             // Collection layout

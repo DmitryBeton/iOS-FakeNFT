@@ -10,9 +10,9 @@ import UIKit
 final class PaymentFooterView: UIView {
     private enum Constants {
         enum Text {
-            static let agreementPrefix = "Совершая покупку, вы соглашаетесь с условиями"
-            static let agreementLink = "Пользовательского соглашения"
-            static let payButton = "Оплатить"
+            static let agreementPrefix = Localization.Payment.agreementPrefix.localized
+            static let agreementLink = Localization.Payment.agreementLink.localized
+            static let payButton = Localization.Payment.payButton.localized
         }
         enum Layout {
             static let cornerRadius: CGFloat = 16
