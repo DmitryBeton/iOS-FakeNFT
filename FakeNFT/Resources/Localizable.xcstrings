@@ -4,6 +4,12 @@
     "Alert.close" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "إغلاق"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -21,6 +27,12 @@
     "Alert.sort" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "فرز"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -38,6 +50,12 @@
     "Button.to_pay" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "المتابعة للدفع"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -55,6 +73,12 @@
     "Catalog.openNft" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "فتح الـNFT"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -72,6 +96,12 @@
     "Cell.Price" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "السعر"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -89,6 +119,12 @@
     "Delete.Alert.cancel" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "رجوع"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -106,6 +142,12 @@
     "Delete.Alert.delete" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "حذف"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -123,6 +165,12 @@
     "Delete.Alert.delete.confirmation" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : " هل أنت متأكد أنك تريد\nحذف العنصر من السلة؟"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -140,6 +188,12 @@
     "Error.network" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "حدث خطأ في الشبكة"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -157,6 +211,12 @@
     "Error.repeat" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "إعادة المحاولة"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -174,6 +234,12 @@
     "Error.title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "خطأ"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -191,6 +257,12 @@
     "Error.unknown" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "حدث خطأ غير معروف"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -208,6 +280,12 @@
     "Filter.cart.by_price" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "حسب السعر"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -225,6 +303,12 @@
     "Filter.cart.by_rating" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "حسب التقييم"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -242,6 +326,12 @@
     "Filter.cart.by_title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "حسب العنوان"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -259,6 +349,12 @@
     "Main.cart.empty" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "سلة التسوق فارغة"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -276,6 +372,12 @@
     "Payment.agreement_link" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اتفاقية المستخدم"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -293,6 +395,12 @@
     "Payment.agreement_prefix" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "بإتمام عملية الشراء، فإنك توافق على الشروط"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -310,6 +418,12 @@
     "Payment.back_to_cart" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "العودة إلى السلة"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -327,6 +441,12 @@
     "Payment.cancel" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "إلغاء"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -344,6 +464,12 @@
     "Payment.error.currency_load" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "فشل تحميل البيانات"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -361,6 +487,12 @@
     "Payment.error.pay" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "فشل الدفع"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -378,6 +510,12 @@
     "Payment.navigation_title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اختر طريقة الدفع"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -395,6 +533,12 @@
     "Payment.pay" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ادفع"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -412,6 +556,12 @@
     "Payment.retry" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "إعادة المحاولة"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -429,6 +579,12 @@
     "Payment.success" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تم إتمام الدفع!\nاستمتع بعملية الشراء"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -446,6 +602,12 @@
     "Tab.cart" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "السلة"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -463,6 +625,12 @@
     "Tab.catalog" : {
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "الكتالوج"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
