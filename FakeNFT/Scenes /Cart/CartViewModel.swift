@@ -66,6 +66,15 @@ final class CartViewModel: CartViewModelProtocol {
         self.sortStore = sortStore
         
         self.sortOption = sortStore.load()
+        
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(handleCartDidChange(_:)),
+                                               name: .cartDidChange,
+                                               object: nil)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: .cartDidChange, object: nil)
     }
     
     // MARK: - Properties
@@ -147,4 +156,10 @@ final class CartViewModel: CartViewModelProtocol {
             price: formattedPrice
         )
     }
+    
+    // MARK: - Notifications
+    @objc private func handleCartDidChange(_ notification: Notification) {
+        loadItems()
+    }
 }
+

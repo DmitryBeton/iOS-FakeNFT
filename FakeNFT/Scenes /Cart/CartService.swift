@@ -26,6 +26,10 @@ protocol CartServiceProtocol {
     ///   - items: Массив элементов корзины для сохранения.
     ///   - completion: Замыкание, вызываемое после завершения сохранения.
     func saveCartItems(_ items: [CartItem], completion: @escaping () -> Void)
+    
+    /// Очищает корзину целиком.
+    /// - Parameter completion: Вызывается после очистки.
+    func clearCart(completion: @escaping () -> Void)
 }
 
 final class CartService: CartServiceProtocol {
@@ -57,4 +61,15 @@ final class CartService: CartServiceProtocol {
         repository.saveCartItems(items)
         completion()
     }
+    
+    func clearCart(completion: @escaping () -> Void) {
+        repository.clearCart()
+        completion()
+    }
 }
+
+// Глобальное уведомление об изменениях корзины (очистка/добавление/удаление)
+extension Notification.Name {
+    static let cartDidChange = Notification.Name("CartDidChange")
+}
+

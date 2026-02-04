@@ -72,12 +72,15 @@ final class PaymentViewModel: PaymentViewModelProtocol {
 
     private let paymentService: PaymentServiceProtocol
     private let currencyService: CurrencyServiceProtocol
+    private let cartService: CartServiceProtocol
     
     // MARK: - Initialization
     init(paymentService: PaymentServiceProtocol = MockPaymentService(),
-         currencyService: CurrencyServiceProtocol = MockCurrencyService()) {
+         currencyService: CurrencyServiceProtocol = MockCurrencyService(),
+         cartService: CartServiceProtocol = CartService()) {
         self.paymentService = paymentService
         self.currencyService = currencyService
+        self.cartService = cartService
     }
     
     func loadItems() {
@@ -100,7 +103,18 @@ final class PaymentViewModel: PaymentViewModelProtocol {
     }
     
     func pay(completion: @escaping (Result<Void, Error>) -> Void) {
-        paymentService.pay(completion: completion)
+        paymentService.pay { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success:
+                self.cartService.clearCart {
+                    NotificationCenter.default.post(name: .cartDidChange, object: nil)
+                    completion(.success(()))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
     }
     
     // MARK: - Mapping
@@ -113,3 +127,4 @@ final class PaymentViewModel: PaymentViewModelProtocol {
         )
     }
 }
+
