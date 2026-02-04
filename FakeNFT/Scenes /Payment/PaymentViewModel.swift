@@ -20,26 +20,26 @@ protocol PaymentViewModelProtocol: AnyObject {
     ///
     /// - Note: Изменение этого массива вызывает `onItemsUpdated`.
     var items: [UICurrency] { get }
-
+    
     /// Количество элементов для удобства работы с коллекцией/таблицей.
     var itemsCount: Int { get }
-
+    
     /// Коллбек, вызываемый при обновлении `items`.
     ///
     /// - Important: Предназначен для обновления UI, поэтому должен вызываться на главном потоке.
     var onItemsUpdated: (() -> Void)? { get set }
-
+    
     /// Загружает исходные данные (валюты) и маппит их в `items`.
     ///
     /// - Note: В случае ошибки текущая реализация очищает список (items = []).
     /// - Important: Гарантируйте вызов `onItemsUpdated` на главном потоке.
     func loadItems()
-
+    
     /// Возвращает UI-модель валюты по индексу, если она существует.
     /// - Parameter index: Индекс в массиве `items`.
     /// - Returns: Экземпляр `UICurrency` или `nil`, если индекс вне диапазона.
     func getUICurrency(at index: Int) -> UICurrency?
-
+    
     /// Запускает процесс оплаты.
     ///
     /// - Parameter completion: Замыкание, вызываемое по завершении операции.
@@ -52,28 +52,28 @@ protocol PaymentViewModelProtocol: AnyObject {
 }
 
 final class PaymentViewModel: PaymentViewModelProtocol {
-
+    
     // MARK: - Backing storage
     private var currencyItems: [Currency] = [] {
         didSet {
             items = currencyItems.map { self.mapToUI($0) }
         }
     }
-
+    
     // MARK: - Properties
     var items: [UICurrency] = [] {
         didSet {
             onItemsUpdated?()
         }
     }
-
+    
     var itemsCount: Int { items.count }
     var onItemsUpdated: (() -> Void)?
-
+    
     private let paymentService: PaymentServiceProtocol
     private let currencyService: CurrencyServiceProtocol
     private let cartService: CartServiceProtocol
-
+    
     // MARK: - Initialization
     init(paymentService: PaymentServiceProtocol = MockPaymentService(),
          currencyService: CurrencyServiceProtocol = MockCurrencyService(),
@@ -82,7 +82,7 @@ final class PaymentViewModel: PaymentViewModelProtocol {
         self.currencyService = currencyService
         self.cartService = cartService
     }
-
+    
     func loadItems() {
         currencyService.fetchCurrencies { [weak self] result in
             guard let self else { return }
@@ -94,14 +94,14 @@ final class PaymentViewModel: PaymentViewModelProtocol {
             }
         }
     }
-
+    
     // MARK: - Public Methods
-
+    
     func getUICurrency(at index: Int) -> UICurrency? {
         guard index < items.count else { return nil }
         return items[index]
     }
-
+    
     func pay(completion: @escaping (Result<Void, Error>) -> Void) {
         paymentService.pay { [weak self] result in
             guard let self else { return }
@@ -116,7 +116,7 @@ final class PaymentViewModel: PaymentViewModelProtocol {
             }
         }
     }
-
+    
     // MARK: - Mapping
     private func mapToUI(_ currency: Currency) -> UICurrency {
         let image = UIImage(named: currency.logo)

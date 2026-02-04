@@ -13,7 +13,7 @@ import Foundation
 /// По умолчанию моковая реализация (MockCurrencyService) вызывает completion на главном потоке.
 /// Если в реальной реализации поток не гарантируется, вызывающая сторона должна самостоятельно переключаться на нужный поток.
 protocol CurrencyServiceProtocol {
-
+    
     /// Загружает список валют.
     ///
     /// - Parameter completion: Замыкание, вызываемое один раз по завершении операции.
@@ -33,13 +33,13 @@ final class MockCurrencyService: CurrencyServiceProtocol {
     enum MockError: Error {
         case failed
     }
-
+    
     /// Определяет, вернется ли успех или ошибка.
     var shouldSucceed: Bool = true
-
+    
     /// Задержка перед ответом, секунды.
     var delay: TimeInterval = 0.5
-
+    
     var stubCurrencies: [Currency] = [
         Currency(title: "Bitcoin", name: "BTC", logo: "Bitcoin"),
         Currency(title: "Dogecoin", name: "DOGE", logo: "Dogecoin"),
@@ -50,7 +50,7 @@ final class MockCurrencyService: CurrencyServiceProtocol {
         Currency(title: "Cardano", name: "ADA", logo: "Cardano"),
         Currency(title: "Shiba Inu", name: "SHIB", logo: "ShibaInu")
     ]
-
+    
     func fetchCurrencies(completion: @escaping (Result<[Currency], Error>) -> Void) {
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
             if self.shouldSucceed {

@@ -8,11 +8,11 @@
 import UIKit
 
 final class PaymentFooterView: UIView {
-
+    
     // MARK: - Properties
     var onPayTapped: (() -> Void)?
     var onAgreementTapped: (() -> Void)?
-
+    
     var isPayEnabled: Bool {
         get { payButton.isEnabled }
         set {
@@ -20,10 +20,10 @@ final class PaymentFooterView: UIView {
             updatePayButtonAppearance()
         }
     }
-
+    
     // MARK: - UI Elements
     private let agreementView = UIView()
-
+    
     private let agreementLabel: UILabel = {
         let label = UILabel()
         label.text = Constants.Text.agreementPrefix
@@ -31,7 +31,7 @@ final class PaymentFooterView: UIView {
         label.textColor = UIColor(resource: .nftBlack)
         return label
     }()
-
+    
     private let linkLabel: UILabel = {
         let label = UILabel()
         label.text = Constants.Text.agreementLink
@@ -40,7 +40,7 @@ final class PaymentFooterView: UIView {
         label.isUserInteractionEnabled = true
         return label
     }()
-
+    
     private lazy var payButton: UIButton = {
         let button = UIButton()
         button.setTitle(Constants.Text.payButton, for: .normal)
@@ -52,7 +52,7 @@ final class PaymentFooterView: UIView {
         button.isEnabled = false
         return button
     }()
-
+    
     // MARK: - Init
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -60,37 +60,37 @@ final class PaymentFooterView: UIView {
         setupGestures()
         updatePayButtonAppearance()
     }
-
+    
     @available(*, unavailable)
     required init?(coder: NSCoder) {
         nil
     }
-
+    
     // MARK: - Setup UI
     private func setupView() {
         layer.cornerRadius = Constants.Layout.cornerRadius
         backgroundColor = UIColor(resource: .nftLightGray)
-
+        
         [agreementView, agreementLabel, linkLabel, payButton].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
         }
-
+        
         addSubview(agreementView)
         addSubview(payButton)
         agreementView.addSubview(agreementLabel)
         agreementView.addSubview(linkLabel)
-
+        
         NSLayoutConstraint.activate([
             agreementView.topAnchor.constraint(equalTo: self.topAnchor, constant: Constants.Layout.contentInset),
             agreementView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: Constants.Layout.contentInset),
             agreementView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -Constants.Layout.contentInset),
-
+            
             agreementLabel.topAnchor.constraint(equalTo: agreementView.topAnchor),
             agreementLabel.leadingAnchor.constraint(equalTo: agreementView.leadingAnchor),
-
+            
             linkLabel.topAnchor.constraint(equalTo: agreementLabel.bottomAnchor, constant: Constants.Layout.linkTopSpacing),
             linkLabel.leadingAnchor.constraint(equalTo: agreementLabel.leadingAnchor),
-
+            
             payButton.topAnchor.constraint(equalTo: agreementView.bottomAnchor, constant: Constants.Layout.payTopSpacing),
             payButton.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: Constants.Layout.payLeadingInset),
             payButton.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -Constants.Layout.payTrailingInset),
@@ -99,22 +99,22 @@ final class PaymentFooterView: UIView {
             payButton.heightAnchor.constraint(equalToConstant: Constants.Layout.payHeight)
         ])
     }
-
+    
     private func setupGestures() {
         let tap = UITapGestureRecognizer(target: self, action: #selector(linkTapped))
         linkLabel.addGestureRecognizer(tap)
     }
-
+    
     private func updatePayButtonAppearance() {
         payButton.alpha = payButton.isEnabled ? 1.0 : 0.5
     }
-
+    
     // MARK: - Actions
     @objc
     private func processPayment() {
         onPayTapped?()
     }
-
+    
     @objc
     private func linkTapped() {
         onAgreementTapped?()
