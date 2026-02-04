@@ -30,6 +30,7 @@ final class UICurrencyCollectionViewCell: UICollectionViewCell, ReuseIdentifying
         let label = UILabel()
         label.font = UIFont.caption2
         label.textColor = UIColor(resource: .nftBlack)
+        label.textAlignment = .natural
         return label
     }()
 
@@ -37,6 +38,7 @@ final class UICurrencyCollectionViewCell: UICollectionViewCell, ReuseIdentifying
         let label = UILabel()
         label.font = UIFont.caption2
         label.textColor = UIColor(resource: .nftGreen)
+        label.textAlignment = .natural
         return label
     }()
 
@@ -96,6 +98,7 @@ final class UICurrencyCollectionViewCell: UICollectionViewCell, ReuseIdentifying
             // paddingView
             paddingView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Constants.Layout.paddingViewTop),
             paddingView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Constants.Layout.paddingViewLeading),
+            paddingView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor), // added to avoid ambiguous width
             paddingView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: Constants.Layout.paddingViewBottom),
 
             // currencyImage container
@@ -119,8 +122,13 @@ final class UICurrencyCollectionViewCell: UICollectionViewCell, ReuseIdentifying
 
             // currencyTitleLabel
             currencyTitleLabel.topAnchor.constraint(equalTo: currencyView.topAnchor),
+            currencyTitleLabel.leadingAnchor.constraint(equalTo: currencyView.leadingAnchor),
+            currencyTitleLabel.trailingAnchor.constraint(lessThanOrEqualTo: currencyView.trailingAnchor),
 
-            // currencyValueLabel
+            // currencyNameLabel
+            currencyNameLabel.topAnchor.constraint(equalTo: currencyTitleLabel.bottomAnchor, constant: 2),
+            currencyNameLabel.leadingAnchor.constraint(equalTo: currencyView.leadingAnchor),
+            currencyNameLabel.trailingAnchor.constraint(lessThanOrEqualTo: currencyView.trailingAnchor),
             currencyNameLabel.bottomAnchor.constraint(equalTo: currencyView.bottomAnchor)
         ])
     }
