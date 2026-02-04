@@ -122,6 +122,11 @@ final class CollectionDetailViewController: UIViewController {
         viewModel.viewDidLoad()
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: animated)
+    }
+
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         navigationController?.setNavigationBarHidden(false, animated: animated)
@@ -158,6 +163,11 @@ final class CollectionDetailViewController: UIViewController {
 
     private func setupNavigationBar() {
         navigationController?.setNavigationBarHidden(true, animated: false)
+
+        let backButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
+        backButtonItem.tintColor = UIColor(resource: .nftBlack)
+        navigationItem.backBarButtonItem = backButtonItem
+        navigationController?.navigationBar.tintColor = UIColor(resource: .nftBlack)
     }
 
     private func setupGestures() {
@@ -166,7 +176,6 @@ final class CollectionDetailViewController: UIViewController {
     }
 
     @objc private func authorNameTapped() {
-        navigationController?.setNavigationBarHidden(false, animated: false)
         let webViewController = AgreementWebViewController(
             urlString: "https://practicum.yandex.ru/ios-developer/?from=catalog"
         )
