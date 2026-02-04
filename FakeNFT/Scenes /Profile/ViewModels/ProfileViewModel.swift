@@ -41,11 +41,6 @@ final class ProfileViewModel: ProfileViewModelProtocol {
         profile?.likes.count ?? 0
     }
     
-    func shortURLString(from urlString: String) -> String {
-        guard let url = URL(string: urlString) else { return "" }
-        return url.host()?.replacingOccurrences(of: "www", with: "") ?? ""
-    }
-    
     func websiteURLString() -> String {
         profile?.website?.absoluteString ?? ""
     }

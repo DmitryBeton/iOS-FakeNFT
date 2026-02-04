@@ -239,7 +239,7 @@ final class ProfileViewController: UIViewController {
         setAvatar(imageURL: profile.avatarURL)
         nameLabel.text = profile.name
         descriptionLabel.text = profile.description
-        let shortLink = viewModel.shortURLString(from: profile.link)
+        let shortLink = profile.link.shortURLString
         linkButton.setTitle(shortLink, for: .normal)
     }
     

@@ -27,11 +27,6 @@ protocol ProfileViewModelProtocol: AnyObject {
     /// - Returns: Количество избранных NFT профиля
     func favouritesCount() -> Int
     
-    /// Получить короткую строку URL для удобного отображения
-    /// - Parameter urlString: Полная строка URL сайта профиля
-    /// - Returns: Короткая строка URL  для отображения в UI
-    func shortURLString(from urlString: String) -> String
-    
     /// Получить полную строку URL сайта профиля
     func websiteURLString() -> String
 }
