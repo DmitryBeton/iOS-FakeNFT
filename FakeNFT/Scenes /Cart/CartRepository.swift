@@ -13,21 +13,21 @@ protocol CartRepositoryProtocol {
     /// Получить все товары, добавленные в корзину.
     /// - Returns: Список товаров в корзине.
     func getCartItems() -> [CartItem]
-    
+
     /// Сохранить список товаров в корзину, заменяя существующий.
     /// - Parameter items: Новый список товаров для сохранения.
     func saveCartItems(_ items: [CartItem])
-    
+
     /// Удалить товар из корзины по идентификатору.
     /// - Parameter id: Уникальный идентификатор товара для удаления.
     func deleteCartItem(with id: String)
-    
+
     /// Очистить корзину, удалив все товары.
     func clearCart()
 }
 
 final class CartRepository: CartRepositoryProtocol {
-    
+
     // MARK: - Shared in-memory storage для всех экземпляров репозитория
     private static var storage: [CartItem] = [
         CartItem(
@@ -58,20 +58,20 @@ final class CartRepository: CartRepositoryProtocol {
             price: 8.08
         )
     ]
-    
+
     // MARK: - Public Methods
     func getCartItems() -> [CartItem] {
         Self.storage
     }
-    
+
     func saveCartItems(_ items: [CartItem]) {
         Self.storage = items
     }
-    
+
     func deleteCartItem(with id: String) {
         Self.storage.removeAll { $0.id == id }
     }
-    
+
     func clearCart() {
         Self.storage.removeAll()
     }

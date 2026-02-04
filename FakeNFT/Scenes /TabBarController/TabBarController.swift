@@ -9,7 +9,7 @@ final class TabBarController: UITabBarController {
         image: UIImage(systemName: "square.stack.3d.up.fill"),
         tag: 0
     )
-    
+
     private let cartTabBarItem = UITabBarItem(
         title: Localization.Cart.tabBarItemTitle.localized,
         image: UIImage(resource: .tabBasketIcon),
@@ -23,7 +23,7 @@ final class TabBarController: UITabBarController {
             servicesAssembly: servicesAssembly
         )
         catalogController.tabBarItem = catalogTabBarItem
-        
+
         let cartController = CartViewController()
         let cartNavController = UINavigationController(rootViewController: cartController)
         cartNavController.tabBarItem = cartTabBarItem

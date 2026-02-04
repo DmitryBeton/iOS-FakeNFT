@@ -12,36 +12,36 @@ import UIKit
 protocol CartViewModelProtocol: AnyObject {
     /// Массив отображаемых элементов корзины для UI.
     var items: [UICartItem] { get }
-    
+
     /// Количество элементов в корзине.
     var itemsCount: Int { get }
-    
+
     /// Общая стоимость товаров в корзине.
     var totalPrice: Double { get }
-    
+
     /// Текущий параметр сортировки.
     var sortOption: SortOption { get set }
-    
+
     /// Замыкание вызывается при обновлении списка элементов.
     var onItemsUpdated: (() -> Void)? { get set }
-    
+
     /// Замыкание вызывается при изменении способа сортировки.
     var onSortChanged: (() -> Void)? { get set }
-    
+
     /// Загружает все элементы корзины.
     func loadItems()
-    
+
     /// Удаляет элемент корзины по индексу.
     /// - Parameter index: Индекс элемента для удаления.
     func deleteItem(at index: Int)
-    
+
     /// Сортирует элементы корзины согласно выбранному способу сортировки.
     func sortItems()
-    
+
     /// Возвращает элемент корзины для UI по индексу.
     /// - Parameter index: Индекс элемента.
     func getUICartItem(at index: Int) -> UICartItem?
-    
+
     /// Возвращает признак, пуста ли корзина.
     func isEmpty() -> Bool
 }
@@ -50,7 +50,7 @@ final class CartViewModel: CartViewModelProtocol {
     // MARK: - Dependencies
     private let service: CartServiceProtocol
     private let sortStore: SortOptionStore
-    
+
     // MARK: - Backing storage
     private var cartItems: [CartItem] = [] {
         didSet {
@@ -58,36 +58,36 @@ final class CartViewModel: CartViewModelProtocol {
             totalPrice = cartItems.reduce(0) { $0 + $1.price }
         }
     }
-    
+
     // MARK: - Init
     init(service: CartServiceProtocol = CartService(),
          sortStore: SortOptionStore = UserDefaultsSortOptionStore()) {
         self.service = service
         self.sortStore = sortStore
-        
+
         self.sortOption = sortStore.load()
-        
+
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(handleCartDidChange(_:)),
                                                name: .cartDidChange,
                                                object: nil)
     }
-    
+
     deinit {
         NotificationCenter.default.removeObserver(self, name: .cartDidChange, object: nil)
     }
-    
+
     // MARK: - Properties
     var items: [UICartItem] = [] {
         didSet {
             onItemsUpdated?()
         }
     }
-    
+
     var itemsCount: Int { items.count }
-    
+
     var totalPrice: Double = 0
-    
+
     var sortOption: SortOption {
         didSet {
             sortStore.save(sortOption)
@@ -95,10 +95,10 @@ final class CartViewModel: CartViewModelProtocol {
             onSortChanged?()
         }
     }
-    
+
     var onItemsUpdated: (() -> Void)?
     var onSortChanged: (() -> Void)?
-    
+
     // MARK: - Public Methods
     func loadItems() {
         service.fetchCartItems { [weak self] result in
@@ -112,7 +112,7 @@ final class CartViewModel: CartViewModelProtocol {
             }
         }
     }
-    
+
     func deleteItem(at index: Int) {
         guard index < items.count else { return }
         let id = items[index].id
@@ -121,7 +121,7 @@ final class CartViewModel: CartViewModelProtocol {
             self.cartItems.removeAll { $0.id == id }
         }
     }
-    
+
     func sortItems() {
         switch sortOption {
         case .name:
@@ -132,16 +132,16 @@ final class CartViewModel: CartViewModelProtocol {
             cartItems.sort { $0.price < $1.price }
         }
     }
-    
+
     func getUICartItem(at index: Int) -> UICartItem? {
         guard index < items.count else { return nil }
         return items[index]
     }
-    
+
     func isEmpty() -> Bool {
         items.isEmpty
     }
-    
+
     // MARK: - Mapping
     private func mapToUI(_ item: CartItem) -> UICartItem {
         // Плейсхолдер т.к. загрузки по URL пока нет
@@ -156,10 +156,9 @@ final class CartViewModel: CartViewModelProtocol {
             price: formattedPrice
         )
     }
-    
+
     // MARK: - Notifications
     @objc private func handleCartDidChange(_ notification: Notification) {
         loadItems()
     }
 }
-

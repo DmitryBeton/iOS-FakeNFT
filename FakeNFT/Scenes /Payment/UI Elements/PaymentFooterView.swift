@@ -8,24 +8,6 @@
 import UIKit
 
 final class PaymentFooterView: UIView {
-    private enum Constants {
-        enum Text {
-            static let agreementPrefix = Localization.Payment.agreementPrefix.localized
-            static let agreementLink = Localization.Payment.agreementLink.localized
-            static let payButton = Localization.Payment.payButton.localized
-        }
-        enum Layout {
-            static let cornerRadius: CGFloat = 16
-            static let contentInset: CGFloat = 16
-            static let linkTopSpacing: CGFloat = 4
-            static let payTopSpacing: CGFloat = 16
-            static let payLeadingInset: CGFloat = 20
-            static let payTrailingInset: CGFloat = 12
-            static let payBottomInset: CGFloat = 16
-            static let payWidth: CGFloat = 343
-            static let payHeight: CGFloat = 60
-        }
-    }
 
     // MARK: - Properties
     var onPayTapped: (() -> Void)?
@@ -41,7 +23,7 @@ final class PaymentFooterView: UIView {
 
     // MARK: - UI Elements
     private let agreementView = UIView()
-    
+
     private let agreementLabel: UILabel = {
         let label = UILabel()
         label.text = Constants.Text.agreementPrefix
@@ -49,7 +31,7 @@ final class PaymentFooterView: UIView {
         label.textColor = UIColor(resource: .nftBlack)
         return label
     }()
-    
+
     private let linkLabel: UILabel = {
         let label = UILabel()
         label.text = Constants.Text.agreementLink
@@ -70,7 +52,7 @@ final class PaymentFooterView: UIView {
         button.isEnabled = false
         return button
     }()
-    
+
     // MARK: - Init
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -78,26 +60,26 @@ final class PaymentFooterView: UIView {
         setupGestures()
         updatePayButtonAppearance()
     }
-    
+
     @available(*, unavailable)
     required init?(coder: NSCoder) {
         nil
     }
-    
+
     // MARK: - Setup UI
     private func setupView() {
         layer.cornerRadius = Constants.Layout.cornerRadius
         backgroundColor = UIColor(resource: .nftLightGray)
-        
+
         [agreementView, agreementLabel, linkLabel, payButton].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
         }
-        
+
         addSubview(agreementView)
         addSubview(payButton)
         agreementView.addSubview(agreementLabel)
         agreementView.addSubview(linkLabel)
-        
+
         NSLayoutConstraint.activate([
             agreementView.topAnchor.constraint(equalTo: self.topAnchor, constant: Constants.Layout.contentInset),
             agreementView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: Constants.Layout.contentInset),
@@ -105,7 +87,7 @@ final class PaymentFooterView: UIView {
 
             agreementLabel.topAnchor.constraint(equalTo: agreementView.topAnchor),
             agreementLabel.leadingAnchor.constraint(equalTo: agreementView.leadingAnchor),
-            
+
             linkLabel.topAnchor.constraint(equalTo: agreementLabel.bottomAnchor, constant: Constants.Layout.linkTopSpacing),
             linkLabel.leadingAnchor.constraint(equalTo: agreementLabel.leadingAnchor),
 
@@ -122,11 +104,11 @@ final class PaymentFooterView: UIView {
         let tap = UITapGestureRecognizer(target: self, action: #selector(linkTapped))
         linkLabel.addGestureRecognizer(tap)
     }
-    
+
     private func updatePayButtonAppearance() {
         payButton.alpha = payButton.isEnabled ? 1.0 : 0.5
     }
-    
+
     // MARK: - Actions
     @objc
     private func processPayment() {
@@ -136,5 +118,24 @@ final class PaymentFooterView: UIView {
     @objc
     private func linkTapped() {
         onAgreementTapped?()
+    }
+}
+
+private enum Constants {
+    enum Text {
+        static let agreementPrefix = Localization.Payment.agreementPrefix.localized
+        static let agreementLink = Localization.Payment.agreementLink.localized
+        static let payButton = Localization.Payment.payButton.localized
+    }
+    enum Layout {
+        static let cornerRadius: CGFloat = 16
+        static let contentInset: CGFloat = 16
+        static let linkTopSpacing: CGFloat = 4
+        static let payTopSpacing: CGFloat = 16
+        static let payLeadingInset: CGFloat = 20
+        static let payTrailingInset: CGFloat = 12
+        static let payBottomInset: CGFloat = 16
+        static let payWidth: CGFloat = 343
+        static let payHeight: CGFloat = 60
     }
 }

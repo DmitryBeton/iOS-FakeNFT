@@ -11,7 +11,7 @@ import Foundation
 ///
 /// Инкапсулирует вызов API/логики оплаты и сообщает результат через completion.
 /// Конкретная реализация может работать с сетью, локальными моками или SDK.
-//
+///
 /// - Threading: Рекомендуется вызывать completion на главном потоке,
 /// так как результат оплаты обычно приводит к обновлению UI.
 protocol PaymentServiceProtocol {
@@ -33,13 +33,13 @@ final class MockPaymentService: PaymentServiceProtocol {
     enum MockError: Error {
         case failed
     }
-    
+
     /// Флаг успешного результата.
     var shouldSucceed: Bool = true
-    
+
     /// Искуственная задержка ответа, в секундах.
     var delay: TimeInterval = 1.0
-    
+
     func pay(completion: @escaping (Result<Void, Error>) -> Void) {
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
             if self.shouldSucceed {
