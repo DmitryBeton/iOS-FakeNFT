@@ -9,6 +9,36 @@ import UIKit
 import ProgressHUD
 
 final class PaymentViewController: UIViewController {
+    private enum Constants {
+        enum Text {
+            static let navTitle = "Выберите способ оплаты"
+            static let agreementURL = "https://yandex.ru/legal/practicum_termsofuse"
+            static let currencyLoadErrorTitle = "Не удалось загрузить данные"
+            static let payErrorTitle = "Не удалось произвести оплату"
+            static let retry = "Повторить"
+            static let cancel = "Отмена"
+        }
+        enum Layout {
+            // Collection layout
+            static let sectionInset = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
+            static let minimumLineSpacing: CGFloat = 7
+            static let minimumInteritemSpacing: CGFloat = 7
+            static let itemsPerRow: CGFloat = 2
+            static let collectionHorizontalPadding: CGFloat = 16
+            static let itemHeightToWidthRatio: CGFloat = 0.2738
+
+            // Footer
+            static let footerHeight: CGFloat = 186
+        }
+        enum Colors {
+            static let background = UIColor(resource: .nftWhite)
+            static let title = UIColor(resource: .nftBlack)
+        }
+        enum Typography {
+            static let titleFont = UIFont.bodyBold
+        }
+    }
+
     // MARK: - Properties
     private let viewModel: PaymentViewModelProtocol
     
@@ -41,7 +71,7 @@ final class PaymentViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        navigationItem.title = "Выберите способ оплаты"
+        navigationItem.title = Constants.Text.navTitle
         
         startLoadCurrency()
         
@@ -52,7 +82,7 @@ final class PaymentViewController: UIViewController {
     
     // MARK: - Setup
     private func setupUI() {
-        view.backgroundColor = UIColor(resource: .nftWhite)
+        view.backgroundColor = Constants.Colors.background
         
         collection.delegate = self
         collection.dataSource = self
@@ -72,7 +102,7 @@ final class PaymentViewController: UIViewController {
             paymentFooterView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             paymentFooterView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             paymentFooterView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-            paymentFooterView.heightAnchor.constraint(equalToConstant: 186)
+            paymentFooterView.heightAnchor.constraint(equalToConstant: Constants.Layout.footerHeight)
         ])
     }
     
@@ -82,7 +112,7 @@ final class PaymentViewController: UIViewController {
         }
         
         paymentFooterView.onAgreementTapped = { [weak self] in
-            let vc = AgreementWebViewController(urlString: "https://yandex.ru/legal/practicum_termsofuse")
+            let vc = AgreementWebViewController(urlString: Constants.Text.agreementURL)
             self?.navigationController?.pushViewController(vc, animated: true)
         }
         
@@ -129,27 +159,27 @@ final class PaymentViewController: UIViewController {
     
     private func showRetryCurrencyAlert() {
         let alert = UIAlertController(
-            title: "Не удалось загрузить данные",
+            title: Constants.Text.currencyLoadErrorTitle,
             message: nil,
             preferredStyle: .alert
         )
-        alert.addAction(UIAlertAction(title: "Повторить", style: .default) { [weak self] _ in
+        alert.addAction(UIAlertAction(title: Constants.Text.retry, style: .default) { [weak self] _ in
             self?.startLoadCurrency()
         })
-        alert.addAction(UIAlertAction(title: "Отмена", style: .cancel))
+        alert.addAction(UIAlertAction(title: Constants.Text.cancel, style: .cancel))
         present(alert, animated: true)
     }
     
     private func showRetryPayAlert() {
         let alert = UIAlertController(
-            title: "Не удалось произвести оплату",
+            title: Constants.Text.payErrorTitle,
             message: nil,
             preferredStyle: .alert
         )
-        alert.addAction(UIAlertAction(title: "Повторить", style: .default) { [weak self] _ in
+        alert.addAction(UIAlertAction(title: Constants.Text.retry, style: .default) { [weak self] _ in
             self?.startPayment()
         })
-        alert.addAction(UIAlertAction(title: "Отмена", style: .cancel))
+        alert.addAction(UIAlertAction(title: Constants.Text.cancel, style: .cancel))
         present(alert, animated: true)
     }
     
@@ -160,10 +190,10 @@ final class PaymentViewController: UIViewController {
         paragraph.alignment = .center
         
         let attributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont.bodyBold,
+            .font: Constants.Typography.titleFont,
             .paragraphStyle: paragraph,
             .kern: 0,
-            .foregroundColor: UIColor(resource: .nftBlack)
+            .foregroundColor: Constants.Colors.title
         ]
         
         navigationController?.navigationBar.titleTextAttributes = attributes
@@ -191,13 +221,13 @@ extension PaymentViewController: UICollectionViewDelegateFlowLayout {
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
         
-        let padding: CGFloat = 16
-        let spacing: CGFloat = 7
-        let itemsPerRow: CGFloat = 2
+        let padding = Constants.Layout.collectionHorizontalPadding
+        let spacing = Constants.Layout.minimumInteritemSpacing
+        let itemsPerRow = Constants.Layout.itemsPerRow
         
         let availableWidth = collectionView.frame.width - padding * 2 - spacing * (itemsPerRow - 1)
         let widthPerItem = availableWidth / itemsPerRow
-        let height = widthPerItem * 0.2738 //  height:width from figma = 0.2738
+        let height = widthPerItem * Constants.Layout.itemHeightToWidthRatio
         
         return CGSize(width: widthPerItem, height: height)
     }
@@ -205,19 +235,19 @@ extension PaymentViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         insetForSectionAt section: Int) -> UIEdgeInsets {
-        UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
+        Constants.Layout.sectionInset
     }
     
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        7
+        Constants.Layout.minimumLineSpacing
     }
     
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        7
+        Constants.Layout.minimumInteritemSpacing
     }
 }
 

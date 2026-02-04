@@ -7,14 +7,41 @@
 
 import UIKit
 
-final class UICurrencyCollectionViewCell: UICollectionViewCell,ReuseIdentifying {
+final class UICurrencyCollectionViewCell: UICollectionViewCell, ReuseIdentifying {
+    private enum Constants {
+        enum Layout {
+            static let contentCornerRadius: CGFloat = 12
+            static let borderWidthSelected: CGFloat = 1
+            static let borderWidthDefault: CGFloat = 0
+            static let paddingViewTop: CGFloat = 5
+            static let paddingViewLeading: CGFloat = 12
+            static let paddingViewBottom: CGFloat = -5
+            static let imageContainerSide: CGFloat = 36
+            static let imageContainerCornerRadius: CGFloat = 6
+            static let currencyViewLeading: CGFloat = 4
+            static let imageInset: CGFloat = 2.25
+        }
+        enum Colors {
+            static let contentBackground = UIColor(resource: .nftLightGray)
+            static let contentBorder = UIColor.black
+            static let selectedBorder = UIColor(resource: .nftBlack)
+            static let imageContainer = UIColor(resource: .nftBlackUni)
+            static let title = UIColor(resource: .nftBlack)
+            static let name = UIColor(resource: .nftGreen)
+        }
+        enum Typography {
+            static let title = UIFont.caption2
+            static let name = UIFont.caption2
+        }
+    }
+
     // MARK: - UI Elements
     private let paddingView = UIView()
     
     private let paddingImageView: UIView = {
         let view = UIView()
-        view.layer.cornerRadius = 6
-        view.backgroundColor = UIColor(resource: .nftBlackUni)
+        view.layer.cornerRadius = Constants.Layout.imageContainerCornerRadius
+        view.backgroundColor = Constants.Colors.imageContainer
         return view
     }()
     
@@ -28,15 +55,15 @@ final class UICurrencyCollectionViewCell: UICollectionViewCell,ReuseIdentifying 
     
     private let currencyTitleLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.caption2
-        label.textColor = UIColor(resource: .nftBlack)
+        label.font = Constants.Typography.title
+        label.textColor = Constants.Colors.title
         return label
     }()
     
     private let currencyNameLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.caption2
-        label.textColor = UIColor(resource: .nftGreen)
+        label.font = Constants.Typography.name
+        label.textColor = Constants.Colors.name
         return label
     }()
     
@@ -66,17 +93,17 @@ final class UICurrencyCollectionViewCell: UICollectionViewCell,ReuseIdentifying 
     }
     
     private func updateSelectionAppearance() {
-        contentView.layer.borderColor = UIColor(resource: .nftBlack).cgColor
-        contentView.layer.borderWidth = isSelected ? 1 : 0
+        contentView.layer.borderColor = Constants.Colors.selectedBorder.cgColor
+        contentView.layer.borderWidth = isSelected ? Constants.Layout.borderWidthSelected : Constants.Layout.borderWidthDefault
     }
 
     // MARK: - Setup UI
     private func setupUI() {
-        contentView.backgroundColor = UIColor(resource: .nftLightGray)
-        contentView.layer.cornerRadius = 12
+        contentView.backgroundColor = Constants.Colors.contentBackground
+        contentView.layer.cornerRadius = Constants.Layout.contentCornerRadius
         contentView.layer.masksToBounds = true
-        contentView.layer.borderColor = UIColor.black.cgColor
-        contentView.layer.borderWidth = 0
+        contentView.layer.borderColor = Constants.Colors.contentBorder.cgColor
+        contentView.layer.borderWidth = Constants.Layout.borderWidthDefault
         
         contentView.addSubview(paddingView)
         
@@ -94,28 +121,28 @@ final class UICurrencyCollectionViewCell: UICollectionViewCell,ReuseIdentifying 
         }
         NSLayoutConstraint.activate([
             // paddingView
-            paddingView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
-            paddingView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
-            paddingView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5),
+            paddingView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Constants.Layout.paddingViewTop),
+            paddingView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Constants.Layout.paddingViewLeading),
+            paddingView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: Constants.Layout.paddingViewBottom),
             
-            // currencyImage
+            // currencyImage container
             paddingImageView.topAnchor.constraint(equalTo: paddingView.topAnchor),
             paddingImageView.leadingAnchor.constraint(equalTo: paddingView.leadingAnchor),
             paddingImageView.bottomAnchor.constraint(equalTo: paddingView.bottomAnchor),
-            paddingImageView.widthAnchor.constraint(equalToConstant: 36),
-            paddingImageView.heightAnchor.constraint(equalToConstant: 36),
+            paddingImageView.widthAnchor.constraint(equalToConstant: Constants.Layout.imageContainerSide),
+            paddingImageView.heightAnchor.constraint(equalToConstant: Constants.Layout.imageContainerSide),
             
-            // currencyImageView
-            currencyImageView.topAnchor.constraint(lessThanOrEqualTo: paddingImageView.topAnchor, constant: 2.25),
-            currencyImageView.leadingAnchor.constraint(lessThanOrEqualTo: paddingImageView.leadingAnchor, constant: 2.25),
-            currencyImageView.trailingAnchor.constraint(greaterThanOrEqualTo: paddingImageView.trailingAnchor, constant: -2.25),
-            currencyImageView.bottomAnchor.constraint(greaterThanOrEqualTo: paddingImageView.bottomAnchor, constant: -2.25),
+            // currencyImageView inside container
+            currencyImageView.topAnchor.constraint(lessThanOrEqualTo: paddingImageView.topAnchor, constant: Constants.Layout.imageInset),
+            currencyImageView.leadingAnchor.constraint(lessThanOrEqualTo: paddingImageView.leadingAnchor, constant: Constants.Layout.imageInset),
+            currencyImageView.trailingAnchor.constraint(greaterThanOrEqualTo: paddingImageView.trailingAnchor, constant: -Constants.Layout.imageInset),
+            currencyImageView.bottomAnchor.constraint(greaterThanOrEqualTo: paddingImageView.bottomAnchor, constant: -Constants.Layout.imageInset),
             
             // currencyView
             currencyView.topAnchor.constraint(equalTo: paddingView.topAnchor),
             currencyView.trailingAnchor.constraint(equalTo: paddingView.trailingAnchor),
             currencyView.bottomAnchor.constraint(equalTo: paddingView.bottomAnchor),
-            currencyView.leadingAnchor.constraint(equalTo: paddingImageView.trailingAnchor, constant: 4),
+            currencyView.leadingAnchor.constraint(equalTo: paddingImageView.trailingAnchor, constant: Constants.Layout.currencyViewLeading),
             
             // currencyTitleLabel
             currencyTitleLabel.topAnchor.constraint(equalTo: currencyView.topAnchor),

@@ -8,6 +8,36 @@
 import UIKit
 
 final class PaymentFooterView: UIView {
+    private enum Constants {
+        enum Text {
+            static let agreementPrefix = "Совершая покупку, вы соглашаетесь с условиями"
+            static let agreementLink = "Пользовательского соглашения"
+            static let payButton = "Оплатить"
+        }
+        enum Layout {
+            static let cornerRadius: CGFloat = 16
+            static let contentInset: CGFloat = 16
+            static let linkTopSpacing: CGFloat = 4
+            static let payTopSpacing: CGFloat = 16
+            static let payLeadingInset: CGFloat = 20
+            static let payTrailingInset: CGFloat = 12
+            static let payBottomInset: CGFloat = 16
+            static let payWidth: CGFloat = 343
+            static let payHeight: CGFloat = 60
+        }
+        enum Colors {
+            static let background = UIColor(resource: .nftLightGray)
+            static let text = UIColor(resource: .nftBlack)
+            static let link = UIColor(resource: .nftBlue)
+            static let payTitle = UIColor(resource: .nftWhite)
+            static let payBackground = UIColor(resource: .nftBlack)
+        }
+        enum Typography {
+            static let body = UIFont.caption2
+            static let button = UIFont.bodyBold
+        }
+    }
+
     // MARK: - Properties
     var onPayTapped: (() -> Void)?
     var onAgreementTapped: (() -> Void)?
@@ -17,28 +47,28 @@ final class PaymentFooterView: UIView {
     
     private let agreementLabel: UILabel = {
         let label = UILabel()
-        label.text = "Совершая покупку, вы соглашаетесь с условиями"
-        label.font = UIFont.caption2
-        label.textColor = UIColor(resource: .nftBlack)
+        label.text = Constants.Text.agreementPrefix
+        label.font = Constants.Typography.body
+        label.textColor = Constants.Colors.text
         return label
     }()
     
     private let linkLabel: UILabel = {
         let label = UILabel()
-        label.text = "Пользовательского соглашения"
-        label.font = UIFont.caption2
-        label.textColor = UIColor(resource: .nftBlue)
+        label.text = Constants.Text.agreementLink
+        label.font = Constants.Typography.body
+        label.textColor = Constants.Colors.link
         label.isUserInteractionEnabled = true
         return label
     }()
 
     private lazy var payButton: UIButton = {
         let button = UIButton()
-        button.setTitle("Оплатить", for: .normal)
-        button.setTitleColor(UIColor(resource: .nftWhite), for: .normal)
-        button.titleLabel?.font = UIFont.bodyBold
-        button.backgroundColor = UIColor(resource: .nftBlack)
-        button.layer.cornerRadius = 16
+        button.setTitle(Constants.Text.payButton, for: .normal)
+        button.setTitleColor(Constants.Colors.payTitle, for: .normal)
+        button.titleLabel?.font = Constants.Typography.button
+        button.backgroundColor = Constants.Colors.payBackground
+        button.layer.cornerRadius = Constants.Layout.cornerRadius
         button.addTarget(self, action: #selector(processPayment), for: .touchUpInside)
         return button
     }()
@@ -57,11 +87,10 @@ final class PaymentFooterView: UIView {
     
     // MARK: - Setup UI
     private func setupView() {
-        layer.cornerRadius = 16
-        backgroundColor = UIColor(resource: .nftLightGray)
+        layer.cornerRadius = Constants.Layout.cornerRadius
+        backgroundColor = Constants.Colors.background
         
-        [agreementView, agreementLabel, linkLabel,
-         payButton].forEach {
+        [agreementView, agreementLabel, linkLabel, payButton].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
         }
         
@@ -71,22 +100,22 @@ final class PaymentFooterView: UIView {
         agreementView.addSubview(linkLabel)
         
         NSLayoutConstraint.activate([
-            agreementView.topAnchor.constraint(equalTo: self.topAnchor, constant: 16),
-            agreementView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 16),
-            agreementView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -16),
+            agreementView.topAnchor.constraint(equalTo: self.topAnchor, constant: Constants.Layout.contentInset),
+            agreementView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: Constants.Layout.contentInset),
+            agreementView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -Constants.Layout.contentInset),
 
             agreementLabel.topAnchor.constraint(equalTo: agreementView.topAnchor),
             agreementLabel.leadingAnchor.constraint(equalTo: agreementView.leadingAnchor),
             
-            linkLabel.topAnchor.constraint(equalTo: agreementLabel.bottomAnchor, constant: 4),
+            linkLabel.topAnchor.constraint(equalTo: agreementLabel.bottomAnchor, constant: Constants.Layout.linkTopSpacing),
             linkLabel.leadingAnchor.constraint(equalTo: agreementLabel.leadingAnchor),
 
-            payButton.topAnchor.constraint(equalTo: agreementView.bottomAnchor, constant: 16),
-            payButton.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20),
-            payButton.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -12),
-            payButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -16),
-            payButton.widthAnchor.constraint(equalToConstant: 343),
-            payButton.heightAnchor.constraint(equalToConstant: 60)
+            payButton.topAnchor.constraint(equalTo: agreementView.bottomAnchor, constant: Constants.Layout.payTopSpacing),
+            payButton.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: Constants.Layout.payLeadingInset),
+            payButton.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -Constants.Layout.payTrailingInset),
+            payButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -Constants.Layout.payBottomInset),
+            payButton.widthAnchor.constraint(equalToConstant: Constants.Layout.payWidth),
+            payButton.heightAnchor.constraint(equalToConstant: Constants.Layout.payHeight)
         ])
     }
 

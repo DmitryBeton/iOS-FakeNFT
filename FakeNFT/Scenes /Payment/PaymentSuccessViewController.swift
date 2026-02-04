@@ -8,6 +8,32 @@
 import UIKit
 
 final class PaymentSuccessViewController: UIViewController {
+    private enum Constants {
+        enum Layout {
+            static let imageSide: CGFloat = 278
+            static let imageCenterYOffset: CGFloat = -40
+            static let labelTopSpacing: CGFloat = 20
+            static let labelHorizontalInset: CGFloat = 36
+            static let buttonBottomInset: CGFloat = 16
+            static let buttonHorizontalInset: CGFloat = 16
+            static let buttonHeight: CGFloat = 60
+            static let cornerRadius: CGFloat = 16
+        }
+        enum Text {
+            static let successMessage = "Успех! Оплата прошла,\nпоздравляем с покупкой!"
+            static let backToCart = "Вернуться в корзину"
+        }
+        enum Colors {
+            static let buttonTitle = UIColor(resource: .nftWhite)
+            static let buttonBackground = UIColor(resource: .nftBlack)
+            static let label = UIColor(resource: .nftBlack)
+            static let viewBackground = UIColor(resource: .nftWhite)
+        }
+        enum Images {
+            static let success = UIImage(resource: .success)
+        }
+    }
+
     // MARK: - Properties
     var onBackToCartTapped: (() -> Void)?
 
@@ -16,7 +42,7 @@ final class PaymentSuccessViewController: UIViewController {
 
     private let imageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(resource: .success)
+        imageView.image = Constants.Images.success
         imageView.contentMode = .scaleAspectFit
         return imageView
     }()
@@ -24,20 +50,20 @@ final class PaymentSuccessViewController: UIViewController {
     private let label: UILabel = {
         let label = UILabel()
         label.font = UIFont.headline3
-        label.text = "Успех! Оплата прошла,\nпоздравляем с покупкой!"
+        label.text = Constants.Text.successMessage
         label.textAlignment = .center
-        label.textColor = UIColor(resource: .nftBlack)
+        label.textColor = Constants.Colors.label
         label.numberOfLines = 2
         return label
     }()
     
     private let button: UIButton = {
         let button = UIButton()
-        button.setTitle("Вернуться в корзину", for: .normal)
-        button.setTitleColor(UIColor(resource: .nftWhite), for: .normal)
+        button.setTitle(Constants.Text.backToCart, for: .normal)
+        button.setTitleColor(Constants.Colors.buttonTitle, for: .normal)
         button.titleLabel?.font = UIFont.bodyBold
-        button.backgroundColor = UIColor(resource: .nftBlack)
-        button.layer.cornerRadius = 16
+        button.backgroundColor = Constants.Colors.buttonBackground
+        button.layer.cornerRadius = Constants.Layout.cornerRadius
         return button
     }()
     
@@ -49,7 +75,7 @@ final class PaymentSuccessViewController: UIViewController {
     
     // MARK: - Setup
     private func setupUI() {
-        view.backgroundColor = UIColor(resource: .nftWhite)
+        view.backgroundColor = Constants.Colors.viewBackground
         
         [successView ,imageView, label, button].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
@@ -66,18 +92,18 @@ final class PaymentSuccessViewController: UIViewController {
             successView.bottomAnchor.constraint(equalTo: button.topAnchor),
             
             imageView.centerXAnchor.constraint(equalTo: successView.centerXAnchor),
-            imageView.centerYAnchor.constraint(equalTo: successView.centerYAnchor, constant: -40),
-            imageView.widthAnchor.constraint(equalToConstant: 278),
-            imageView.heightAnchor.constraint(equalToConstant: 278),
+            imageView.centerYAnchor.constraint(equalTo: successView.centerYAnchor, constant: Constants.Layout.imageCenterYOffset),
+            imageView.widthAnchor.constraint(equalToConstant: Constants.Layout.imageSide),
+            imageView.heightAnchor.constraint(equalToConstant: Constants.Layout.imageSide),
             
-            label.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 20),
-            label.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 36),
-            label.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -36),
+            label.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: Constants.Layout.labelTopSpacing),
+            label.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.Layout.labelHorizontalInset),
+            label.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constants.Layout.labelHorizontalInset),
             
-            button.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
-            button.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            button.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            button.heightAnchor.constraint(equalToConstant: 60)
+            button.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -Constants.Layout.buttonBottomInset),
+            button.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.Layout.buttonHorizontalInset),
+            button.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constants.Layout.buttonHorizontalInset),
+            button.heightAnchor.constraint(equalToConstant: Constants.Layout.buttonHeight)
         ])
         
         button.addTarget(self, action: #selector(backToCartTapped), for: .touchUpInside)
