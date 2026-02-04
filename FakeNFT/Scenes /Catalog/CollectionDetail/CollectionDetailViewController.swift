@@ -63,6 +63,7 @@ final class CollectionDetailViewController: UIViewController {
         label.font = .systemFont(ofSize: 15, weight: .regular)
         label.textColor = UIColor(resource: .nftBlue)
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.isUserInteractionEnabled = true
         return label
     }()
 
@@ -151,11 +152,25 @@ final class CollectionDetailViewController: UIViewController {
         setupCollectionView()
         setupConstraints()
         setupNavigationBar()
+        setupGestures()
         configureWithData()
     }
 
     private func setupNavigationBar() {
         navigationController?.setNavigationBarHidden(true, animated: false)
+    }
+
+    private func setupGestures() {
+        let authorTapGesture = UITapGestureRecognizer(target: self, action: #selector(authorNameTapped))
+        authorNameLabel.addGestureRecognizer(authorTapGesture)
+    }
+
+    @objc private func authorNameTapped() {
+        navigationController?.setNavigationBarHidden(false, animated: false)
+        let webViewController = AgreementWebViewController(
+            urlString: "https://practicum.yandex.ru/ios-developer/?from=catalog"
+        )
+        navigationController?.pushViewController(webViewController, animated: true)
     }
 
     private func bindViewModel() {
