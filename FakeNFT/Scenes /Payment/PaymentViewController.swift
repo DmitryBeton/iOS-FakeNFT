@@ -17,6 +17,8 @@ final class PaymentViewController: UIViewController {
     private var blockingOverlay: UIView?
     private var originalLeftBarButtonItem: UIBarButtonItem?
 
+    private let connectivity = ConnectivityService()
+
     // MARK: - UI Elements
     private let collection: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -45,6 +47,7 @@ final class PaymentViewController: UIViewController {
         super.viewDidLoad()
         navigationItem.title = Constants.Text.navTitle
 
+        connectivity.start()
         startLoadCurrency()
 
         setupUI()
@@ -52,6 +55,10 @@ final class PaymentViewController: UIViewController {
         setupBindings()
 
         paymentFooterView.isPayEnabled = false
+    }
+
+    deinit {
+        connectivity.stop()
     }
 
     // MARK: - Setup
@@ -95,7 +102,13 @@ final class PaymentViewController: UIViewController {
             self.collection.reloadData()
             UIBlockingProgressHUD.dismiss()
             if self.viewModel.itemsCount == 0 {
-                self.showRetryCurrencyAlert()
+                if connectivity.isOfflineNow() {
+                    self.showNoInternetAlert { [weak self] in
+                        self?.startLoadCurrency()
+                    }
+                } else {
+                    self.showRetryCurrencyAlert()
+                }
             }
             self.clearSelectionAndDisablePay()
         }
@@ -123,7 +136,13 @@ final class PaymentViewController: UIViewController {
                 }
                 self.navigationController?.pushViewController(successVC, animated: true)
             case .failure:
-                self.showRetryPayAlert()
+                if connectivity.isOfflineNow() {
+                    self.showNoInternetAlert { [weak self] in
+                        self?.startPayment()
+                    }
+                } else {
+                    self.showRetryPayAlert()
+                }
             }
         }
     }
@@ -154,6 +173,18 @@ final class PaymentViewController: UIViewController {
         )
         alert.addAction(UIAlertAction(title: Constants.Text.retry, style: .default) { [weak self] _ in
             self?.startPayment()
+        })
+        alert.addAction(UIAlertAction(title: Constants.Text.cancel, style: .cancel))
+        present(alert, animated: true)
+    }
+
+    private func showNoInternetAlert(retry: @escaping () -> Void) {
+        let title = Localization.Payment.noInternet.localized
+        let message = Localization.Payment.noInternetMessage.localized
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+
+        alert.addAction(UIAlertAction(title: Constants.Text.retry, style: .default) { _ in
+            retry()
         })
         alert.addAction(UIAlertAction(title: Constants.Text.cancel, style: .cancel))
         present(alert, animated: true)

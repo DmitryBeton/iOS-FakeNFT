@@ -37,6 +37,9 @@ enum Localization {
         static let agreementPrefix = "Payment.agreement_prefix"
         static let agreementLink = "Payment.agreement_link"
         static let payButton = "Payment.pay"
+
+        static let noInternet = "Payment.error.no_internet"
+        static let noInternetMessage = "Payment.error.no_internet.message"
     }
 }
 
