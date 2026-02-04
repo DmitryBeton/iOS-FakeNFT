@@ -119,6 +119,7 @@ final class ProfileViewController: UIViewController {
         setupViews()
         setupNavigationBar()
         setupConstraints()
+        setupActions()
         setupDelegates()
         bind()
         viewModel.loadProfile()
@@ -174,6 +175,10 @@ final class ProfileViewController: UIViewController {
         ])
     }
     
+    private func setupActions() {
+        linkButton.addTarget(self, action: #selector(linkButtonTapped), for: .touchUpInside)
+    }
+    
     // MARK: - Actions
     
     @objc private func editBarButtonTapped() {
@@ -187,6 +192,15 @@ final class ProfileViewController: UIViewController {
         let editProfileVC = EditProfileViewController(viewModel: editProfileVM)
         
         navigationController?.pushViewController(editProfileVC, animated: true)
+    }
+    
+    @objc private func linkButtonTapped() {
+        guard let url = viewModel.websiteURL() else {
+            showErrorAlert()
+            return
+        }
+        let controller = AgreementWebViewController(urlString: url.absoluteString)
+        navigationController?.pushViewController(controller, animated: true)
     }
     
     // MARK: - Private Methods

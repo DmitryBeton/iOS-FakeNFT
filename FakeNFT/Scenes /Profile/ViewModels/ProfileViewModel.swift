@@ -46,6 +46,10 @@ final class ProfileViewModel: ProfileViewModelProtocol {
         return url.host()?.replacingOccurrences(of: "www", with: "") ?? ""
     }
     
+    func websiteURL() -> URL? {
+        profile?.website
+    }
+    
     // MARK: - State
     
     private var state: ProfileState = .initial {

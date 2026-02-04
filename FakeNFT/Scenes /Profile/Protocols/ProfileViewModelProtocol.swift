@@ -1,3 +1,5 @@
+import Foundation
+
 /// Интерфейс вьюмодели профиля
 protocol ProfileViewModelProtocol: AnyObject {
     
@@ -29,4 +31,7 @@ protocol ProfileViewModelProtocol: AnyObject {
     /// - Parameter urlString: Полная строка URL сайта профиля
     /// - Returns: Короткая строка URL  для отображения в UI
     func shortURLString(from urlString: String) -> String
+    
+    /// Получить URL сайта профиля
+    func websiteURL() -> URL?
 }
