@@ -26,35 +26,49 @@ protocol CartServiceProtocol {
     ///   - items: Массив элементов корзины для сохранения.
     ///   - completion: Замыкание, вызываемое после завершения сохранения.
     func saveCartItems(_ items: [CartItem], completion: @escaping () -> Void)
+
+    /// Очищает корзину целиком.
+    /// - Parameter completion: Вызывается после очистки.
+    func clearCart(completion: @escaping () -> Void)
 }
 
 final class CartService: CartServiceProtocol {
-    
+
     // MARK: - Properties
     private let repository: CartRepositoryProtocol
     private let networkClient: NetworkClient
-    
+
     // MARK: - Initialization
     init(repository: CartRepositoryProtocol = CartRepository(),
          networkClient: NetworkClient = DefaultNetworkClient()) {
         self.repository = repository
         self.networkClient = networkClient
     }
-    
+
     // MARK: - Public Methods
     func fetchCartItems(completion: @escaping (Result<[CartItem], Error>) -> Void) {
         // TODO: - Добавить загрузку данных из сети по id(они в userDefaults)
         let items = repository.getCartItems()
         completion(.success(items))
     }
-    
+
     func deleteCartItem(id: String, completion: @escaping () -> Void) {
         repository.deleteCartItem(with: id)
         completion()
     }
-    
+
     func saveCartItems(_ items: [CartItem], completion: @escaping () -> Void) {
         repository.saveCartItems(items)
         completion()
     }
+
+    func clearCart(completion: @escaping () -> Void) {
+        repository.clearCart()
+        completion()
+    }
+}
+
+// Глобальное уведомление об изменениях корзины (очистка/добавление/удаление)
+extension Notification.Name {
+    static let cartDidChange = Notification.Name("CartDidChange")
 }

@@ -9,7 +9,7 @@ enum SortOption: String, CaseIterable {
     case price
     case rating
     case name
-    
+
     var localizedWord: String {
         switch self {
         case .price: Localization.Cart.filterByPrice.localized
