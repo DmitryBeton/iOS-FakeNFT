@@ -21,5 +21,9 @@ final class ServicesAssembly {
     var statisticsService: StatisticsServiceProtocol {
         StatisticsService(client: networkClient)
     }
+    
+    var userService: UserServiceProtocol {
+        UserService(client: networkClient)
+    }
 }
 
