@@ -44,7 +44,9 @@ final class UserCardViewModel: UserCardViewModelProtocol {
 
             switch result {
             case .success(let dto):
-                let description = dto.description?.isEmpty == false ? dto.description! : "Нет описания"
+                let description = (dto.description?.isEmpty == false)
+                    ? dto.description ?? "Нет описания"
+                    : "Нет описания"
                 self.model = UserCardModel(
                     avatarURLString: dto.avatar,
                     name: dto.name,

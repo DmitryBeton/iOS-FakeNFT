@@ -17,7 +17,8 @@ protocol Dto {
     func asDictionary() -> [String: String]
 }
 
+// default values
 extension NetworkRequest {
-    var dto: Dto? { nil }
+    var httpMethod: HttpMethod { .get }
+    var dto: Encodable? { nil }
 }
-

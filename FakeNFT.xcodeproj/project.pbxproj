@@ -171,6 +171,7 @@
 		FE74A0BE2F34704B001D811C /* UserCardModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCardModule.swift; sourceTree = "<group>"; };
 		FE74A0C12F34BA90001D811C /* UserCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCollectionViewController.swift; sourceTree = "<group>"; };
 		FE74A0C62F34BAD6001D811C /* UserCollectionModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCollectionModule.swift; sourceTree = "<group>"; };
+		FE74A0CA2F34F83E001D811C /* Request.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -256,6 +257,7 @@
 		FE74A01F2F33C881001D811C /* NetworkClient */ = {
 			isa = PBXGroup;
 			children = (
+				FE74A0CA2F34F83E001D811C /* Request.swift */,
 				FE74A01B2F33C881001D811C /* NetworkClient.swift */,
 				FE74A01C2F33C881001D811C /* NetworkRequest.swift */,
 				FE74A01D2F33C881001D811C /* NetworkTask.swift */,
