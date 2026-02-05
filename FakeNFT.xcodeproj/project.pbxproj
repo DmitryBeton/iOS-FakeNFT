@@ -73,8 +73,10 @@
 		FE74A0B62F346F78001D811C /* UserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE74A0B52F346F76001D811C /* UserService.swift */; };
 		FE74A0B82F346F93001D811C /* UserCardModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE74A0B72F346F92001D811C /* UserCardModel.swift */; };
 		FE74A0BA2F346FA6001D811C /* UserCardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE74A0B92F346FA4001D811C /* UserCardViewModel.swift */; };
-		FE74A0BC2F346FC3001D811C /* UserCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE74A0BB2F346FC1001D811C /* UserCardViewController.swift */; };
 		FE74A0BF2F34704D001D811C /* UserCardModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE74A0BE2F34704B001D811C /* UserCardModule.swift */; };
+		FE74A0C22F34BA94001D811C /* UserCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE74A0C12F34BA90001D811C /* UserCollectionViewController.swift */; };
+		FE74A0C72F34BADA001D811C /* UserCollectionModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE74A0C62F34BAD6001D811C /* UserCollectionModule.swift */; };
+		FE74A0C82F34C5B8001D811C /* UserCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE74A0BB2F346FC1001D811C /* UserCardViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -167,6 +169,8 @@
 		FE74A0B92F346FA4001D811C /* UserCardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCardViewModel.swift; sourceTree = "<group>"; };
 		FE74A0BB2F346FC1001D811C /* UserCardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCardViewController.swift; sourceTree = "<group>"; };
 		FE74A0BE2F34704B001D811C /* UserCardModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCardModule.swift; sourceTree = "<group>"; };
+		FE74A0C12F34BA90001D811C /* UserCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCollectionViewController.swift; sourceTree = "<group>"; };
+		FE74A0C62F34BAD6001D811C /* UserCollectionModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCollectionModule.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -294,6 +298,7 @@
 		FE74A02C2F33C881001D811C /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				FE74A0C52F34BACA001D811C /* UserCollection */,
 				FE74A0AF2F346F15001D811C /* UserCard */,
 				FE74A0252F33C881001D811C /* Network */,
 				FE74A02B2F33C881001D811C /* Statistics */,
@@ -430,6 +435,7 @@
 		FE74A05E2F33C881001D811C /* Scenes  */ = {
 			isa = PBXGroup;
 			children = (
+				FE74A0C02F34BA82001D811C /* UserCollection */,
 				FE74A0BD2F346FF7001D811C /* UserCard */,
 				FE74A0382F33C881001D811C /* AgreementWebView */,
 				FE74A03A2F33C881001D811C /* Catalog */,
@@ -526,6 +532,22 @@
 				FE74A0BE2F34704B001D811C /* UserCardModule.swift */,
 			);
 			path = UserCard;
+			sourceTree = "<group>";
+		};
+		FE74A0C02F34BA82001D811C /* UserCollection */ = {
+			isa = PBXGroup;
+			children = (
+				FE74A0C12F34BA90001D811C /* UserCollectionViewController.swift */,
+			);
+			path = UserCollection;
+			sourceTree = "<group>";
+		};
+		FE74A0C52F34BACA001D811C /* UserCollection */ = {
+			isa = PBXGroup;
+			children = (
+				FE74A0C62F34BAD6001D811C /* UserCollectionModule.swift */,
+			);
+			path = UserCollection;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -669,6 +691,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FE74A0C22F34BA94001D811C /* UserCollectionViewController.swift in Sources */,
 				FE74A0722F33C881001D811C /* StatisticsSortOption.swift in Sources */,
 				FE74A0732F33C881001D811C /* NftByIdRequest.swift in Sources */,
 				FE74A0742F33C881001D811C /* NftService.swift in Sources */,
@@ -689,11 +712,11 @@
 				FE74A0822F33C881001D811C /* StatisticsUsersSorter.swift in Sources */,
 				FE74A0852F33C881001D811C /* RequestConstants.swift in Sources */,
 				FE74A0862F33C881001D811C /* NetworkRequest.swift in Sources */,
-				FE74A0BC2F346FC3001D811C /* UserCardViewController.swift in Sources */,
 				FE74A0872F33C881001D811C /* StatisticsUsersMapper.swift in Sources */,
 				FE74A0882F33C881001D811C /* NftDetailPresenter.swift in Sources */,
 				FE74A0892F33C881001D811C /* SceneDelegate.swift in Sources */,
 				FE74A08A2F33C881001D811C /* StatisticsViewController.swift in Sources */,
+				FE74A0C82F34C5B8001D811C /* UserCardViewController.swift in Sources */,
 				FE74A08B2F33C881001D811C /* AppDelegate.swift in Sources */,
 				FE74A08C2F33C881001D811C /* StatisticsUserDTO.swift in Sources */,
 				FE74A08D2F33C881001D811C /* NftDetailAssembly.swift in Sources */,
@@ -716,6 +739,7 @@
 				FE74A09A2F33C881001D811C /* Fonts.swift in Sources */,
 				FE74A09B2F33C881001D811C /* TabBarController.swift in Sources */,
 				FE74A0BF2F34704D001D811C /* UserCardModule.swift in Sources */,
+				FE74A0C72F34BADA001D811C /* UserCollectionModule.swift in Sources */,
 				FE74A09C2F33C881001D811C /* StatisticsPresenter.swift in Sources */,
 				FE74A09E2F33C881001D811C /* DateFormatters+Presets.swift in Sources */,
 				FE74A09F2F33C881001D811C /* ServicesAssemly.swift in Sources */,

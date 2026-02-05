@@ -18,7 +18,7 @@ final class UserCardViewController: UIViewController {
 
     private let siteButton = UIButton(type: .system)
 
-    private let collectionRow = UIControl()
+    private let collectionRow = UIButton(type: .system)
     private let collectionStack = UIStackView()
     private let collectionLabel = UILabel()
     private let collectionChevron = UIImageView(image: UIImage(systemName: "chevron.right"))
@@ -32,9 +32,7 @@ final class UserCardViewController: UIViewController {
     }
 
     @available(*, unavailable)
-    required init?(coder: NSCoder) {
-        nil
-    }
+    required init?(coder: NSCoder) { nil }
 
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -45,7 +43,6 @@ final class UserCardViewController: UIViewController {
         bindViewModel()
     }
 
-    // Если у тебя ViewModel ожидает load(userId:) — оставь этот метод и вызывай его из модуля
     func configure(userId: String) {
         viewModel.load(userId: userId)
     }
@@ -67,13 +64,13 @@ final class UserCardViewController: UIViewController {
         mainStack.spacing = 16
         contentView.addSubview(mainStack)
 
-        // Header stack (avatar left, name right)
+        // Header stack
         headerStack.translatesAutoresizingMaskIntoConstraints = false
         headerStack.axis = .horizontal
         headerStack.alignment = .center
         headerStack.spacing = 16
 
-        // Avatar 70x70
+        // Avatar
         avatarImageView.translatesAutoresizingMaskIntoConstraints = false
         avatarImageView.contentMode = .scaleAspectFill
         avatarImageView.clipsToBounds = true
@@ -86,7 +83,7 @@ final class UserCardViewController: UIViewController {
             avatarImageView.heightAnchor.constraint(equalToConstant: 70)
         ])
 
-        // Name: width <= 275, height = 28
+        // Name
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         nameLabel.font = .systemFont(ofSize: 22, weight: .semibold)
         nameLabel.textColor = .label
@@ -101,7 +98,7 @@ final class UserCardViewController: UIViewController {
 
         headerStack.addArrangedSubview(avatarImageView)
         headerStack.addArrangedSubview(nameLabel)
-        headerStack.addArrangedSubview(UIView()) // чтобы имя не распирало вправо
+        headerStack.addArrangedSubview(UIView())
 
         // Description
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -110,7 +107,7 @@ final class UserCardViewController: UIViewController {
         descriptionLabel.numberOfLines = 0
         descriptionLabel.textAlignment = .left
 
-        // Site button: h=40, rounded border
+        // Site button
         siteButton.translatesAutoresizingMaskIntoConstraints = false
         siteButton.setTitle("Перейти на сайт пользователя", for: .normal)
         siteButton.setTitleColor(.label, for: .normal)
@@ -127,21 +124,32 @@ final class UserCardViewController: UIViewController {
 
         siteButton.addTarget(self, action: #selector(siteTapped), for: .touchUpInside)
 
-        // Collection row (no рамки, just label + chevron)
+        // Collection row
         collectionRow.translatesAutoresizingMaskIntoConstraints = false
+        collectionRow.setTitle("", for: .normal)
+        collectionRow.contentHorizontalAlignment = .fill
+        collectionRow.contentVerticalAlignment = .fill
+        collectionRow.backgroundColor = .clear
         collectionRow.addTarget(self, action: #selector(collectionTapped), for: .touchUpInside)
 
+        NSLayoutConstraint.activate([
+            collectionRow.heightAnchor.constraint(equalToConstant: 54)
+        ])
+
+        // Collection content
         collectionStack.translatesAutoresizingMaskIntoConstraints = false
         collectionStack.axis = .horizontal
         collectionStack.alignment = .center
         collectionStack.spacing = 8
-
+        collectionStack.isUserInteractionEnabled = false
+        
         collectionLabel.translatesAutoresizingMaskIntoConstraints = false
         collectionLabel.font = .systemFont(ofSize: 17, weight: .semibold)
         collectionLabel.textColor = .label
 
         collectionChevron.translatesAutoresizingMaskIntoConstraints = false
         collectionChevron.tintColor = .tertiaryLabel
+        collectionChevron.isUserInteractionEnabled = false
 
         collectionStack.addArrangedSubview(collectionLabel)
         collectionStack.addArrangedSubview(UIView())
@@ -150,22 +158,20 @@ final class UserCardViewController: UIViewController {
         collectionRow.addSubview(collectionStack)
 
         NSLayoutConstraint.activate([
-            collectionRow.heightAnchor.constraint(equalToConstant: 54),
-
-            collectionStack.leadingAnchor.constraint(equalTo: collectionRow.leadingAnchor),
-            collectionStack.trailingAnchor.constraint(equalTo: collectionRow.trailingAnchor),
+            collectionStack.leadingAnchor.constraint(equalTo: collectionRow.leadingAnchor, constant: 16),
+            collectionStack.trailingAnchor.constraint(equalTo: collectionRow.trailingAnchor, constant: -16),
             collectionStack.topAnchor.constraint(equalTo: collectionRow.topAnchor),
             collectionStack.bottomAnchor.constraint(equalTo: collectionRow.bottomAnchor)
         ])
 
-        // Add arranged views in order (как в фигме)
+        // Add arranged views
         mainStack.addArrangedSubview(headerStack)
         mainStack.addArrangedSubview(descriptionLabel)
         mainStack.addArrangedSubview(siteButton)
         mainStack.addArrangedSubview(collectionRow)
 
-        // Small tweak: reduce spacing between header and description if нужно
-        // mainStack.setCustomSpacing(12, after: headerStack)
+        siteButton.widthAnchor.constraint(equalTo: mainStack.widthAnchor).isActive = true
+        collectionRow.widthAnchor.constraint(equalTo: mainStack.widthAnchor).isActive = true
     }
 
     private func setupLayout() {
@@ -179,10 +185,8 @@ final class UserCardViewController: UIViewController {
             contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
             contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
 
-            // main stack paddings = 16
             mainStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
             mainStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             mainStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
@@ -221,17 +225,16 @@ final class UserCardViewController: UIViewController {
             }
         }
 
-        // ✅ открываем твой WebView
-        viewModel.onOpenWebsite = { [weak self] url in
-            let vc = AgreementWebViewController(urlString: url.absoluteString)
-            self?.navigationController?.pushViewController(vc, animated: true)
+        viewModel.onOpenCollection = { [weak self] userId, count in
+            guard let self else { return }
+            let vc = UserCollectionModule.make(userId: userId, nftCount: count)
+            self.navigationController?.pushViewController(vc, animated: true)
         }
 
-        // ✅ коллекция (пока можешь оставить заглушку, если модуль коллекции не делала)
-        viewModel.onOpenCollection = { [weak self] _, _ in
-            let alert = UIAlertController(title: "Коллекция", message: "Пока заглушка", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "ОК", style: .default))
-            self?.present(alert, animated: true)
+        viewModel.onOpenWebsite = { [weak self] url in
+            guard let self else { return }
+            let vc = AgreementWebViewController(urlString: url.absoluteString)
+            self.navigationController?.pushViewController(vc, animated: true)
         }
     }
 
@@ -242,7 +245,6 @@ final class UserCardViewController: UIViewController {
         descriptionLabel.text = model.description
         collectionLabel.text = "Коллекция NFT (\(model.nftCount))"
 
-        // Avatar load (используем твой ImageLoader как в рейтинге)
         if let url = URL(string: model.avatarURLString) {
             _ = ImageLoader.shared.load(url) { [weak self] image in
                 DispatchQueue.main.async {
