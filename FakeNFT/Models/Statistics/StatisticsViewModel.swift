@@ -2,6 +2,8 @@ import Foundation
 
 final class StatisticsViewModel: StatisticsViewModelProtocol {
 
+    var onUserSelected: ((String) -> Void)?
+
     var onDataUpdated: (() -> Void)?
     var onLoadingChanged: ((Bool) -> Void)?
     var onError: ((String) -> Void)?
@@ -29,6 +31,11 @@ final class StatisticsViewModel: StatisticsViewModelProtocol {
     }
 
     var usersCount: Int { sorted.count }
+    
+    func selectUser(at index: Int) {
+        let user = sorted[index]
+        onUserSelected?(user.id)
+    }
 
     func currentSortOption() -> StatisticsSortOption { sortOption }
 
