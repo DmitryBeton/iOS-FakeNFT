@@ -31,3 +31,5 @@
 // MyNFT
 "MyNFT.title" = "Мои NFT";
 "MyNFT.empty" = "У Вас ещё нет NFT";
+"MyNFT.price" = "Цена";
+"MyNFT.fromAuthor" = "от %@";

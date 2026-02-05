@@ -13,8 +13,11 @@ final class MyNFTViewController: UIViewController {
     // MARK: - Views
     
     private lazy var nftTableView: UITableView = {
-        let tableView = UITableView()
+        let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.separatorStyle = .none
+        tableView.register(MyNFTCell.self)
+        tableView.backgroundColor = .clear
+        tableView.rowHeight = 140
         return tableView
     }()
     
@@ -34,6 +37,36 @@ final class MyNFTViewController: UIViewController {
         action: nil
     )
     
+    // MARK: - Private Properties
+    
+    // TODO: - Should be changed after ViewModel implementation
+    private let mockNFTs: [NftUI] = [
+        NftUI(
+            name: "Lilo",
+            image: URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Beige/April/1.png"),
+            rating: 3,
+            price: "36.56",
+            author: "Condescending Almeida",
+            isLiked: false
+        ),
+        NftUI(
+            name: "dico eleifend",
+            image: URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Yellow/Helga/1.png"),
+            rating: 5,
+            price: "8.08",
+            author: "Quizzical Blackwell",
+            isLiked: true
+        ),
+        NftUI(
+            name: "voluptatum ius",
+            image: URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Beige/Lark/1.png"),
+            rating: 2,
+            price: "49.64",
+            author: "Dazzling Meninsky",
+            isLiked: false
+        )
+    ]
+    
     // MARK: - Life Cycle
     
     override func viewDidLoad() {
@@ -41,6 +74,7 @@ final class MyNFTViewController: UIViewController {
         setupViews()
         setupNavigationBar()
         setupConstraints()
+        setupDelegates()
     }
     
     // MARK: - UI Methods
@@ -71,8 +105,41 @@ final class MyNFTViewController: UIViewController {
         emptyLabel.constraintCenters(to: view)
     }
     
+    // MARK: - Private Methods
+    
+    private func setupDelegates() {
+        nftTableView.dataSource = self
+        nftTableView.delegate = self
+    }
+    
 }
 
-#Preview {
-    UINavigationController(rootViewController: MyNFTViewController())
+// MARK: - TableViewDataSource
+
+extension MyNFTViewController: UITableViewDataSource {
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        mockNFTs.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell: MyNFTCell = tableView.dequeueReusableCell()
+        cell.configure(nft: mockNFTs[indexPath.row])
+        return cell
+    }
+    
+}
+
+// MARK: - TableViewDelegate
+
+extension MyNFTViewController: UITableViewDelegate {
+    
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        UIView()
+    }
+    
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        20
+    }
+    
 }

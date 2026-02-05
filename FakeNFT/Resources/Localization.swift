@@ -27,6 +27,14 @@ enum Localization {
     enum MyNFT {
         static let title = "MyNFT.title".localized
         static let empty = "MyNFT.empty".localized
+        static let price = "MyNFT.price".localized
+        
+        static func fromAuthor(_ author: String) -> String {
+            String.localizedStringWithFormat(
+                NSLocalizedString("MyNFT.fromAuthor", comment: ""),
+                author
+            )
+        }
     }
 }
 
