@@ -2,14 +2,6 @@ import UIKit
 
 final class MyNftViewController: UIViewController {
     
-    // MARK: - Private Types
-    
-    private enum SortOption {
-        case price
-        case rating
-        case name
-    }
-    
     // MARK: - Views
     
     private lazy var nftTableView: UITableView = {
@@ -25,7 +17,7 @@ final class MyNftViewController: UIViewController {
         let label = UILabel()
         label.font = .bodyBold
         label.textColor = UIColor(resource: .nftBlack)
-        label.text = Localization.MyNFT.empty
+        label.text = Localization.MyNft.empty
         label.isHidden = true
         return label
     }()
@@ -42,30 +34,30 @@ final class MyNftViewController: UIViewController {
     // TODO: - Should be changed after ViewModel implementation
     private let mockNFTs: [MyNftUI] = [
         MyNftUI(
-            id: UUID(),
             name: "Lilo",
             image: URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Beige/April/1.png"),
             rating: 3,
             price: "36.56",
             author: "Condescending Almeida",
+            id: UUID(),
             isLiked: false
         ),
         MyNftUI(
-            id: UUID(),
             name: "dico eleifend",
             image: URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Yellow/Helga/1.png"),
             rating: 5,
             price: "8.08",
             author: "Quizzical Blackwell",
+            id: UUID(),
             isLiked: true
         ),
         MyNftUI(
-            id: UUID(),
             name: "voluptatum ius",
             image: URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Beige/Lark/1.png"),
             rating: 2,
             price: "49.64",
             author: "Dazzling Meninsky",
+            id: UUID(),
             isLiked: false
         )
     ]
@@ -92,7 +84,7 @@ final class MyNftViewController: UIViewController {
     
     private func setupNavigationBar() {
         navigationItem.rightBarButtonItem = sortBarButtonItem
-        navigationItem.title = Localization.MyNFT.title
+        navigationItem.title = Localization.MyNft.title
     }
     
     private func setupConstraints() {

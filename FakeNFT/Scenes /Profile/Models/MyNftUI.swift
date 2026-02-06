@@ -6,6 +6,6 @@ struct MyNftUI: Identifiable {
     let rating: Int
     let price: String
     let author: String
-    let isLiked: Bool
     let id: UUID
+    let isLiked: Bool
 }

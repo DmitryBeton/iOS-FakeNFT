@@ -59,6 +59,7 @@ final class MenuCell: UITableViewCell, ReuseIdentifying {
     // MARK: - UI Methods
     
     private func setupViews() {
+        contentView.backgroundColor = UIColor(resource: .nftWhite)
         selectionStyle = .none
         contentView.addSubview(stackView)
     }

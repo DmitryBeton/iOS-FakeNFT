@@ -21,7 +21,7 @@ protocol ProfileViewModelProtocol: AnyObject {
     
     /// Получить количество NFT профиля
     /// - Returns: Количество NFT в наличии у пользователя
-    func myNFTCount() -> Int
+    func myNftCount() -> Int
     
     /// Получить количество избранных NFT профиля
     /// - Returns: Количество избранных NFT профиля

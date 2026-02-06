@@ -3,7 +3,7 @@ import Foundation
 enum Localization {
     enum Profile {
         static let tabProfile = "Tab.profile".localized
-        static let myNFT = "Profile.myNFT".localized
+        static let myNft = "Profile.myNFT".localized
         static let favourites = "Profile.favourites".localized
         static let editName = "EditProfile.name".localized
         static let editDescription = "EditProfile.description".localized
@@ -24,7 +24,7 @@ enum Localization {
         static let updateError = "ProfileAlert.updateError".localized
         static let retry = "ProfileAlert.retry".localized
     }
-    enum MyNFT {
+    enum MyNft {
         static let title = "MyNFT.title".localized
         static let empty = "MyNFT.empty".localized
         static let price = "MyNFT.price".localized

@@ -7,12 +7,12 @@ final class ProfileViewController: UIViewController {
     // MARK: - Private Types
     
     private enum Menu {
-        case myNFT
+        case myNft
         case favourites
         
         var title: String {
             switch self {
-            case .myNFT: return Localization.Profile.myNFT
+            case .myNft: return Localization.Profile.myNft
             case .favourites: return Localization.Profile.favourites
             }
         }
@@ -60,6 +60,7 @@ final class ProfileViewController: UIViewController {
         tableView.rowHeight = 54
         tableView.separatorStyle = .none
         tableView.isScrollEnabled = false
+        tableView.backgroundColor = .clear
         return tableView
     }()
     
@@ -98,7 +99,7 @@ final class ProfileViewController: UIViewController {
     // MARK: - Private Properties
     
     private let viewModel: ProfileViewModelProtocol
-    private let menu: [Menu] = [.myNFT, .favourites]
+    private let menu: [Menu] = [.myNft, .favourites]
     
     // MARK: - Init
     
@@ -296,8 +297,8 @@ extension ProfileViewController: UITableViewDataSource {
         let cell: MenuCell = tableView.dequeueReusableCell()
         let item = menu[indexPath.row]
         switch item {
-        case .myNFT:
-            cell.configure(title: item.title, count: viewModel.myNFTCount())
+        case .myNft:
+            cell.configure(title: item.title, count: viewModel.myNftCount())
         case .favourites:
             cell.configure(title: item.title, count: viewModel.favouritesCount())
         }
@@ -313,7 +314,7 @@ extension ProfileViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let item = menu[indexPath.row]
         switch item {
-        case .myNFT:
+        case .myNft:
             pushToMyNftViewController()
         case .favourites:
             pushToFavouritesViewController()

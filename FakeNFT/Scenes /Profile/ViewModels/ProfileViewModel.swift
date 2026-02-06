@@ -33,7 +33,7 @@ final class ProfileViewModel: ProfileViewModelProtocol {
         mapToProfileUI(profile)
     }
     
-    func myNFTCount() -> Int {
+    func myNftCount() -> Int {
         profile?.nfts.count ?? 0
     }
     

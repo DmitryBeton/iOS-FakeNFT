@@ -9,7 +9,7 @@ final class MyNftCell: UITableViewCell, ReuseIdentifying {
         nftImageView.kf.setImage(with: nft.image)
         ratingView.rating = nft.rating
         priceLabel.text = "\(nft.price) ETH"
-        authorLabel.text = Localization.MyNFT.fromAuthor(nft.author)
+        authorLabel.text = Localization.MyNft.fromAuthor(nft.author)
         let image: UIImage = nft.isLiked ? likeImage : likeImageEmpty
         likeButton.setImage(image, for: .normal)
     }
@@ -50,7 +50,7 @@ final class MyNftCell: UITableViewCell, ReuseIdentifying {
         let label = UILabel()
         label.font = .caption2
         label.textColor = UIColor(resource: .nftBlack)
-        label.text = Localization.MyNFT.price
+        label.text = Localization.MyNft.price
         return label
     }()
     

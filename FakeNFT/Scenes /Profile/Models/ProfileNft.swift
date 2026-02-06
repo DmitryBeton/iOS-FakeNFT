@@ -8,6 +8,6 @@ struct ProfileNft: Decodable {
     let description: String
     let price: Decimal
     let author: String
-    let website: String
+    let website: URL
     let id: UUID
 }
