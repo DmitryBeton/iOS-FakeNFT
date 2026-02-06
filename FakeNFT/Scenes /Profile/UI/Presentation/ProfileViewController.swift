@@ -257,7 +257,8 @@ final class ProfileViewController: UIViewController {
     }
     
     private func pushToMyNftViewController() {
-        let myNftVC = MyNftViewController()
+        let viewModel = MyNftViewModel()
+        let myNftVC = MyNftViewController(viewModel: viewModel)
         navigationController?.pushViewController(myNftVC, animated: true)
     }
     

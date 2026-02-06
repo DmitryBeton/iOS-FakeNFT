@@ -2,6 +2,12 @@ import UIKit
 
 final class MyNftViewController: UIViewController {
     
+    // MARK: - Private Types
+    
+    private enum Section {
+        case main
+    }
+    
     // MARK: - Views
     
     private lazy var nftTableView: UITableView = {
@@ -29,38 +35,34 @@ final class MyNftViewController: UIViewController {
         action: nil
     )
     
+    // MARK: - DiffableDataSource
+    
+    private lazy var dataSource: UITableViewDiffableDataSource<Section, MyNftUI> = {
+        let dataSource = UITableViewDiffableDataSource<Section, MyNftUI>(
+            tableView: nftTableView
+        ) { tableView, indexPath, nft in
+            let cell: MyNftCell = tableView.dequeueReusableCell()
+            cell.configure(nft: nft)
+            return cell
+        }
+        return dataSource
+    }()
+    
     // MARK: - Private Properties
     
-    // TODO: - Should be changed after ViewModel implementation
-    private let mockNFTs: [MyNftUI] = [
-        MyNftUI(
-            name: "Lilo",
-            image: URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Beige/April/1.png"),
-            rating: 3,
-            price: "36.56",
-            author: "Condescending Almeida",
-            id: UUID(),
-            isLiked: false
-        ),
-        MyNftUI(
-            name: "dico eleifend",
-            image: URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Yellow/Helga/1.png"),
-            rating: 5,
-            price: "8.08",
-            author: "Quizzical Blackwell",
-            id: UUID(),
-            isLiked: true
-        ),
-        MyNftUI(
-            name: "voluptatum ius",
-            image: URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Beige/Lark/1.png"),
-            rating: 2,
-            price: "49.64",
-            author: "Dazzling Meninsky",
-            id: UUID(),
-            isLiked: false
-        )
-    ]
+    private let viewModel: MyNftViewModelProtocol
+    
+    // MARK: - Init
+    
+    init(viewModel: MyNftViewModelProtocol) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        assertionFailure("init(coder:) has not been implemented")
+        return nil
+    }
     
     // MARK: - Life Cycle
     
@@ -70,6 +72,9 @@ final class MyNftViewController: UIViewController {
         setupNavigationBar()
         setupConstraints()
         setupDelegates()
+        applySnapshot(nfts: [], animating: false)
+        bind()
+        viewModel.loadNfts()
     }
     
     // MARK: - UI Methods
@@ -103,24 +108,53 @@ final class MyNftViewController: UIViewController {
     // MARK: - Private Methods
     
     private func setupDelegates() {
-        nftTableView.dataSource = self
         nftTableView.delegate = self
     }
     
-}
-
-// MARK: - TableViewDataSource
-
-extension MyNftViewController: UITableViewDataSource {
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        mockNFTs.count
+    private func applySnapshot(nfts: [MyNftUI], animating: Bool) {
+        var snapshot = NSDiffableDataSourceSnapshot<Section, MyNftUI>()
+        snapshot.appendSections([.main])
+        snapshot.appendItems(nfts, toSection: .main)
+        dataSource.apply(snapshot, animatingDifferences: animating)
     }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell: MyNftCell = tableView.dequeueReusableCell()
-        cell.configure(nft: mockNFTs[indexPath.row])
-        return cell
+    private func updateEmptyState() {
+        let isEmpty = viewModel.sortedNfts.isEmpty
+        nftTableView.isHidden = isEmpty
+        emptyLabel.isHidden = !isEmpty
+    }
+    
+    private func bind() {
+        viewModel.onStateChange = { [weak self] state in
+            guard let self else { return }
+            DispatchQueue.main.async {
+                switch state {
+                case .initial:
+                    UIBlockingProgressHUD.dismiss()
+                    assertionFailure("can't move to initial state")
+                    
+                case .loading:
+                    UIBlockingProgressHUD.show()
+                    
+                case .data:
+                    UIBlockingProgressHUD.dismiss()
+                    let nfts = self.viewModel.sortedNfts
+                    self.applySnapshot(nfts: nfts, animating: true)
+                    self.updateEmptyState()
+                    
+                case .failed:
+                    UIBlockingProgressHUD.dismiss()
+                    break
+                }
+            }
+        }
+        viewModel.onSortChange = { [weak self] in
+            guard let self else { return }
+            DispatchQueue.main.async {
+                let nfts = self.viewModel.sortedNfts
+                self.applySnapshot(nfts: nfts, animating: true)
+            }
+        }
     }
     
 }

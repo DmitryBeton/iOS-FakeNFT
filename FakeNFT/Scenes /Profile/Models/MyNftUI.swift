@@ -1,6 +1,6 @@
 import Foundation
 
-struct MyNftUI: Identifiable {
+struct MyNftUI: Identifiable, Hashable {
     let name: String
     let image: URL?
     let rating: Int

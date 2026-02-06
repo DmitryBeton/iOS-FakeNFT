@@ -1,10 +1,11 @@
 import Foundation
 
-protocol MyNftViewModelProtocol {
+protocol MyNftViewModelProtocol: AnyObject {
     var onStateChange: ((MyNftState) -> Void)? { get set }
     var onSortChange: (() -> Void)? { get set }
     var sortedNfts: [MyNftUI] { get }
     
+    func loadNfts()
     func changeSort(_ sort: SortOption)
 }
 
@@ -17,12 +18,18 @@ final class MyNftViewModel: MyNftViewModelProtocol {
     
     // MARK: - Public Properties
     
-    var sortedNfts: [MyNftUI] {
-        let sorted = sortNfts(nfts, by: sort)
-        return sorted.map { mapToUI($0) }
-    }
+    private(set) var sortedNfts: [MyNftUI] = []
     
     // MARK: - Public Methods
+    
+    // TODO: - Should be changed after service implementation
+    func loadNfts() {
+        state = .loading
+        
+        loadMockData()
+        updateSortedNfts()
+        state = .data
+    }
     
     func changeSort(_ sort: SortOption) {
         self.sort = sort
@@ -39,10 +46,12 @@ final class MyNftViewModel: MyNftViewModelProtocol {
     // MARK: - Private Properties
     
     private let sortStorage: SortOptionStorageProtocol
+    private var nfts: [ProfileNft] = []
     
     private var sort: SortOption {
         didSet {
             sortStorage.sortOption = sort
+            updateSortedNfts()
             onSortChange?()
         }
     }
@@ -54,56 +63,6 @@ final class MyNftViewModel: MyNftViewModelProtocol {
         formatter.maximumFractionDigits = 2
         return formatter
     }()
-    
-    // TODO: - Should be replaced after service implementation
-    // NOTE: Force unwrap is used only for test purposes
-    private var nfts: [ProfileNft] = [
-        ProfileNft(
-            createdAt: Date(),
-            name: "commodo porttitor",
-            images: [
-                URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Beige/April/1.png")!,
-                URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Beige/April/2.png")!,
-                URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Beige/April/3.png")!
-            ],
-            rating: 3,
-            description: "fringilla eam vim sonet faucibus impetus",
-            price: 36.54,
-            author: "Condescending Almeida",
-            website: URL(string: "https://condescending_almeida.fakenfts.org/")!,
-            id: UUID()
-        ),
-        ProfileNft(
-            createdAt: Date(),
-            name: "dico eleifend",
-            images: [
-                URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Yellow/Helga/1.png")!,
-                URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Yellow/Helga/2.png")!,
-                URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Yellow/Helga/3.png")!,
-            ],
-            rating: 5,
-            description: "tritani appareat constituam deterruisset justo",
-            price: 8.08,
-            author: "Quizzical Blackwell",
-            website: URL(string: "https://quizzical_blackwell.fakenfts.org/")!,
-            id: UUID()
-        ),
-        ProfileNft(
-            createdAt: Date(),
-            name: "eleifend mutat",
-            images: [
-                URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Gray/Kaydan/1.png")!,
-                URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Gray/Kaydan/2.png")!,
-                URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Gray/Kaydan/3.png")!,
-            ],
-            rating: 2,
-            description: "tacimates docendi efficitur tempus non quod cras pellentesque commune",
-            price: 16.95,
-            author: "Goofy Napier",
-            website: URL(string: "https://goofy_napier.fakenfts.org/")!,
-            id: UUID()
-        )
-    ]
     
     // MARK: - Init
     
@@ -131,6 +90,11 @@ final class MyNftViewModel: MyNftViewModelProtocol {
         )
     }
     
+    private func updateSortedNfts() {
+        let sorted = sortNfts(nfts, by: sort)
+        sortedNfts = sorted.map { mapToUI($0) }
+    }
+    
     private func sortNfts(_ nfts: [ProfileNft], by sort: SortOption) -> [ProfileNft] {
         switch sort {
         case .name:
@@ -140,6 +104,58 @@ final class MyNftViewModel: MyNftViewModelProtocol {
         case .rating:
             return nfts.sorted { $0.rating > $1.rating }
         }
+    }
+    
+    // TODO: - Should be deleted after service implementation
+    // NOTE: Force unwrap is used only for test purposes
+    private func loadMockData() {
+        nfts = [
+            ProfileNft(
+                createdAt: Date(),
+                name: "commodo porttitor",
+                images: [
+                    URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Beige/April/1.png")!,
+                    URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Beige/April/2.png")!,
+                    URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Beige/April/3.png")!
+                ],
+                rating: 3,
+                description: "fringilla eam vim sonet faucibus impetus",
+                price: 36.54,
+                author: "Condescending Almeida",
+                website: URL(string: "https://condescending_almeida.fakenfts.org/")!,
+                id: UUID()
+            ),
+            ProfileNft(
+                createdAt: Date(),
+                name: "dico eleifend",
+                images: [
+                    URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Yellow/Helga/1.png")!,
+                    URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Yellow/Helga/2.png")!,
+                    URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Yellow/Helga/3.png")!,
+                ],
+                rating: 5,
+                description: "tritani appareat constituam deterruisset justo",
+                price: 8.08,
+                author: "Quizzical Blackwell",
+                website: URL(string: "https://quizzical_blackwell.fakenfts.org/")!,
+                id: UUID()
+            ),
+            ProfileNft(
+                createdAt: Date(),
+                name: "eleifend mutat",
+                images: [
+                    URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Gray/Kaydan/1.png")!,
+                    URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Gray/Kaydan/2.png")!,
+                    URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Gray/Kaydan/3.png")!,
+                ],
+                rating: 2,
+                description: "tacimates docendi efficitur tempus non quod cras pellentesque commune",
+                price: 16.95,
+                author: "Goofy Napier",
+                website: URL(string: "https://goofy_napier.fakenfts.org/")!,
+                id: UUID()
+            )
+        ]
     }
     
 }

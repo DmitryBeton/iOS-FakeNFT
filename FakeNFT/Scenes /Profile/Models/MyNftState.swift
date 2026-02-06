@@ -1,3 +1,3 @@
 enum MyNftState {
-    case initial, loading, failed, data, empty
+    case initial, loading, failed, data
 }
