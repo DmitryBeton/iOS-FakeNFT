@@ -122,22 +122,25 @@ final class CartViewController: UIViewController {
         case .idle:
             updateCartState()
         case .loading:
+            UIBlockingProgressHUD.show()
             emptyStateLabel.isHidden = true
             orderSummaryView.isHidden = true
             navigationItem.rightBarButtonItem = nil
-            tableView.reloadData()
         case .loaded(let items, let total):
+            UIBlockingProgressHUD.dismiss()
             emptyStateLabel.isHidden = true
             orderSummaryView.isHidden = false
             navigationItem.rightBarButtonItem = sortButton
             orderSummaryView.updateOrderSummary(count: items.count, price: total)
             tableView.reloadData()
         case .empty:
+            UIBlockingProgressHUD.dismiss()
             emptyStateLabel.isHidden = false
             orderSummaryView.isHidden = true
             navigationItem.rightBarButtonItem = nil
             tableView.reloadData()
         case .error(let message):
+            UIBlockingProgressHUD.dismiss()
             emptyStateLabel.isHidden = false
             orderSummaryView.isHidden = true
             navigationItem.rightBarButtonItem = nil
