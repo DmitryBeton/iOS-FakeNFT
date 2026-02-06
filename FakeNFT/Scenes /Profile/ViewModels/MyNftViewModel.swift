@@ -2,7 +2,10 @@ import Foundation
 
 protocol MyNftViewModelProtocol {
     var onStateChange: ((MyNftState) -> Void)? { get set }
+    var onSortChange: (() -> Void)? { get set }
     var sortedNfts: [MyNftUI] { get }
+    
+    func changeSort(_ sort: SortOption)
 }
 
 final class MyNftViewModel: MyNftViewModelProtocol {
@@ -10,13 +13,19 @@ final class MyNftViewModel: MyNftViewModelProtocol {
     // MARK: - Bindings
     
     var onStateChange: ((MyNftState) -> Void)?
+    var onSortChange: (() -> Void)?
     
     // MARK: - Public Properties
     
     var sortedNfts: [MyNftUI] {
-        nfts.map {
-            mapToUI($0)
-        }
+        let sorted = sortNfts(nfts, by: sort)
+        return sorted.map { mapToUI($0) }
+    }
+    
+    // MARK: - Public Methods
+    
+    func changeSort(_ sort: SortOption) {
+        self.sort = sort
     }
     
     // MARK: - State
@@ -28,6 +37,12 @@ final class MyNftViewModel: MyNftViewModelProtocol {
     }
     
     // MARK: - Private Properties
+    
+    private var sort: SortOption = .name {
+        didSet {
+            onSortChange?()
+        }
+    }
     
     private lazy var priceFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
@@ -99,6 +114,17 @@ final class MyNftViewModel: MyNftViewModelProtocol {
             id: nft.id,
             isLiked: true // TODO: implement logic for likes
         )
+    }
+    
+    private func sortNfts(_ nfts: [ProfileNft], by sort: SortOption) -> [ProfileNft] {
+        switch sort {
+        case .name:
+            return nfts.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+        case .price:
+            return nfts.sorted { $0.price < $1.price }
+        case .rating:
+            return nfts.sorted { $0.rating > $1.rating }
+        }
     }
     
 }
