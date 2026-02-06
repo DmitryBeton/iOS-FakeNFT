@@ -13,6 +13,12 @@ final class CartViewController: UIViewController {
     private let viewModel: CartViewModelProtocol
 
     // MARK: - UI Elements
+    private let refreshControl: UIRefreshControl = {
+        let control = UIRefreshControl()
+        control.tintColor = UIColor(resource: .nftBlack)
+        return control
+    }()
+
     private let tableView: UITableView = {
         let tableView = UITableView()
         tableView.allowsSelection = false
@@ -73,6 +79,9 @@ final class CartViewController: UIViewController {
         view.backgroundColor = UIColor(resource: .nftWhite)
 
         tableView.dataSource = self
+        tableView.delegate = self
+        refreshControl.addTarget(self, action: #selector(refreshPulled), for: .valueChanged)
+        tableView.refreshControl = refreshControl
 
         view.addSubview(tableView)
         view.addSubview(orderSummaryView)
@@ -105,6 +114,9 @@ final class CartViewController: UIViewController {
         viewModel.onStateChange = { [weak self] state in
             guard let self else { return }
             DispatchQueue.main.async {
+                if self.refreshControl.isRefreshing {
+                    self.refreshControl.endRefreshing()
+                }
                 self.render(state: state)
             }
         }
@@ -180,13 +192,17 @@ final class CartViewController: UIViewController {
         present(alert, animated: true)
     }
 
+    @objc private func refreshPulled() {
+        viewModel.loadItems()
+    }
+
     // MARK: - Actions
     @objc private func sortButtonTapped() {
         showSortOptionsMenu()
     }
 }
 
-extension CartViewController: UITableViewDataSource {
+extension CartViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         viewModel.itemsCount
     }
@@ -211,5 +227,14 @@ extension CartViewController: UITableViewDataSource {
         }
 
         return cell
+    }
+
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let deleteAction = UIContextualAction(style: .destructive, title: Localization.Cart.deleteButton.localized) { [weak self] _, _, completion in
+            self?.viewModel.deleteItem(at: indexPath.row)
+            completion(true)
+        }
+        deleteAction.backgroundColor = .systemRed
+        return UISwipeActionsConfiguration(actions: [deleteAction])
     }
 }
