@@ -7,32 +7,46 @@
 
 import UIKit
 
+/// Состояния экрана оплаты (FSM)
+enum PaymentViewState {
+    case idle
+    case loadingCurrencies
+    case currenciesLoaded(items: [UICurrency])
+    case empty
+    case paying
+    case paid
+    case error(message: String)
+}
+
 /// Протокол модели представления экрана оплаты/выбора валюты.
 ///
 /// Отвечает за загрузку списка валют (UI-моделей), предоставление данных для коллекции,
 /// а также за запуск процесса оплаты через сервис оплаты.
 ///
-/// - Threading: Коллбеки (`onItemsUpdated`, completion у `pay`) ожидаются на главном потоке,
+/// - Threading: Коллбеки (`onStateChange`, completion у `pay`) ожидаются на главном потоке,
 /// так как используются для обновления UI. Текущая реализация вызывает их на главном потоке
 /// благодаря мок-сервисам, но в прод-реализации рекомендуется явно документировать/гарантировать поток.
 protocol PaymentViewModelProtocol: AnyObject {
     /// Текущий список UI-моделей валют, готовых к отображению.
     ///
-    /// - Note: Изменение этого массива вызывает `onItemsUpdated`.
+    /// - Note: Изменение этого массива вызывает обновление состояния.
     var items: [UICurrency] { get }
 
     /// Количество элементов для удобства работы с коллекцией/таблицей.
     var itemsCount: Int { get }
 
-    /// Коллбек, вызываемый при обновлении `items`.
+    /// Текущее состояние экрана оплаты.
+    var state: PaymentViewState { get }
+
+    /// Коллбек, вызываемый при изменении состояния.
     ///
     /// - Important: Предназначен для обновления UI, поэтому должен вызываться на главном потоке.
-    var onItemsUpdated: (() -> Void)? { get set }
+    var onStateChange: ((PaymentViewState) -> Void)? { get set }
 
     /// Загружает исходные данные (валюты) и маппит их в `items`.
     ///
-    /// - Note: В случае ошибки текущая реализация очищает список (items = []).
-    /// - Important: Гарантируйте вызов `onItemsUpdated` на главном потоке.
+    /// - Note: В случае ошибки текущая реализация очищает список (items = []) и выставляет состояние ошибки.
+    /// - Important: Гарантируйте вызов `onStateChange` на главном потоке.
     func loadItems()
 
     /// Возвращает UI-модель валюты по индексу, если она существует.
@@ -57,18 +71,24 @@ final class PaymentViewModel: PaymentViewModelProtocol {
     private var currencyItems: [Currency] = [] {
         didSet {
             items = currencyItems.map { self.mapToUI($0) }
+            if items.isEmpty {
+                state = .empty
+            } else {
+                state = .currenciesLoaded(items: items)
+            }
         }
     }
 
     // MARK: - Properties
-    var items: [UICurrency] = [] {
-        didSet {
-            onItemsUpdated?()
-        }
-    }
+    var items: [UICurrency] = []
 
     var itemsCount: Int { items.count }
-    var onItemsUpdated: (() -> Void)?
+    private(set) var state: PaymentViewState = .idle {
+        didSet {
+            onStateChange?(state)
+        }
+    }
+    var onStateChange: ((PaymentViewState) -> Void)?
 
     private let paymentService: PaymentServiceProtocol
     private let currencyService: CurrencyServiceProtocol
@@ -84,6 +104,7 @@ final class PaymentViewModel: PaymentViewModelProtocol {
     }
 
     func loadItems() {
+        state = .loadingCurrencies
         currencyService.fetchCurrencies { [weak self] result in
             guard let self else { return }
             switch result {
@@ -91,6 +112,7 @@ final class PaymentViewModel: PaymentViewModelProtocol {
                 self.currencyItems = currencies
             case .failure:
                 self.currencyItems = []
+                self.state = .error(message: Localization.Payment.currencyLoadErrorTitle.localized)
             }
         }
     }
@@ -103,15 +125,18 @@ final class PaymentViewModel: PaymentViewModelProtocol {
     }
 
     func pay(completion: @escaping (Result<Void, Error>) -> Void) {
+        state = .paying
         paymentService.pay { [weak self] result in
             guard let self else { return }
             switch result {
             case .success:
                 self.cartService.clearCart {
                     NotificationCenter.default.post(name: .cartDidChange, object: nil)
+                    self.state = .paid
                     completion(.success(()))
                 }
             case .failure(let error):
+                self.state = .error(message: Localization.Payment.payErrorTitle.localized)
                 completion(.failure(error))
             }
         }

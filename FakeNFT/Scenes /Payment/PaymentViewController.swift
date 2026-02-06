@@ -6,16 +6,11 @@
 //
 
 import UIKit
-import ProgressHUD
 
 final class PaymentViewController: UIViewController {
 
     // MARK: - Properties
     private let viewModel: PaymentViewModelProtocol
-
-    private var isPaying = false
-    private var blockingOverlay: UIView?
-    private var originalLeftBarButtonItem: UIBarButtonItem?
 
     private let connectivity = ConnectivityService()
 
@@ -48,11 +43,12 @@ final class PaymentViewController: UIViewController {
         navigationItem.title = Constants.Text.navTitle
 
         connectivity.start()
-        startLoadCurrency()
 
         setupUI()
         applyNavigationTitleStyle()
         setupBindings()
+
+        startLoadCurrency()
 
         paymentFooterView.isPayEnabled = false
     }
@@ -97,74 +93,66 @@ final class PaymentViewController: UIViewController {
             self?.navigationController?.pushViewController(vc, animated: true)
         }
 
-        viewModel.onItemsUpdated = { [weak self] in
+        viewModel.onStateChange = { [weak self] state in
             guard let self else { return }
-            self.collection.reloadData()
-            UIBlockingProgressHUD.dismiss()
-
-            if self.viewModel.itemsCount == 0 {
-                if connectivity.isOfflineNow() {
-                    self.showRetryAlert(
-                        title: Localization.Payment.noInternet.localized,
-                        message: Localization.Payment.noInternetMessage.localized,
-                        retryAction: { [weak self] in self?.startLoadCurrency() }
-                    )
-                } else {
-                    self.showRetryAlert(
-                        title: Constants.Text.currencyLoadErrorTitle,
-                        message: nil,
-                        retryAction: { [weak self] in self?.startLoadCurrency() }
-                    )
-                }
+            DispatchQueue.main.async {
+                self.render(state: state)
             }
-
-            self.clearSelectionAndDisablePay()
         }
     }
 
     // MARK: - Private Methods
+    private func render(state: PaymentViewState) {
+        switch state {
+        case .idle:
+            paymentFooterView.isPayEnabled = false
+        case .loadingCurrencies:
+            UIBlockingProgressHUD.show()
+            paymentFooterView.isPayEnabled = false
+        case .currenciesLoaded(let items):
+            UIBlockingProgressHUD.dismiss()
+            collection.reloadData()
+            paymentFooterView.isPayEnabled = false
+            if items.isEmpty {
+                showRetryAlert(title: Constants.Text.currencyLoadErrorTitle, message: nil) { [weak self] in self?.startLoadCurrency() }
+            }
+        case .empty:
+            UIBlockingProgressHUD.dismiss()
+            collection.reloadData()
+            paymentFooterView.isPayEnabled = false
+        case .paying:
+            UIBlockingProgressHUD.show()
+        case .paid:
+            UIBlockingProgressHUD.dismiss()
+            let successVC = PaymentSuccessViewController()
+            successVC.navigationItem.hidesBackButton = true
+            successVC.onBackToCartTapped = { [weak self] in
+                self?.navigationController?.popToViewController(ofType: CartViewController.self, animated: true)
+            }
+            navigationController?.pushViewController(successVC, animated: true)
+        case .error(let message):
+            UIBlockingProgressHUD.dismiss()
+            let isOffline = connectivity.isOfflineNow()
+            let title = isOffline ? Localization.Payment.noInternet.localized : message
+            let msg = isOffline ? Localization.Payment.noInternetMessage.localized : nil
+            showRetryAlert(title: title, message: msg) { [weak self] in self?.startLoadCurrency() }
+        }
+    }
+
     private func startPayment() {
-        guard !isPaying else { return }
-        isPaying = true
-
-        UIBlockingProgressHUD.show()
-
         viewModel.pay { [weak self] result in
             guard let self else { return }
-
-            self.isPaying = false
-            UIBlockingProgressHUD.dismiss()
-
             switch result {
             case .success:
-                let successVC = PaymentSuccessViewController()
-                successVC.navigationItem.hidesBackButton = true
-                successVC.onBackToCartTapped = { [weak self] in
-                    self?.navigationController?.popToViewController(ofType: CartViewController.self, animated: true)
-                }
-                self.navigationController?.pushViewController(successVC, animated: true)
-
+                break // The .paid state will be rendered by onStateChange
             case .failure:
-                if connectivity.isOfflineNow() {
-                    self.showRetryAlert(
-                        title: Localization.Payment.noInternet.localized,
-                        message: Localization.Payment.noInternetMessage.localized,
-                        retryAction: { [weak self] in self?.startPayment() }
-                    )
-                } else {
-                    self.showRetryAlert(
-                        title: Constants.Text.payErrorTitle,
-                        message: nil,
-                        retryAction: { [weak self] in self?.startPayment() }
-                    )
-                }
+                break // The .error state will be rendered by onStateChange
             }
         }
     }
 
     private func startLoadCurrency() {
         viewModel.loadItems()
-        UIBlockingProgressHUD.show()
     }
 
     // MARK: - Generic alerts
