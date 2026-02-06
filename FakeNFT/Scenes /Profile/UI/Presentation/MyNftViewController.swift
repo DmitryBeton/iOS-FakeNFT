@@ -1,6 +1,6 @@
 import UIKit
 
-final class MyNFTViewController: UIViewController {
+final class MyNftViewController: UIViewController {
     
     // MARK: - Private Types
     
@@ -15,7 +15,7 @@ final class MyNFTViewController: UIViewController {
     private lazy var nftTableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.separatorStyle = .none
-        tableView.register(MyNFTCell.self)
+        tableView.register(MyNftCell.self)
         tableView.backgroundColor = .clear
         tableView.rowHeight = 140
         return tableView
@@ -40,8 +40,9 @@ final class MyNFTViewController: UIViewController {
     // MARK: - Private Properties
     
     // TODO: - Should be changed after ViewModel implementation
-    private let mockNFTs: [NftUI] = [
-        NftUI(
+    private let mockNFTs: [MyNftUI] = [
+        MyNftUI(
+            id: UUID(),
             name: "Lilo",
             image: URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Beige/April/1.png"),
             rating: 3,
@@ -49,7 +50,8 @@ final class MyNFTViewController: UIViewController {
             author: "Condescending Almeida",
             isLiked: false
         ),
-        NftUI(
+        MyNftUI(
+            id: UUID(),
             name: "dico eleifend",
             image: URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Yellow/Helga/1.png"),
             rating: 5,
@@ -57,7 +59,8 @@ final class MyNFTViewController: UIViewController {
             author: "Quizzical Blackwell",
             isLiked: true
         ),
-        NftUI(
+        MyNftUI(
+            id: UUID(),
             name: "voluptatum ius",
             image: URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Beige/Lark/1.png"),
             rating: 2,
@@ -116,14 +119,14 @@ final class MyNFTViewController: UIViewController {
 
 // MARK: - TableViewDataSource
 
-extension MyNFTViewController: UITableViewDataSource {
+extension MyNftViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         mockNFTs.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell: MyNFTCell = tableView.dequeueReusableCell()
+        let cell: MyNftCell = tableView.dequeueReusableCell()
         cell.configure(nft: mockNFTs[indexPath.row])
         return cell
     }
@@ -132,7 +135,7 @@ extension MyNFTViewController: UITableViewDataSource {
 
 // MARK: - TableViewDelegate
 
-extension MyNFTViewController: UITableViewDelegate {
+extension MyNftViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         UIView()

@@ -255,9 +255,9 @@ final class ProfileViewController: UIViewController {
         }
     }
     
-    private func pushToMyNFTViewController() {
-        let myNFTVC = MyNFTViewController()
-        navigationController?.pushViewController(myNFTVC, animated: true)
+    private func pushToMyNftViewController() {
+        let myNftVC = MyNftViewController()
+        navigationController?.pushViewController(myNftVC, animated: true)
     }
     
     private func pushToFavouritesViewController() {
@@ -314,7 +314,7 @@ extension ProfileViewController: UITableViewDelegate {
         let item = menu[indexPath.row]
         switch item {
         case .myNFT:
-            pushToMyNFTViewController()
+            pushToMyNftViewController()
         case .favourites:
             pushToFavouritesViewController()
         }

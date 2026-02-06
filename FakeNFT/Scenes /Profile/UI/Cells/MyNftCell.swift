@@ -1,10 +1,10 @@
 import UIKit
 
-final class MyNFTCell: UITableViewCell, ReuseIdentifying {
+final class MyNftCell: UITableViewCell, ReuseIdentifying {
     
     // MARK: - Public Methods
     
-    func configure(nft: NftUI) {
+    func configure(nft: MyNftUI) {
         nameLabel.text = nft.name
         nftImageView.kf.setImage(with: nft.image)
         ratingView.rating = nft.rating
