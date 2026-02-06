@@ -7,26 +7,32 @@
 
 import UIKit
 
+/// Состояния экрана корзины (FSM)
+enum CartViewState {
+    case idle
+    case loading
+    case loaded(items: [UICartItem], total: Double)
+    case empty
+    case error(message: String)
+}
+
 /// Протокол описывает интерфейс для ViewModel корзины, отвечающей за представление и управление товарами в корзине.
 /// Поддерживает обновление элементов, сортировку и удаление товаров.
 protocol CartViewModelProtocol: AnyObject {
-    /// Массив отображаемых элементов корзины для UI.
-    var items: [UICartItem] { get }
+    /// Текущий параметр сортировки.
+    var sortOption: SortOption { get set }
+
+    /// Текущее состояние экрана корзины.
+    var state: CartViewState { get }
+
+    /// Замыкание вызывается при изменении состояния экрана.
+    var onStateChange: ((CartViewState) -> Void)? { get set }
 
     /// Количество элементов в корзине.
     var itemsCount: Int { get }
 
     /// Общая стоимость товаров в корзине.
     var totalPrice: Double { get }
-
-    /// Текущий параметр сортировки.
-    var sortOption: SortOption { get set }
-
-    /// Замыкание вызывается при обновлении списка элементов.
-    var onItemsUpdated: (() -> Void)? { get set }
-
-    /// Замыкание вызывается при изменении способа сортировки.
-    var onSortChanged: (() -> Void)? { get set }
 
     /// Загружает все элементы корзины.
     func loadItems()
@@ -56,6 +62,11 @@ final class CartViewModel: CartViewModelProtocol {
         didSet {
             items = cartItems.map { self.mapToUI($0) }
             totalPrice = cartItems.reduce(0) { $0 + $1.price }
+            if cartItems.isEmpty {
+                state = .empty
+            } else {
+                state = .loaded(items: items, total: totalPrice)
+            }
         }
     }
 
@@ -66,6 +77,7 @@ final class CartViewModel: CartViewModelProtocol {
         self.sortStore = sortStore
 
         self.sortOption = sortStore.load()
+        self.state = .idle
 
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(handleCartDidChange(_:)),
@@ -78,11 +90,13 @@ final class CartViewModel: CartViewModelProtocol {
     }
 
     // MARK: - Properties
-    var items: [UICartItem] = [] {
+    private(set) var state: CartViewState = .idle {
         didSet {
-            onItemsUpdated?()
+            onStateChange?(state)
         }
     }
+
+    var items: [UICartItem] = []
 
     var itemsCount: Int { items.count }
 
@@ -96,19 +110,21 @@ final class CartViewModel: CartViewModelProtocol {
         }
     }
 
-    var onItemsUpdated: (() -> Void)?
+    var onStateChange: ((CartViewState) -> Void)?
     var onSortChanged: (() -> Void)?
 
     // MARK: - Public Methods
     func loadItems() {
+        state = .loading
         service.fetchCartItems { [weak self] result in
             guard let self else { return }
             switch result {
             case .success(let items):
                 self.cartItems = items
+                self.sortItems()
             case .failure:
-                // TODO: - добавить обработку ошибок
                 self.cartItems = []
+                self.state = .error(message: "Не удалось загрузить корзину")
             }
         }
     }
@@ -126,10 +142,27 @@ final class CartViewModel: CartViewModelProtocol {
         switch sortOption {
         case .name:
             items.sort { $0.title < $1.title }
+            if items.isEmpty {
+                state = .empty
+            } else {
+                state = .loaded(items: items, total: totalPrice)
+            }
         case .rating:
             items.sort { $0.rating > $1.rating }
+            if items.isEmpty {
+                state = .empty
+            } else {
+                state = .loaded(items: items, total: totalPrice)
+            }
         case .price:
             cartItems.sort { $0.price < $1.price }
+            items = cartItems.map { self.mapToUI($0) }
+            totalPrice = cartItems.reduce(0) { $0 + $1.price }
+            if cartItems.isEmpty {
+                state = .empty
+            } else {
+                state = .loaded(items: items, total: totalPrice)
+            }
         }
     }
 

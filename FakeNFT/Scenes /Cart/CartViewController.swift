@@ -66,7 +66,6 @@ final class CartViewController: UIViewController {
         setupBindings()
 
         viewModel.loadItems()
-        viewModel.sortItems()
     }
 
     // MARK: - Setup UI
@@ -103,24 +102,10 @@ final class CartViewController: UIViewController {
 
     // MARK: - Private methods
     private func setupBindings() {
-        viewModel.onItemsUpdated = { [weak self] in
+        viewModel.onStateChange = { [weak self] state in
             guard let self else { return }
-
             DispatchQueue.main.async {
-                self.tableView.reloadData()
-                self.updateCartState()
-                self.orderSummaryView.updateOrderSummary(
-                    count: self.viewModel.itemsCount,
-                    price: self.viewModel.totalPrice
-                )
-            }
-        }
-
-        viewModel.onSortChanged = { [weak self] in
-            guard let self else { return }
-
-            DispatchQueue.main.async {
-                self.tableView.reloadData()
+                self.render(state: state)
             }
         }
 
@@ -129,6 +114,37 @@ final class CartViewController: UIViewController {
             let vc = PaymentViewController()
             vc.hidesBottomBarWhenPushed = true
             self.navigationController?.pushViewController(vc, animated: true)
+        }
+    }
+
+    private func render(state: CartViewState) {
+        switch state {
+        case .idle:
+            updateCartState()
+        case .loading:
+            emptyStateLabel.isHidden = true
+            orderSummaryView.isHidden = true
+            navigationItem.rightBarButtonItem = nil
+            tableView.reloadData()
+        case .loaded(let items, let total):
+            emptyStateLabel.isHidden = true
+            orderSummaryView.isHidden = false
+            navigationItem.rightBarButtonItem = sortButton
+            orderSummaryView.updateOrderSummary(count: items.count, price: total)
+            tableView.reloadData()
+        case .empty:
+            emptyStateLabel.isHidden = false
+            orderSummaryView.isHidden = true
+            navigationItem.rightBarButtonItem = nil
+            tableView.reloadData()
+        case .error(let message):
+            emptyStateLabel.isHidden = false
+            orderSummaryView.isHidden = true
+            navigationItem.rightBarButtonItem = nil
+            tableView.reloadData()
+            let alert = UIAlertController(title: Localization.Cart.emptyStateMessage.localized, message: message, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: Localization.Cart.close.localized, style: .default))
+            present(alert, animated: true)
         }
     }
 
