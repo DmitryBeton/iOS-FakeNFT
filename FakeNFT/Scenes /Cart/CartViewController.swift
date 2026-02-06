@@ -24,6 +24,8 @@ final class CartViewController: UIViewController {
         tableView.allowsSelection = false
         tableView.register(CartItemViewCell.self)
         tableView.estimatedRowHeight = 140
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.showsVerticalScrollIndicator = false
         tableView.separatorStyle = .none
         tableView.backgroundColor = .clear
         return tableView
@@ -51,6 +53,7 @@ final class CartViewController: UIViewController {
             action: #selector(sortButtonTapped)
         )
         sortButton.tintColor = UIColor(resource: .nftBlack)
+        sortButton.accessibilityLabel = Localization.Cart.sort.localized
         return sortButton
     }()
 
@@ -80,6 +83,7 @@ final class CartViewController: UIViewController {
 
         tableView.dataSource = self
         tableView.delegate = self
+        tableView.accessibilityIdentifier = "cart_table"
         refreshControl.addTarget(self, action: #selector(refreshPulled), for: .valueChanged)
         tableView.refreshControl = refreshControl
 
@@ -193,6 +197,7 @@ final class CartViewController: UIViewController {
     }
 
     @objc private func refreshPulled() {
+        emptyStateLabel.isHidden = true
         viewModel.loadItems()
     }
 
@@ -231,10 +236,23 @@ extension CartViewController: UITableViewDataSource, UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let deleteAction = UIContextualAction(style: .destructive, title: Localization.Cart.deleteButton.localized) { [weak self] _, _, completion in
-            self?.viewModel.deleteItem(at: indexPath.row)
-            completion(true)
+            guard let self else { completion(false); return }
+
+            self.viewModel.deleteItem(at: indexPath.row)
+
+            if self.viewModel.itemsCount >= indexPath.row {
+                self.tableView.performBatchUpdates({
+                    if self.tableView.numberOfRows(inSection: indexPath.section) > indexPath.row {
+                        self.tableView.deleteRows(at: [indexPath], with: .automatic)
+                    }
+                }, completion: { _ in
+                    completion(true)
+                })
+            } else {
+                completion(true)
+            }
         }
-        deleteAction.backgroundColor = .systemRed
+        deleteAction.backgroundColor = UIColor(resource: .nftRed)
         return UISwipeActionsConfiguration(actions: [deleteAction])
     }
 }
