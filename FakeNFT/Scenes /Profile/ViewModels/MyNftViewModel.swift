@@ -38,8 +38,11 @@ final class MyNftViewModel: MyNftViewModelProtocol {
     
     // MARK: - Private Properties
     
-    private var sort: SortOption = .name {
+    private let sortStorage: SortOptionStorageProtocol
+    
+    private var sort: SortOption {
         didSet {
+            sortStorage.sortOption = sort
             onSortChange?()
         }
     }
@@ -101,6 +104,18 @@ final class MyNftViewModel: MyNftViewModelProtocol {
             id: UUID()
         )
     ]
+    
+    // MARK: - Init
+    
+    convenience init() {
+        let sortStorage = SortOptionStorage()
+        self .init(sortStorage: sortStorage)
+    }
+    
+    init(sortStorage: SortOptionStorageProtocol) {
+        self.sortStorage = sortStorage
+        sort = sortStorage.sortOption
+    }
     
     // MARK: - Private Methods
     

@@ -1,4 +1,4 @@
-enum SortOption {
+enum SortOption: String {
     case price
     case rating
     case name
