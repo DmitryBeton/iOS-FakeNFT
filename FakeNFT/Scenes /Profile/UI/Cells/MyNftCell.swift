@@ -91,7 +91,6 @@ final class MyNftCell: UITableViewCell, ReuseIdentifying {
     
     private lazy var contentStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [
-            nftImageView,
             infoStackView,
             priceStackView
         ])
@@ -126,22 +125,24 @@ final class MyNftCell: UITableViewCell, ReuseIdentifying {
     private func setupViews() {
         selectionStyle = .none
         contentView.backgroundColor = UIColor(resource: .nftWhite)
-        contentView.addSubview(contentStackView)
+        contentView.addSubviews([nftImageView, contentStackView])
     }
     
     private func setupConstraints() {
-        [contentStackView, likeButton].disableAutoresizingMasks()
+        [nftImageView, contentStackView, likeButton].disableAutoresizingMasks()
         
         NSLayoutConstraint.activate([
             contentStackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
-            contentStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor,constant: 16),
+            contentStackView.leadingAnchor.constraint(equalTo: nftImageView.trailingAnchor,constant: 20),
             contentStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             contentStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16)
         ])
         
         NSLayoutConstraint.activate([
-            nftImageView.heightAnchor.constraint(equalToConstant: 108),
-            nftImageView.widthAnchor.constraint(equalToConstant: 108)
+            nftImageView.widthAnchor.constraint(equalTo: nftImageView.heightAnchor),
+            nftImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
+            nftImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            nftImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16)
         ])
         
         NSLayoutConstraint.activate([
