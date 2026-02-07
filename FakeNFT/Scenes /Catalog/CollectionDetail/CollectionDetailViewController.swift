@@ -33,7 +33,7 @@ final class CollectionDetailViewController: UIViewController {
 
     private lazy var backButton: UIButton = {
         let button = UIButton(type: .custom)
-        button.setImage(UIImage(resource: .backButton), for: .normal)
+        button.setImage(UIImage(resource: .backButton).withRenderingMode(.alwaysTemplate), for: .normal)
         button.tintColor = UIColor(resource: .nftBlack)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
@@ -164,10 +164,13 @@ final class CollectionDetailViewController: UIViewController {
     private func setupNavigationBar() {
         navigationController?.setNavigationBarHidden(true, animated: false)
 
-        let backButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
-        backButtonItem.tintColor = UIColor(resource: .nftBlack)
-        navigationItem.backBarButtonItem = backButtonItem
+        navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
         navigationController?.navigationBar.tintColor = UIColor(resource: .nftBlack)
+
+        let backImage = UIImage(resource: .backButton)
+            .withRenderingMode(.alwaysTemplate)
+        navigationController?.navigationBar.backIndicatorImage = backImage
+        navigationController?.navigationBar.backIndicatorTransitionMaskImage = backImage
     }
 
     private func setupGestures() {
