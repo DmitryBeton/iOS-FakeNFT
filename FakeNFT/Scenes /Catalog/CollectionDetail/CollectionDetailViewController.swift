@@ -138,7 +138,7 @@ final class CollectionDetailViewController: UIViewController {
         scrollView.contentInset.bottom = view.safeAreaInsets.bottom
     }
 
-    // MARK: - Setup
+    // MARK: - Private Methods
 
     private func setupUI() {
         view.backgroundColor = UIColor(resource: .nftWhite)
@@ -198,6 +198,15 @@ final class CollectionDetailViewController: UIViewController {
                 let indexPath = IndexPath(item: index, section: 0)
                 if let cell = self?.collectionView.cellForItem(at: indexPath) as? DetailCollectionViewCell {
                     cell.setLiked(isLiked)
+                }
+            }
+        }
+
+        viewModel.onNFTCartUpdated = { [weak self] index, isInCart in
+            DispatchQueue.main.async {
+                let indexPath = IndexPath(item: index, section: 0)
+                if let cell = self?.collectionView.cellForItem(at: indexPath) as? DetailCollectionViewCell {
+                    cell.setInCart(isInCart)
                 }
             }
         }

@@ -6,6 +6,7 @@ final class CollectionDetailViewModel {
 
     var onNFTsUpdated: (() -> Void)?
     var onNFTLikeUpdated: ((Int, Bool) -> Void)?
+    var onNFTCartUpdated: ((Int, Bool) -> Void)?
 
     private(set) var nfts: [NFTCellModel] = []
 
@@ -16,6 +17,7 @@ final class CollectionDetailViewModel {
     let collectionDescription: String
 
     private let favoritesStorage: FavoritesStorage
+    private let cartStorage: CartStorage
 
     // MARK: - Init
 
@@ -25,7 +27,8 @@ final class CollectionDetailViewModel {
         collectionCover: URL? = nil,
         collectionAuthor: String = "",
         collectionDescription: String = "",
-        favoritesStorage: FavoritesStorage = FavoritesStorageImpl.shared
+        favoritesStorage: FavoritesStorage = FavoritesStorageImpl.shared,
+        cartStorage: CartStorage = CartStorageImpl.shared
     ) {
         self.collectionId = collectionId
         self.collectionName = collectionName
@@ -33,6 +36,7 @@ final class CollectionDetailViewModel {
         self.collectionAuthor = collectionAuthor
         self.collectionDescription = collectionDescription
         self.favoritesStorage = favoritesStorage
+        self.cartStorage = cartStorage
     }
 
     // MARK: - Public Methods
@@ -61,20 +65,25 @@ final class CollectionDetailViewModel {
 
     func toggleCart(at index: Int) {
         guard index < nfts.count else { return }
-        // TODO: Реализовать логику корзины позже
+
+        let nftId = nfts[index].id
+        let newState = cartStorage.toggleCart(nftId: nftId)
+        nfts[index].isInCart = newState
+
+        onNFTCartUpdated?(index, newState)
     }
 
     // MARK: - Private Methods
 
     private func loadNFTs() {
         // Mock data для проверки вёрстки
-        let mockData: [(id: String, name: String, price: String, rating: Int, isInCart: Bool)] = [
-            ("1", "Archie", "1 ETH", 2, false),
-            ("2", "Ruby", "1 ETH", 2, true),
-            ("3", "Nacho", "1 ETH", 2, false),
-            ("4", "Biscuit", "1 ETH", 1, false),
-            ("5", "Daisy", "1 ETH", 3, false),
-            ("6", "Susan", "1 ETH", 2, false)
+        let mockData: [(id: String, name: String, price: String, rating: Int)] = [
+            ("1", "Archie", "1 ETH", 2),
+            ("2", "Ruby", "1 ETH", 2),
+            ("3", "Nacho", "1 ETH", 2),
+            ("4", "Biscuit", "1 ETH", 1),
+            ("5", "Daisy", "1 ETH", 3),
+            ("6", "Susan", "1 ETH", 2)
         ]
 
         nfts = mockData.map { item in
@@ -85,7 +94,7 @@ final class CollectionDetailViewModel {
                 rating: item.rating,
                 price: item.price,
                 isLiked: favoritesStorage.isFavorite(nftId: item.id),
-                isInCart: item.isInCart
+                isInCart: cartStorage.isInCart(nftId: item.id)
             )
         }
 
