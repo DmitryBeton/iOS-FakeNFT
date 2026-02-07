@@ -16,7 +16,15 @@ enum PaymentViewState {
     case empty
     case paying
     case paid
-    case error(message: String)
+    case error(error: PaymentError)
+}
+
+enum PaymentError: Error {
+    case networkOffline
+    case paymentFailed
+    case currenciesLoadFailed
+    case server(code: Int)
+    case unknown(underlying: Error)
 }
 
 /// Протокол модели представления экрана оплаты/выбора валюты.
@@ -120,7 +128,7 @@ final class PaymentViewModel: PaymentViewModelProtocol {
             case .failure:
                 Self.logger.error("Failed to load currencies")
                 self.currencyItems = []
-                self.state = .error(message: Localization.Payment.currencyLoadErrorTitle.localized)
+                self.state = .error(error: PaymentError.currenciesLoadFailed)
             }
         }
     }
@@ -149,7 +157,7 @@ final class PaymentViewModel: PaymentViewModelProtocol {
                 }
             case .failure(let error):
                 Self.logger.error("Payment service returned failure: \(error.localizedDescription)")
-                self.state = .error(message: Localization.Payment.payErrorTitle.localized)
+                self.state = .error(error: PaymentError.paymentFailed)
                 completion(.failure(error))
             }
         }

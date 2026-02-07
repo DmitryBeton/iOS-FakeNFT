@@ -9,14 +9,14 @@ import UIKit
 import OSLog
 
 final class PaymentViewController: UIViewController {
-
+    
     private static let logger = Logger(subsystem: "com.fakenft.app", category: "PaymentViewController")
-
+    
     // MARK: - Properties
     private let viewModel: PaymentViewModelProtocol
-
+    
     private let connectivity = ConnectivityService()
-
+    
     // MARK: - UI Elements
     private let collection: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -26,79 +26,79 @@ final class PaymentViewController: UIViewController {
         collection.allowsMultipleSelection = false
         return collection
     }()
-
+    
     private let paymentFooterView = PaymentFooterView()
-
+    
     // MARK: - Initialization
     init(viewModel: PaymentViewModelProtocol = PaymentViewModel()) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
-
+    
     @available(*, unavailable)
     required init?(coder: NSCoder) {
         nil
     }
-
+    
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         Self.logger.debug("viewDidLoad")
         navigationItem.title = Constants.Text.navTitle
-
+        
         connectivity.start()
-
+        
         setupUI()
         applyNavigationTitleStyle()
         setupBindings()
-
+        
         startLoadCurrency()
-
+        
         paymentFooterView.isPayEnabled = false
     }
-
+    
     deinit {
         connectivity.stop()
     }
-
+    
     // MARK: - Setup
     private func setupUI() {
         view.backgroundColor = UIColor(resource: .nftWhite)
-
+        
         collection.delegate = self
         collection.dataSource = self
-
+        
         view.addSubview(collection)
         view.addSubview(paymentFooterView)
-
+        
         collection.translatesAutoresizingMaskIntoConstraints = false
         paymentFooterView.translatesAutoresizingMaskIntoConstraints = false
-
+        
         NSLayoutConstraint.activate([
             collection.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             collection.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             collection.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
             collection.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-
+            
             paymentFooterView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             paymentFooterView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             paymentFooterView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
             paymentFooterView.heightAnchor.constraint(equalToConstant: Constants.Layout.footerHeight)
         ])
     }
-
+    
     private func setupBindings() {
         paymentFooterView.onPayTapped = { [weak self] in
             Self.logger.info("Pay tapped on Payment screen")
             self?.startPayment()
         }
-
+        
         paymentFooterView.onAgreementTapped = { [weak self] in
             Self.logger.info("Agreement tapped. Opening: \(Constants.Text.agreementURL)")
             let vc = AgreementWebViewController(urlString: Constants.Text.agreementURL)
             self?.navigationController?.pushViewController(vc, animated: true)
         }
-
+        
         viewModel.onStateChange = { [weak self] state in
             guard let self else { return }
             DispatchQueue.main.async {
@@ -122,7 +122,7 @@ final class PaymentViewController: UIViewController {
             }
         }
     }
-
+    
     // MARK: - Private Methods
     private func render(state: PaymentViewState) {
         Self.logger.debug("render(state:) called")
@@ -154,16 +154,55 @@ final class PaymentViewController: UIViewController {
                 self?.navigationController?.popToViewController(ofType: CartViewController.self, animated: true)
             }
             navigationController?.pushViewController(successVC, animated: true)
-        case .error(let message):
-            Self.logger.error("Render error state with message: \(message)")
+        case .error(let error):
+            Self.logger.error("Render error state with message: \(error.localizedDescription)")
             UIBlockingProgressHUD.dismiss()
-            let isOffline = connectivity.isOfflineNow()
-            let title = isOffline ? Localization.Payment.noInternet.localized : message
-            let msg = isOffline ? Localization.Payment.noInternetMessage.localized : nil
-            showRetryAlert(title: title, message: msg) { [weak self] in self?.startLoadCurrency() }
+            
+            switch error {
+            case .networkOffline:
+                showRetryAlert(
+                    title: Localization.Payment.noInternet.localized,
+                    message: Localization.Payment.noInternetMessage.localized
+                ) { [weak self] in
+                    self?.startLoadCurrency()
+                }
+                
+            case .paymentFailed:
+                showRetryAlert(
+                    title: Localization.Payment.payErrorTitle.localized,
+                    message: nil
+                ) { [weak self] in
+                    self?.startPayment()
+                }
+                
+            case .currenciesLoadFailed:
+                showRetryAlert(
+                    title: Localization.Payment.currencyLoadErrorTitle.localized,
+                    message: nil
+                ) { [weak self] in
+                    self?.startLoadCurrency()
+                }
+                
+            case .server(let code):
+                // Пока нет отдельной локализации под код, покажем код в заголовке
+                showRetryAlert(
+                    title: "Server error (\(code))",
+                    message: nil
+                ) { [weak self] in
+                    self?.startLoadCurrency()
+                }
+                
+            case .unknown(let underlying):
+                showRetryAlert(
+                    title: underlying.localizedDescription,
+                    message: nil
+                ) { [weak self] in
+                    self?.startLoadCurrency()
+                }
+            }
         }
     }
-
+    
     private func startPayment() {
         Self.logger.info("Starting payment...")
         viewModel.pay { [weak self] result in
@@ -178,43 +217,43 @@ final class PaymentViewController: UIViewController {
             }
         }
     }
-
+    
     private func startLoadCurrency() {
         Self.logger.info("Loading currencies requested")
         viewModel.loadItems()
     }
-
+    
     // MARK: - Generic alerts
     private func showRetryAlert(title: String, message: String?, retryAction: @escaping () -> Void) {
         Self.logger.warning("Showing retry alert. title=\(title)")
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-
+        
         alert.addAction(UIAlertAction(title: Constants.Text.retry, style: .default) { _ in
             Self.logger.info("Retry tapped on alert")
             retryAction()
         })
         alert.addAction(UIAlertAction(title: Constants.Text.cancel, style: .cancel))
-
+        
         present(alert, animated: true)
     }
-
+    
     private func applyNavigationTitleStyle() {
         let paragraph = NSMutableParagraphStyle()
         paragraph.minimumLineHeight = 22
         paragraph.maximumLineHeight = 22
         paragraph.alignment = .center
-
+        
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.bodyBold,
             .paragraphStyle: paragraph,
             .kern: 0,
             .foregroundColor: UIColor(resource: .nftBlack)
         ]
-
+        
         navigationController?.navigationBar.titleTextAttributes = attributes
         Self.logger.debug("Applied navigation title style")
     }
-
+    
     private func clearSelectionAndDisablePay() {
         collection.indexPathsForSelectedItems?.forEach { indexPath in
             collection.deselectItem(at: indexPath, animated: false)
@@ -228,14 +267,14 @@ extension PaymentViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         viewModel.itemsCount
     }
-
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell: UICurrencyCollectionViewCell = collection.dequeueReusableCell(indexPath: indexPath)
-
+        
         if let uiCurrency = viewModel.getUICurrency(at: indexPath.row) {
             cell.configure(currency: uiCurrency)
         }
-
+        
         return cell
     }
 }
@@ -244,30 +283,30 @@ extension PaymentViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
-
+        
         let padding = Constants.Layout.collectionHorizontalPadding
         let spacing = Constants.Layout.minimumInteritemSpacing
         let itemsPerRow = Constants.Layout.itemsPerRow
-
+        
         let availableWidth = collectionView.frame.width - padding * 2 - spacing * (itemsPerRow - 1)
         let widthPerItem = availableWidth / itemsPerRow
         let height = widthPerItem * Constants.Layout.itemHeightToWidthRatio
-
+        
         return CGSize(width: widthPerItem, height: height)
     }
-
+    
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         insetForSectionAt section: Int) -> UIEdgeInsets {
         Constants.Layout.sectionInset
     }
-
+    
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         Constants.Layout.minimumLineSpacing
     }
-
+    
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
@@ -281,7 +320,7 @@ extension PaymentViewController: UICollectionViewDelegate {
         Self.logger.debug("Currency selected at index=\(indexPath.row)")
         paymentFooterView.isPayEnabled = true
     }
-
+    
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
         Self.logger.debug("Currency deselected at index=\(indexPath.row)")
         let hasSelection = !(collectionView.indexPathsForSelectedItems?.isEmpty ?? true)
@@ -306,7 +345,7 @@ private enum Constants {
         static let itemsPerRow: CGFloat = 2
         static let collectionHorizontalPadding: CGFloat = 16
         static let itemHeightToWidthRatio: CGFloat = 0.2738
-
+        
         // Footer
         static let footerHeight: CGFloat = 186
     }

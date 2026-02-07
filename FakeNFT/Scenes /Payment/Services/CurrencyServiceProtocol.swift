@@ -35,7 +35,7 @@ final class MockCurrencyService: CurrencyServiceProtocol {
     }
 
     /// Определяет, вернется ли успех или ошибка.
-    var shouldSucceed: Bool = true
+    var shouldSucceed: Bool = false
 
     /// Задержка перед ответом, секунды.
     var delay: TimeInterval = 0.5
