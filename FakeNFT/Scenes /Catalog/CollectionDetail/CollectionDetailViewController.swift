@@ -32,7 +32,7 @@ final class CollectionDetailViewController: UIViewController {
     }()
 
     private lazy var backButton: UIButton = {
-        let button = UIButton(type: .system)
+        let button = UIButton(type: .custom)
         button.setImage(UIImage(resource: .backButton), for: .normal)
         button.tintColor = UIColor(resource: .nftBlack)
         button.translatesAutoresizingMaskIntoConstraints = false
