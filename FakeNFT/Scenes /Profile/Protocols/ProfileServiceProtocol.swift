@@ -15,4 +15,5 @@ protocol ProfileServiceProtocol {
     ///     - При успехе (`.success`) возвращает обновленный объект `Profile`
     ///     - При ошибке (`.failure`) возвращает `Error`
     func updateProfile(with profileDto: ProfileDto, completion: @escaping ProfileCompletion)
+    
 }

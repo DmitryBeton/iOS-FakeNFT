@@ -29,4 +29,5 @@ protocol ProfileViewModelProtocol: AnyObject {
     
     /// Получить полную строку URL сайта профиля
     func websiteURLString() -> String
+    
 }

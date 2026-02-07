@@ -44,4 +44,5 @@ protocol EditProfileViewModelProtocol: AnyObject {
     /// - Note: При успешном запросе отправляет `onChangesSaved` в ProfileViewModel и закрывает экран.
     ///         При ошибке отображается сообщение об ошибке во `ViewController`
     func saveChanges()
+    
 }

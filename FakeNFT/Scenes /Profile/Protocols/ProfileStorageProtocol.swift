@@ -8,4 +8,5 @@ protocol ProfileStorageProtocol: AnyObject {
     /// Получить профиль
     ///  - Returns: Сохраненный объект `Profile`, если он существует, иначе `nil`
     func getProfile() -> Profile?
+    
 }
