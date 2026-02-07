@@ -11,6 +11,8 @@ import OSLog
 final class CartViewController: UIViewController {
 
     private static let logger = Logger(subsystem: "com.fakenft.app", category: "CartViewController")
+    
+    private var isNavigatingToPayment = false
 
     // MARK: - Properties
     private let viewModel: CartViewModelProtocol
@@ -80,6 +82,12 @@ final class CartViewController: UIViewController {
 
         viewModel.loadItems()
     }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        isNavigatingToPayment = false
+        orderSummaryView.isUserInteractionEnabled = true
+    }
 
     // MARK: - Setup UI
     private func setupUI() {
@@ -143,7 +151,10 @@ final class CartViewController: UIViewController {
 
         orderSummaryView.onPayTapped = { [weak self] in
             guard let self else { return }
+            guard !self.isNavigatingToPayment else { return }
+            self.isNavigatingToPayment = true
             Self.logger.info("Pay tapped from cart. Navigating to PaymentViewController")
+            self.orderSummaryView.isUserInteractionEnabled = false
             let vc = PaymentViewController()
             vc.hidesBottomBarWhenPushed = true
             self.navigationController?.pushViewController(vc, animated: true)
@@ -284,3 +295,4 @@ extension CartViewController: UITableViewDataSource, UITableViewDelegate {
         return UISwipeActionsConfiguration(actions: [deleteAction])
     }
 }
+
