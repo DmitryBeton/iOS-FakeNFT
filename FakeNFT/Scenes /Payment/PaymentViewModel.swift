@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import OSLog
 
 /// Состояния экрана оплаты (FSM)
 enum PaymentViewState {
@@ -67,10 +68,14 @@ protocol PaymentViewModelProtocol: AnyObject {
 
 final class PaymentViewModel: PaymentViewModelProtocol {
 
+    private static let logger = Logger(subsystem: "com.fakenft.app", category: "PaymentViewModel")
+
     // MARK: - Backing storage
     private var currencyItems: [Currency] = [] {
         didSet {
+            Self.logger.debug("currencyItems didSet. newCount=\(self.currencyItems.count)")
             items = currencyItems.map { self.mapToUI($0) }
+            Self.logger.debug("Mapped currencies to UI items. count=\(self.items.count)")
             if items.isEmpty {
                 state = .empty
             } else {
@@ -104,13 +109,16 @@ final class PaymentViewModel: PaymentViewModelProtocol {
     }
 
     func loadItems() {
+        Self.logger.info("Loading currencies started")
         state = .loadingCurrencies
         currencyService.fetchCurrencies { [weak self] result in
             guard let self else { return }
             switch result {
             case .success(let currencies):
+                Self.logger.info("Currencies loaded successfully. count=\(currencies.count)")
                 self.currencyItems = currencies
             case .failure:
+                Self.logger.error("Failed to load currencies")
                 self.currencyItems = []
                 self.state = .error(message: Localization.Payment.currencyLoadErrorTitle.localized)
             }
@@ -120,22 +128,27 @@ final class PaymentViewModel: PaymentViewModelProtocol {
     // MARK: - Public Methods
 
     func getUICurrency(at index: Int) -> UICurrency? {
+        Self.logger.debug("getUICurrency called for index=\(index)")
         guard index < items.count else { return nil }
         return items[index]
     }
 
     func pay(completion: @escaping (Result<Void, Error>) -> Void) {
+        Self.logger.info("Pay flow started")
         state = .paying
         paymentService.pay { [weak self] result in
             guard let self else { return }
             switch result {
             case .success:
+                Self.logger.info("Payment service returned success. Clearing cart...")
                 self.cartService.clearCart {
+                    Self.logger.info("Cart cleared. Posting cartDidChange and setting state .paid")
                     NotificationCenter.default.post(name: .cartDidChange, object: nil)
                     self.state = .paid
                     completion(.success(()))
                 }
             case .failure(let error):
+                Self.logger.error("Payment service returned failure: \(error.localizedDescription)")
                 self.state = .error(message: Localization.Payment.payErrorTitle.localized)
                 completion(.failure(error))
             }

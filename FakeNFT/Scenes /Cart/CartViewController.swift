@@ -6,8 +6,11 @@
 //
 
 import UIKit
+import OSLog
 
 final class CartViewController: UIViewController {
+
+    private static let logger = Logger(subsystem: "com.fakenft.app", category: "CartViewController")
 
     // MARK: - Properties
     private let viewModel: CartViewModelProtocol
@@ -71,6 +74,7 @@ final class CartViewController: UIViewController {
     // MARK: - LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        Self.logger.debug("viewDidLoad")
         setupUI()
         setupBindings()
 
@@ -121,12 +125,25 @@ final class CartViewController: UIViewController {
                 if self.refreshControl.isRefreshing {
                     self.refreshControl.endRefreshing()
                 }
+                switch state {
+                case .idle:
+                    Self.logger.debug("State changed -> idle")
+                case .loading:
+                    Self.logger.debug("State changed -> loading")
+                case .loaded(let items, let total):
+                    Self.logger.info("State changed -> loaded. items=\(items.count), total=\(total, format: .fixed(precision: 2))")
+                case .empty:
+                    Self.logger.info("State changed -> empty")
+                case .error(let message):
+                    Self.logger.error("State changed -> error: \(message)")
+                }
                 self.render(state: state)
             }
         }
 
         orderSummaryView.onPayTapped = { [weak self] in
             guard let self else { return }
+            Self.logger.info("Pay tapped from cart. Navigating to PaymentViewController")
             let vc = PaymentViewController()
             vc.hidesBottomBarWhenPushed = true
             self.navigationController?.pushViewController(vc, animated: true)
@@ -134,6 +151,7 @@ final class CartViewController: UIViewController {
     }
 
     private func render(state: CartViewState) {
+        Self.logger.debug("render called with state: \(String(describing: state))")
         switch state {
         case .idle:
             updateCartState()
@@ -169,12 +187,14 @@ final class CartViewController: UIViewController {
 
     private func updateCartState() {
         let isEmpty = viewModel.isEmpty()
+        Self.logger.debug("updateCartState. isEmpty=\(isEmpty)")
         emptyStateLabel.isHidden = !isEmpty
         orderSummaryView.isHidden = isEmpty
         navigationItem.rightBarButtonItem = isEmpty ? nil : sortButton
     }
 
     private func showSortOptionsMenu() {
+        Self.logger.debug("Showing sort options menu")
         let alert = UIAlertController(
             title: Localization.Cart.sort.localized,
             message: nil,
@@ -186,6 +206,7 @@ final class CartViewController: UIViewController {
                 title: option.localizedWord,
                 style: .default
             ) { [weak self] _ in
+                Self.logger.info("Sort option selected: \(option.localizedWord)")
                 self?.viewModel.sortOption = option
             }
             alert.addAction(action)
@@ -197,6 +218,7 @@ final class CartViewController: UIViewController {
     }
 
     @objc private func refreshPulled() {
+        Self.logger.info("Pull-to-refresh triggered")
         emptyStateLabel.isHidden = true
         viewModel.loadItems()
     }
@@ -217,10 +239,11 @@ extension CartViewController: UITableViewDataSource, UITableViewDelegate {
 
         if let uiCartItem = viewModel.getUICartItem(at: indexPath.row) {
             cell.configure(data: uiCartItem)
+            Self.logger.debug("Configured cell for row=\(indexPath.row), id=\(uiCartItem.id)")
             cell.onDeleteButtonTapped = { [weak self] in
                 guard let self,
                       let indexPath = self.tableView.indexPath(for: cell) else { return }
-
+                Self.logger.info("Delete button tapped for row=\(indexPath.row), id=\(uiCartItem.id)")
                 let alertVC = DeleteConfirmationAlertViewController(image: uiCartItem.image)
                 alertVC.onDeleteTapped = { [weak self] in
                     self?.viewModel.deleteItem(at: indexPath.row)
@@ -235,10 +258,13 @@ extension CartViewController: UITableViewDataSource, UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        Self.logger.debug("Configuring trailing swipe actions for row=\(indexPath.row)")
         let deleteAction = UIContextualAction(style: .destructive, title: Localization.Cart.deleteButton.localized) { [weak self] _, _, completion in
             guard let self else { completion(false); return }
+            Self.logger.info("Swipe-to-delete initiated for row=\(indexPath.row)")
 
             self.viewModel.deleteItem(at: indexPath.row)
+            Self.logger.debug("Requested deletion for cart item at row=\(indexPath.row)")
 
             if self.viewModel.itemsCount >= indexPath.row {
                 self.tableView.performBatchUpdates({
@@ -246,9 +272,11 @@ extension CartViewController: UITableViewDataSource, UITableViewDelegate {
                         self.tableView.deleteRows(at: [indexPath], with: .automatic)
                     }
                 }, completion: { _ in
+                    Self.logger.debug("Row deleted via table updates for row=\(indexPath.row)")
                     completion(true)
                 })
             } else {
+                Self.logger.warning("Row index out of bounds during delete handling; completing without UI update")
                 completion(true)
             }
         }

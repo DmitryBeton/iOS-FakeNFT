@@ -6,8 +6,11 @@
 //
 
 import UIKit
+import OSLog
 
 final class PaymentViewController: UIViewController {
+
+    private static let logger = Logger(subsystem: "com.fakenft.app", category: "PaymentViewController")
 
     // MARK: - Properties
     private let viewModel: PaymentViewModelProtocol
@@ -40,6 +43,7 @@ final class PaymentViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        Self.logger.debug("viewDidLoad")
         navigationItem.title = Constants.Text.navTitle
 
         connectivity.start()
@@ -85,10 +89,12 @@ final class PaymentViewController: UIViewController {
 
     private func setupBindings() {
         paymentFooterView.onPayTapped = { [weak self] in
+            Self.logger.info("Pay tapped on Payment screen")
             self?.startPayment()
         }
 
         paymentFooterView.onAgreementTapped = { [weak self] in
+            Self.logger.info("Agreement tapped. Opening: \(Constants.Text.agreementURL)")
             let vc = AgreementWebViewController(urlString: Constants.Text.agreementURL)
             self?.navigationController?.pushViewController(vc, animated: true)
         }
@@ -96,6 +102,22 @@ final class PaymentViewController: UIViewController {
         viewModel.onStateChange = { [weak self] state in
             guard let self else { return }
             DispatchQueue.main.async {
+                switch state {
+                case .idle:
+                    Self.logger.debug("State -> idle")
+                case .loadingCurrencies:
+                    Self.logger.debug("State -> loadingCurrencies")
+                case .currenciesLoaded(let items):
+                    Self.logger.info("State -> currenciesLoaded. count=\(items.count)")
+                case .empty:
+                    Self.logger.info("State -> empty")
+                case .paying:
+                    Self.logger.info("State -> paying")
+                case .paid:
+                    Self.logger.info("State -> paid")
+                case .error(let message):
+                    Self.logger.error("State -> error: \(message)")
+                }
                 self.render(state: state)
             }
         }
@@ -103,6 +125,7 @@ final class PaymentViewController: UIViewController {
 
     // MARK: - Private Methods
     private func render(state: PaymentViewState) {
+        Self.logger.debug("render(state:) called")
         switch state {
         case .idle:
             paymentFooterView.isPayEnabled = false
@@ -112,6 +135,7 @@ final class PaymentViewController: UIViewController {
         case .currenciesLoaded(let items):
             UIBlockingProgressHUD.dismiss()
             collection.reloadData()
+            Self.logger.debug("Collection reloaded with currencies")
             paymentFooterView.isPayEnabled = false
             if items.isEmpty {
                 showRetryAlert(title: Constants.Text.currencyLoadErrorTitle, message: nil) { [weak self] in self?.startLoadCurrency() }
@@ -131,6 +155,7 @@ final class PaymentViewController: UIViewController {
             }
             navigationController?.pushViewController(successVC, animated: true)
         case .error(let message):
+            Self.logger.error("Render error state with message: \(message)")
             UIBlockingProgressHUD.dismiss()
             let isOffline = connectivity.isOfflineNow()
             let title = isOffline ? Localization.Payment.noInternet.localized : message
@@ -140,26 +165,32 @@ final class PaymentViewController: UIViewController {
     }
 
     private func startPayment() {
+        Self.logger.info("Starting payment...")
         viewModel.pay { [weak self] result in
             guard let self else { return }
             switch result {
             case .success:
+                Self.logger.info("Payment completion returned success")
                 break // The .paid state will be rendered by onStateChange
             case .failure:
+                Self.logger.error("Payment completion returned failure")
                 break // The .error state will be rendered by onStateChange
             }
         }
     }
 
     private func startLoadCurrency() {
+        Self.logger.info("Loading currencies requested")
         viewModel.loadItems()
     }
 
     // MARK: - Generic alerts
     private func showRetryAlert(title: String, message: String?, retryAction: @escaping () -> Void) {
+        Self.logger.warning("Showing retry alert. title=\(title)")
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
 
         alert.addAction(UIAlertAction(title: Constants.Text.retry, style: .default) { _ in
+            Self.logger.info("Retry tapped on alert")
             retryAction()
         })
         alert.addAction(UIAlertAction(title: Constants.Text.cancel, style: .cancel))
@@ -181,6 +212,7 @@ final class PaymentViewController: UIViewController {
         ]
 
         navigationController?.navigationBar.titleTextAttributes = attributes
+        Self.logger.debug("Applied navigation title style")
     }
 
     private func clearSelectionAndDisablePay() {
@@ -188,6 +220,7 @@ final class PaymentViewController: UIViewController {
             collection.deselectItem(at: indexPath, animated: false)
         }
         paymentFooterView.isPayEnabled = false
+        Self.logger.debug("Cleared selection and disabled pay")
     }
 }
 
@@ -245,10 +278,12 @@ extension PaymentViewController: UICollectionViewDelegateFlowLayout {
 // MARK: - Selection handling
 extension PaymentViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        Self.logger.debug("Currency selected at index=\(indexPath.row)")
         paymentFooterView.isPayEnabled = true
     }
 
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        Self.logger.debug("Currency deselected at index=\(indexPath.row)")
         let hasSelection = !(collectionView.indexPathsForSelectedItems?.isEmpty ?? true)
         paymentFooterView.isPayEnabled = hasSelection
     }

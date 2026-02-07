@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import OSLog
 
 /// Состояния экрана корзины (FSM)
 enum CartViewState {
@@ -53,6 +54,8 @@ protocol CartViewModelProtocol: AnyObject {
 }
 
 final class CartViewModel: CartViewModelProtocol {
+    private static let logger = Logger(subsystem: "com.fakenft.app", category: "CartViewModel")
+
     // MARK: - Dependencies
     private let service: CartServiceProtocol
     private let sortStore: SortOptionStore
@@ -60,6 +63,7 @@ final class CartViewModel: CartViewModelProtocol {
     // MARK: - Backing storage
     private var cartItems: [CartItem] = [] {
         didSet {
+            Self.logger.debug("cartItems didSet. newCount=\(self.cartItems.count)")
             items = cartItems.map { self.mapToUI($0) }
             totalPrice = cartItems.reduce(0) { $0 + $1.price }
             if cartItems.isEmpty {
@@ -78,6 +82,7 @@ final class CartViewModel: CartViewModelProtocol {
 
         self.sortOption = sortStore.load()
         self.state = .idle
+        Self.logger.debug("CartViewModel initialized with sortOption=\(self.sortOption.localizedWord)")
 
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(handleCartDidChange(_:)),
@@ -86,6 +91,7 @@ final class CartViewModel: CartViewModelProtocol {
     }
 
     deinit {
+        Self.logger.debug("CartViewModel deinit")
         NotificationCenter.default.removeObserver(self, name: .cartDidChange, object: nil)
     }
 
@@ -115,14 +121,17 @@ final class CartViewModel: CartViewModelProtocol {
 
     // MARK: - Public Methods
     func loadItems() {
+        Self.logger.info("Loading cart items started")
         state = .loading
         service.fetchCartItems { [weak self] result in
             guard let self else { return }
             switch result {
             case .success(let items):
+                Self.logger.info("Cart items loaded successfully. count=\(items.count)")
                 self.cartItems = items
                 self.sortItems()
             case .failure:
+                Self.logger.error("Failed to load cart items")
                 self.cartItems = []
                 self.state = .error(message: "Не удалось загрузить корзину")
             }
@@ -130,15 +139,19 @@ final class CartViewModel: CartViewModelProtocol {
     }
 
     func deleteItem(at index: Int) {
+        Self.logger.info("Request to delete item at index=\(index)")
         guard index < items.count else { return }
+        Self.logger.debug("Deleting item id=\(self.items[index].id)")
         let id = items[index].id
         service.deleteCartItem(id: id) { [weak self] in
             guard let self else { return }
+            Self.logger.info("Cart item deleted successfully. id=\(id)")
             self.cartItems.removeAll { $0.id == id }
         }
     }
 
     func sortItems() {
+        Self.logger.debug("Sorting items by option=\(self.sortOption.localizedWord)")
         switch sortOption {
         case .name:
             items.sort { $0.title < $1.title }
@@ -147,6 +160,7 @@ final class CartViewModel: CartViewModelProtocol {
             } else {
                 state = .loaded(items: items, total: totalPrice)
             }
+            Self.logger.debug("Sorted by name. count=\(self.items.count)")
         case .rating:
             items.sort { $0.rating > $1.rating }
             if items.isEmpty {
@@ -154,6 +168,7 @@ final class CartViewModel: CartViewModelProtocol {
             } else {
                 state = .loaded(items: items, total: totalPrice)
             }
+            Self.logger.debug("Sorted by rating. count=\(self.items.count)")
         case .price:
             cartItems.sort { $0.price < $1.price }
             items = cartItems.map { self.mapToUI($0) }
@@ -163,16 +178,19 @@ final class CartViewModel: CartViewModelProtocol {
             } else {
                 state = .loaded(items: items, total: totalPrice)
             }
+            Self.logger.debug("Sorted by price. count=\(self.items.count)")
         }
     }
 
     func getUICartItem(at index: Int) -> UICartItem? {
+        Self.logger.debug("getUICartItem called for index=\(index)")
         guard index < items.count else { return nil }
         return items[index]
     }
 
     func isEmpty() -> Bool {
-        items.isEmpty
+        Self.logger.debug("isEmpty queried -> \(self.items.isEmpty)")
+        return items.isEmpty
     }
 
     // MARK: - Mapping
@@ -192,6 +210,7 @@ final class CartViewModel: CartViewModelProtocol {
 
     // MARK: - Notifications
     @objc private func handleCartDidChange(_ notification: Notification) {
+        Self.logger.info("Notification received: cartDidChange. Reloading items")
         loadItems()
     }
 }
