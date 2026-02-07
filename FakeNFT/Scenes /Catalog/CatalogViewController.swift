@@ -87,14 +87,12 @@ final class CatalogViewController: UIViewController {
     // MARK: - ViewModel Binding
     
     private func bindViewModel() {
-        // Когда коллекции обновляются - перезагружаем таблицу
         viewModel.onCollectionsUpdated = { [weak self] _ in
             DispatchQueue.main.async {
                 self?.tableView.reloadData()
             }
         }
         
-        // Когда меняется состояние загрузки - показываем/скрываем индикатор
         viewModel.onLoadingStateChanged = { [weak self] isLoading in
             DispatchQueue.main.async {
                 if isLoading {
@@ -105,9 +103,9 @@ final class CatalogViewController: UIViewController {
             }
         }
         
-        viewModel.onError = { [weak self] errorMessage in
+        viewModel.onError = { [weak self] _ in
             DispatchQueue.main.async {
-                print("Error: \(errorMessage)")
+                self?.showErrorAlert()
             }
         }
     }
@@ -128,6 +126,22 @@ final class CatalogViewController: UIViewController {
         })
 
         alert.addAction(UIAlertAction(title: Localization.Catalog.cancel.localized, style: .cancel))
+
+        present(alert, animated: true)
+    }
+
+    private func showErrorAlert() {
+        let alert = UIAlertController(
+            title: "Не удалось получить данные",
+            message: nil,
+            preferredStyle: .alert
+        )
+
+        alert.addAction(UIAlertAction(title: "Отмена", style: .default))
+
+        alert.addAction(UIAlertAction(title: "Повторить", style: .default) { [weak self] _ in
+            self?.viewModel.viewDidLoad()
+        })
 
         present(alert, animated: true)
     }

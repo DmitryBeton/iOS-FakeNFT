@@ -229,9 +229,9 @@ final class CollectionDetailViewController: UIViewController {
             }
         }
 
-        viewModel.onError = { [weak self] errorMessage in
+        viewModel.onError = { [weak self] _ in
             DispatchQueue.main.async {
-                self?.showErrorAlert(message: errorMessage)
+                self?.showErrorAlert()
             }
         }
     }
@@ -308,14 +308,18 @@ final class CollectionDetailViewController: UIViewController {
         coverImageView.kf.setImage(with: collection.cover)
     }
 
-    private func showErrorAlert(message: String) {
+    private func showErrorAlert() {
         let alert = UIAlertController(
-            title: "Ошибка",
-            message: message,
+            title: "Не удалось получить данные",
+            message: nil,
             preferredStyle: .alert
         )
 
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        alert.addAction(UIAlertAction(title: "Отмена", style: .default))
+
+        alert.addAction(UIAlertAction(title: "Повторить", style: .default) { [weak self] _ in
+            self?.viewModel.viewDidLoad()
+        })
 
         present(alert, animated: true)
     }
@@ -369,12 +373,6 @@ extension CollectionDetailViewController: UICollectionViewDataSource {
 
         return cell
     }
-}
-
-// MARK: - UICollectionViewDelegate
-
-extension CollectionDetailViewController: UICollectionViewDelegate {
-
 }
 
 // MARK: - UICollectionViewDelegateFlowLayout
