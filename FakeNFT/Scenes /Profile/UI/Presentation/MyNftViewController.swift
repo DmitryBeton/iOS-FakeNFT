@@ -32,7 +32,7 @@ final class MyNftViewController: UIViewController {
         image: UIImage(resource: .prSort),
         style: .plain,
         target: self,
-        action: nil
+        action: #selector(sortButtonTapped)
     )
     
     // MARK: - DiffableDataSource
@@ -108,6 +108,12 @@ final class MyNftViewController: UIViewController {
         emptyLabel.constraintCenters(to: view)
     }
     
+    // MARK: - Actions
+    
+    @objc private func sortButtonTapped() {
+        showSortAlert()
+    }
+    
     // MARK: - Private Methods
     
     private func setupDelegates() {
@@ -147,7 +153,7 @@ final class MyNftViewController: UIViewController {
                     
                 case .failed:
                     UIBlockingProgressHUD.dismiss()
-                    break
+                    self.showErrorAlert()
                 }
             }
         }
@@ -165,6 +171,48 @@ final class MyNftViewController: UIViewController {
                 self.applySnapshot(nfts: nfts, animating: false)
             }
         }
+    }
+    
+    private func showSortAlert() {
+        let alert = UIAlertController(
+            title: nil,
+            message: Localization.MyNft.sort,
+            preferredStyle: .actionSheet
+        )
+        let byPriceAction = UIAlertAction(title: Localization.MyNft.byPrice, style: .default) { [weak self] _ in
+            self?.viewModel.changeSort(.price)
+        }
+        let byRatingAction = UIAlertAction(title: Localization.MyNft.byRating, style: .default) { [weak self] _ in
+            self?.viewModel.changeSort(.rating)
+        }
+        let byNameAction = UIAlertAction(title: Localization.MyNft.byName, style: .default) { [weak self] _ in
+            self?.viewModel.changeSort(.name)
+        }
+        let cancelAction = UIAlertAction(title: Localization.MyNft.close, style: .cancel)
+        
+        alert.addAction(byPriceAction)
+        alert.addAction(byRatingAction)
+        alert.addAction(byNameAction)
+        alert.addAction(cancelAction)
+        
+        present(alert, animated: true)
+    }
+    
+    private func showErrorAlert() {
+        let alert = UIAlertController(
+            title: Localization.ProfileAlert.loadError,
+            message: nil,
+            preferredStyle: .alert
+        )
+        let cancelAction = UIAlertAction(title: Localization.ProfileAlert.cancel, style: .cancel)
+        let retryAction = UIAlertAction(title: Localization.ProfileAlert.retry, style: .default) { [weak self] _ in
+            self?.viewModel.loadNfts()
+        }
+        
+        alert.addAction(cancelAction)
+        alert.addAction(retryAction)
+        
+        present(alert, animated: true)
     }
     
 }

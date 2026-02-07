@@ -28,6 +28,11 @@ enum Localization {
         static let title = "MyNFT.title".localized
         static let empty = "MyNFT.empty".localized
         static let price = "MyNFT.price".localized
+        static let sort = "MyNFT.sort".localized
+        static let byPrice = "MyNFT.byPrice".localized
+        static let byRating = "MyNFT.byRating".localized
+        static let byName = "MyNFT.byName".localized
+        static let close = "MyNFT.close".localized
         
         static func fromAuthor(_ author: String) -> String {
             String.localizedStringWithFormat(
