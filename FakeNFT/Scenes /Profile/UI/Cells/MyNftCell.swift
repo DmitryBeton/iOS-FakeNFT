@@ -2,6 +2,10 @@ import UIKit
 
 final class MyNftCell: UITableViewCell, ReuseIdentifying {
     
+    // MARK: - Bindings
+    
+    var onLikeTap: (() -> Void)?
+    
     // MARK: - Public Methods
     
     func configure(nft: MyNftUI) {
@@ -10,7 +14,7 @@ final class MyNftCell: UITableViewCell, ReuseIdentifying {
         ratingView.rating = nft.rating
         priceLabel.text = "\(nft.price) ETH"
         authorLabel.text = Localization.MyNft.fromAuthor(nft.author)
-        let image: UIImage = nft.isLiked ? likeImage : likeImageEmpty
+        let image = nft.isLiked ? likeImage : likeImageEmpty
         likeButton.setImage(image, for: .normal)
     }
     
@@ -20,6 +24,7 @@ final class MyNftCell: UITableViewCell, ReuseIdentifying {
         let imageView = UIImageView()
         imageView.layer.masksToBounds = true
         imageView.layer.cornerRadius = 12
+        imageView.isUserInteractionEnabled = true
         imageView.addSubview(likeButton)
         return imageView
     }()
@@ -108,6 +113,7 @@ final class MyNftCell: UITableViewCell, ReuseIdentifying {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupViews()
         setupConstraints()
+        setupActions()
     }
     
     required init?(coder: NSCoder) {
@@ -119,7 +125,7 @@ final class MyNftCell: UITableViewCell, ReuseIdentifying {
     
     private func setupViews() {
         selectionStyle = .none
-        contentView.backgroundColor = .clear
+        contentView.backgroundColor = UIColor(resource: .nftWhite)
         contentView.addSubview(contentStackView)
     }
     
@@ -142,6 +148,16 @@ final class MyNftCell: UITableViewCell, ReuseIdentifying {
             likeButton.topAnchor.constraint(equalTo: nftImageView.topAnchor),
             likeButton.trailingAnchor.constraint(equalTo: nftImageView.trailingAnchor)
         ])
+    }
+    
+    private func setupActions() {
+        likeButton.addTarget(self, action: #selector(likeButtonTapped), for: .touchUpInside)
+    }
+    
+    // MARK: - Actions
+    
+    @objc private func likeButtonTapped() {
+        onLikeTap?()
     }
     
 }

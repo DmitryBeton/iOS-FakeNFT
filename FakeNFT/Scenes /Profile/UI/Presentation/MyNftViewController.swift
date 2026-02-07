@@ -40,9 +40,12 @@ final class MyNftViewController: UIViewController {
     private lazy var dataSource: UITableViewDiffableDataSource<Section, MyNftUI> = {
         let dataSource = UITableViewDiffableDataSource<Section, MyNftUI>(
             tableView: nftTableView
-        ) { tableView, indexPath, nft in
+        ) { [weak self] tableView, indexPath, nft in
             let cell: MyNftCell = tableView.dequeueReusableCell()
             cell.configure(nft: nft)
+            cell.onLikeTap = {
+                self?.viewModel.setLike(id: nft.id)
+            }
             return cell
         }
         return dataSource
@@ -153,6 +156,13 @@ final class MyNftViewController: UIViewController {
             DispatchQueue.main.async {
                 let nfts = self.viewModel.sortedNfts
                 self.applySnapshot(nfts: nfts, animating: true)
+            }
+        }
+        viewModel.onLikesUpdate = { [weak self] in
+            guard let self else { return }
+            DispatchQueue.main.async {
+                let nfts = self.viewModel.sortedNfts
+                self.applySnapshot(nfts: nfts, animating: false)
             }
         }
     }

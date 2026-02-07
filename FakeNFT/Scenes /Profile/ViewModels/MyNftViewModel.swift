@@ -3,10 +3,12 @@ import Foundation
 protocol MyNftViewModelProtocol: AnyObject {
     var onStateChange: ((MyNftState) -> Void)? { get set }
     var onSortChange: (() -> Void)? { get set }
+    var onLikesUpdate: (() -> Void)? { get set }
     var sortedNfts: [MyNftUI] { get }
     
     func loadNfts()
     func changeSort(_ sort: SortOption)
+    func setLike(id: UUID)
 }
 
 final class MyNftViewModel: MyNftViewModelProtocol {
@@ -15,6 +17,7 @@ final class MyNftViewModel: MyNftViewModelProtocol {
     
     var onStateChange: ((MyNftState) -> Void)?
     var onSortChange: (() -> Void)?
+    var onLikesUpdate: (() -> Void)?
     
     // MARK: - Public Properties
     
@@ -35,6 +38,14 @@ final class MyNftViewModel: MyNftViewModelProtocol {
         self.sort = sort
     }
     
+    func setLike(id: UUID) {
+        if likedNfts.contains(id) {
+            likedNfts.remove(id)
+        } else {
+            likedNfts.insert(id)
+        }
+    }
+    
     // MARK: - State
     
     private var state: MyNftState = .initial {
@@ -53,6 +64,12 @@ final class MyNftViewModel: MyNftViewModelProtocol {
             sortStorage.sortOption = sort
             updateSortedNfts()
             onSortChange?()
+        }
+    }
+    
+    private var likedNfts: Set<UUID> = [] {
+        didSet {
+            updateLikedNfts(likes: likedNfts)
         }
     }
     
@@ -86,7 +103,7 @@ final class MyNftViewModel: MyNftViewModelProtocol {
             price: priceFormatter.string(from: nft.price as NSDecimalNumber) ?? "",
             author: nft.author,
             id: nft.id,
-            isLiked: true // TODO: implement logic for likes
+            isLiked: likedNfts.contains(nft.id)
         )
     }
     
@@ -106,6 +123,13 @@ final class MyNftViewModel: MyNftViewModelProtocol {
         }
     }
     
+    // TODO: - Should be changed after service implementation
+    private func updateLikedNfts(likes: Set<UUID>) {
+        print("Likes: \(likes.count)")
+        updateSortedNfts()
+        onLikesUpdate?()
+    }
+    
     // TODO: - Should be deleted after service implementation
     // NOTE: Force unwrap is used only for test purposes
     private func loadMockData() {
@@ -123,7 +147,7 @@ final class MyNftViewModel: MyNftViewModelProtocol {
                 price: 36.54,
                 author: "Condescending Almeida",
                 website: URL(string: "https://condescending_almeida.fakenfts.org/")!,
-                id: UUID()
+                id: UUID(uuidString: "739e293c-1067-43e5-8f1d-4377e744ddde")!
             ),
             ProfileNft(
                 createdAt: Date(),
@@ -138,7 +162,7 @@ final class MyNftViewModel: MyNftViewModelProtocol {
                 price: 8.08,
                 author: "Quizzical Blackwell",
                 website: URL(string: "https://quizzical_blackwell.fakenfts.org/")!,
-                id: UUID()
+                id: UUID(uuidString: "1464520d-1659-4055-8a79-4593b9569e48")!
             ),
             ProfileNft(
                 createdAt: Date(),
@@ -153,7 +177,7 @@ final class MyNftViewModel: MyNftViewModelProtocol {
                 price: 16.95,
                 author: "Goofy Napier",
                 website: URL(string: "https://goofy_napier.fakenfts.org/")!,
-                id: UUID()
+                id: UUID(uuidString: "5093c01d-e79e-4281-96f1-76db5880ba70")!
             )
         ]
     }
