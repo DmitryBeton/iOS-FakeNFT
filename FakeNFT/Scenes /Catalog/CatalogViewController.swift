@@ -169,7 +169,7 @@ extension CatalogViewController: UITableViewDelegate {
         let collection = viewModel.collection(at: indexPath.row)
         let detailViewController = CollectionDetailViewController(
             collectionId: collection.id,
-            collectionName: collection.name
+            servicesAssembly: servicesAssembly
         )
         navigationController?.pushViewController(detailViewController, animated: true)
     }

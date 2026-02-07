@@ -1,9 +1,11 @@
 import Foundation
 
 typealias CollectionsCompletion = (Result<[NftCollection], Error>) -> Void
+typealias CollectionCompletion = (Result<NftCollection, Error>) -> Void
 
 protocol CollectionService {
     func loadCollections(completion: @escaping CollectionsCompletion)
+    func loadCollection(id: String, completion: @escaping CollectionCompletion)
 }
 
 final class CollectionServiceImpl: CollectionService {
@@ -28,6 +30,18 @@ final class CollectionServiceImpl: CollectionService {
             case .success(let collections):
                 storage?.saveCollections(collections)
                 completion(.success(collections))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    func loadCollection(id: String, completion: @escaping CollectionCompletion) {
+        let request = CollectionByIdRequest(id: id)
+        networkClient.send(request: request, type: NftCollection.self) { result in
+            switch result {
+            case .success(let collection):
+                completion(.success(collection))
             case .failure(let error):
                 completion(.failure(error))
             }
