@@ -18,6 +18,24 @@ final class ProfileViewController: UIViewController {
         }
     }
     
+    private enum Constants {
+        enum Layout {
+            static let tableViewCellHeight: CGFloat = 54
+            
+            static let avatarSize: CGFloat = 70
+            
+            static let infoStackTopInset: CGFloat = 20
+            static let infoStackHorizontalInset: CGFloat = 16
+            
+            static let menuTopSpacing: CGFloat = 40
+        }
+        enum Spacing {
+            static let headerStackSpacing: CGFloat = 16
+            static let infoStackSpacing: CGFloat = 8
+            static let infoStackCustomSpacing: CGFloat = 20
+        }
+    }
+    
     // MARK: - Views
 
     private lazy var nameLabel: UILabel = {
@@ -57,7 +75,7 @@ final class ProfileViewController: UIViewController {
     private lazy var menuTableView: UITableView = {
         let tableView = UITableView()
         tableView.register(MenuCell.self)
-        tableView.rowHeight = 54
+        tableView.rowHeight = Constants.Layout.tableViewCellHeight
         tableView.separatorStyle = .none
         tableView.isScrollEnabled = false
         tableView.backgroundColor = .clear
@@ -67,7 +85,7 @@ final class ProfileViewController: UIViewController {
     private lazy var profileHeaderStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [avatarImageView, nameLabel])
         stackView.axis = .horizontal
-        stackView.spacing = 16
+        stackView.spacing = Constants.Spacing.headerStackSpacing
         stackView.alignment = .center
         stackView.distribution = .fill
         return stackView
@@ -82,10 +100,10 @@ final class ProfileViewController: UIViewController {
             ]
         )
         stackView.axis = .vertical
-        stackView.spacing = 8
+        stackView.spacing = Constants.Spacing.infoStackSpacing
         stackView.alignment = .leading
         stackView.distribution = .fill
-        stackView.setCustomSpacing(20, after: profileHeaderStackView)
+        stackView.setCustomSpacing(Constants.Spacing.infoStackCustomSpacing, after: profileHeaderStackView)
         return stackView
     }()
     
@@ -108,6 +126,7 @@ final class ProfileViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
     
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
         assertionFailure("init(coder:) has not been implemented")
         return nil
@@ -162,18 +181,18 @@ final class ProfileViewController: UIViewController {
         ].disableAutoresizingMasks()
         
         NSLayoutConstraint.activate([
-            avatarImageView.heightAnchor.constraint(equalToConstant: 70),
-            avatarImageView.widthAnchor.constraint(equalToConstant: 70)
+            avatarImageView.heightAnchor.constraint(equalToConstant: Constants.Layout.avatarSize),
+            avatarImageView.widthAnchor.constraint(equalToConstant: Constants.Layout.avatarSize)
         ])
         
         NSLayoutConstraint.activate([
-            profileInfoStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            profileInfoStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            profileInfoStackView.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -16),
+            profileInfoStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: Constants.Layout.infoStackTopInset),
+            profileInfoStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.Layout.infoStackHorizontalInset),
+            profileInfoStackView.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -Constants.Layout.infoStackHorizontalInset),
         ])
         
         NSLayoutConstraint.activate([
-            menuTableView.topAnchor.constraint(equalTo: profileInfoStackView.bottomAnchor, constant: 40),
+            menuTableView.topAnchor.constraint(equalTo: profileInfoStackView.bottomAnchor, constant: Constants.Layout.menuTopSpacing),
             menuTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             menuTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             menuTableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
@@ -190,18 +209,19 @@ final class ProfileViewController: UIViewController {
         let initialProfile = viewModel.getProfile()
         let service = viewModel.service
         
-        let editProfileVM = EditProfileViewModel(profile: initialProfile,service: service)
+        let editProfileVM = EditProfileViewModel(profile: initialProfile, service: service)
         editProfileVM.onChangesSaved = { [weak self] in
             self?.viewModel.loadProfile()
         }
         let editProfileVC = EditProfileViewController(viewModel: editProfileVM)
-        
+        editProfileVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(editProfileVC, animated: true)
     }
     
     @objc private func linkButtonTapped() {
         let urlString = viewModel.websiteURLString()
         let controller = AgreementWebViewController(urlString: urlString)
+        controller.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(controller, animated: true)
     }
     
@@ -259,11 +279,13 @@ final class ProfileViewController: UIViewController {
     private func pushToMyNftViewController() {
         let viewModel = MyNftViewModel()
         let myNftVC = MyNftViewController(viewModel: viewModel)
+        myNftVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(myNftVC, animated: true)
     }
     
     private func pushToFavouritesViewController() {
         let favouritesVC = FavouritesViewController()
+        favouritesVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(favouritesVC, animated: true)
     }
     

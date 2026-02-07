@@ -10,6 +10,14 @@ final class RatingView: UIStackView {
         }
     }
     
+    // MARK: - Private Types
+    
+    private enum Constants {
+        enum Spacing {
+            static let selfSpacing: CGFloat = 2
+        }
+    }
+    
     // MARK: - Private Properties
     
     private let maxRating = 5
@@ -23,6 +31,7 @@ final class RatingView: UIStackView {
         setupViews()
     }
     
+    @available(*, unavailable)
     required init(coder: NSCoder) {
         assertionFailure("init(coder:) has not been implemented")
         super.init(coder: coder)
@@ -32,7 +41,7 @@ final class RatingView: UIStackView {
     
     private func setupViews() {
         axis = .horizontal
-        spacing = 2
+        spacing = Constants.Spacing.selfSpacing
         alignment = .center
         
         for _ in 0..<maxRating {

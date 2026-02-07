@@ -32,6 +32,24 @@ final class ProfileInputView: UIStackView {
         }
     }
     
+    // MARK: - Private Types
+    
+    private enum Constants {
+        enum Layout {
+            static let inputContainerVerticalInset: CGFloat = 11
+            static let inputContainerHorizontalInset: CGFloat = 16
+            
+            static let textFieldContainerHeight: CGFloat = 44
+            static let textViewHeight: CGFloat = 132
+        }
+        enum Spacing {
+            static let selfSpacing: CGFloat = 8
+        }
+        enum Radius {
+            static let inputContainerRadius: CGFloat = 12
+        }
+    }
+    
     // MARK: - Views
     
     private lazy var titleLabel: UILabel = {
@@ -48,13 +66,13 @@ final class ProfileInputView: UIStackView {
         textView.isScrollEnabled = true
         textView.font = .bodyRegular
         textView.textContainerInset = UIEdgeInsets(
-            top: 11,
-            left: 16,
-            bottom: 11,
-            right: 16
+            top: Constants.Layout.inputContainerVerticalInset,
+            left: Constants.Layout.inputContainerHorizontalInset,
+            bottom: Constants.Layout.inputContainerVerticalInset,
+            right: Constants.Layout.inputContainerHorizontalInset
         )
         textView.layer.masksToBounds = true
-        textView.layer.cornerRadius = 12
+        textView.layer.cornerRadius = Constants.Radius.inputContainerRadius
         textView.delegate = self
         return textView
     }()
@@ -71,12 +89,12 @@ final class ProfileInputView: UIStackView {
         let view = UIView()
         view.backgroundColor = UIColor(resource: .nftLightGray)
         view.layer.masksToBounds = true
-        view.layer.cornerRadius = 12
+        view.layer.cornerRadius = Constants.Radius.inputContainerRadius
         view.layoutMargins = UIEdgeInsets(
-            top: 11,
-            left: 16,
-            bottom: 11,
-            right: 16
+            top: Constants.Layout.inputContainerVerticalInset,
+            left: Constants.Layout.inputContainerHorizontalInset,
+            bottom: Constants.Layout.inputContainerVerticalInset,
+            right: Constants.Layout.inputContainerHorizontalInset
         )
         view.addSubview(inputTextField)
         return view
@@ -96,6 +114,7 @@ final class ProfileInputView: UIStackView {
         setupActions()
     }
     
+    @available(*, unavailable)
     required init(coder: NSCoder) {
         assertionFailure("init(coder:) has not been implemented")
         self.inputType = .textField
@@ -106,7 +125,7 @@ final class ProfileInputView: UIStackView {
     
     private func setupViews() {
         axis = .vertical
-        spacing = 8
+        spacing = Constants.Spacing.selfSpacing
         alignment = .fill
         distribution = .fill
         
@@ -126,7 +145,7 @@ final class ProfileInputView: UIStackView {
             [inputTextField].disableAutoresizingMasks()
             
             NSLayoutConstraint.activate([
-                inputTextFieldContainer.heightAnchor.constraint(equalToConstant: 44),
+                inputTextFieldContainer.heightAnchor.constraint(equalToConstant: Constants.Layout.textFieldContainerHeight),
                 
                 inputTextField.topAnchor.constraint(equalTo: inputTextFieldContainer.layoutMarginsGuide.topAnchor),
                 inputTextField.leadingAnchor.constraint(equalTo: inputTextFieldContainer.layoutMarginsGuide.leadingAnchor),
@@ -135,7 +154,7 @@ final class ProfileInputView: UIStackView {
             ])
             
         case .textView:
-            inputTextView.heightAnchor.constraint(equalToConstant: 132).isActive = true
+            inputTextView.heightAnchor.constraint(equalToConstant: Constants.Layout.textViewHeight).isActive = true
         }
     }
     

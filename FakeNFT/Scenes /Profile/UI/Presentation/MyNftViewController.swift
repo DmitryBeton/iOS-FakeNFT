@@ -8,6 +8,13 @@ final class MyNftViewController: UIViewController {
         case main
     }
     
+    private enum Constants {
+        enum Layout {
+            static let tableViewCellHeight: CGFloat = 140
+            static let tableViewHeaderHeight: CGFloat = 20
+        }
+    }
+    
     // MARK: - Views
     
     private lazy var nftTableView: UITableView = {
@@ -15,7 +22,7 @@ final class MyNftViewController: UIViewController {
         tableView.separatorStyle = .none
         tableView.register(MyNftCell.self)
         tableView.backgroundColor = .clear
-        tableView.rowHeight = 140
+        tableView.rowHeight = Constants.Layout.tableViewCellHeight
         return tableView
     }()
     
@@ -62,6 +69,7 @@ final class MyNftViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
     
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
         assertionFailure("init(coder:) has not been implemented")
         return nil
@@ -226,7 +234,7 @@ extension MyNftViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        20
+        Constants.Layout.tableViewHeaderHeight
     }
     
 }

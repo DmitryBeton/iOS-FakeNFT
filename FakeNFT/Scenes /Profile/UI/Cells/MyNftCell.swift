@@ -18,12 +18,33 @@ final class MyNftCell: UITableViewCell, ReuseIdentifying {
         likeButton.setImage(image, for: .normal)
     }
     
+    // MARK: - Private Types
+    
+    private enum Constants {
+        enum Layout {
+            static let contentStackVerticalInset: CGFloat = 16
+            static let contentStackLeadingSpacing: CGFloat = 20
+            static let contentStackTrailingInset: CGFloat = 16
+            
+            static let imageVerticalInset: CGFloat = 16
+            static let imageLeadingInset: CGFloat = 16
+        }
+        enum Spacing {
+            static let infoStackSpacing: CGFloat = 4
+            static let priceStackSpacing: CGFloat = 2
+            static let contentStackSpacing: CGFloat = 20
+        }
+        enum Radius {
+            static let imageRadius: CGFloat = 12
+        }
+    }
+    
     // MARK: - Views
     
     private lazy var nftImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.layer.masksToBounds = true
-        imageView.layer.cornerRadius = 12
+        imageView.layer.cornerRadius = Constants.Radius.imageRadius
         imageView.isUserInteractionEnabled = true
         imageView.addSubview(likeButton)
         return imageView
@@ -73,7 +94,7 @@ final class MyNftCell: UITableViewCell, ReuseIdentifying {
             authorLabel
         ])
         stackView.axis = .vertical
-        stackView.spacing = 4
+        stackView.spacing = Constants.Spacing.infoStackSpacing
         stackView.alignment = .leading
         return stackView
     }()
@@ -84,7 +105,7 @@ final class MyNftCell: UITableViewCell, ReuseIdentifying {
             priceLabel
         ])
         stackView.axis = .vertical
-        stackView.spacing = 2
+        stackView.spacing = Constants.Spacing.priceStackSpacing
         stackView.alignment = .leading
         return stackView
     }()
@@ -95,7 +116,7 @@ final class MyNftCell: UITableViewCell, ReuseIdentifying {
             priceStackView
         ])
         stackView.axis = .horizontal
-        stackView.spacing = 20
+        stackView.spacing = Constants.Spacing.contentStackSpacing
         stackView.alignment = .center
         stackView.distribution = .fillEqually
         return stackView
@@ -115,6 +136,7 @@ final class MyNftCell: UITableViewCell, ReuseIdentifying {
         setupActions()
     }
     
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
         assertionFailure("init(coder:) has not been implemented")
         return nil
@@ -132,17 +154,17 @@ final class MyNftCell: UITableViewCell, ReuseIdentifying {
         [nftImageView, contentStackView, likeButton].disableAutoresizingMasks()
         
         NSLayoutConstraint.activate([
-            contentStackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
-            contentStackView.leadingAnchor.constraint(equalTo: nftImageView.trailingAnchor,constant: 20),
-            contentStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            contentStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16)
+            contentStackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Constants.Layout.contentStackVerticalInset),
+            contentStackView.leadingAnchor.constraint(equalTo: nftImageView.trailingAnchor,constant: Constants.Layout.contentStackLeadingSpacing),
+            contentStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Constants.Layout.contentStackTrailingInset),
+            contentStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Constants.Layout.contentStackVerticalInset)
         ])
         
         NSLayoutConstraint.activate([
             nftImageView.widthAnchor.constraint(equalTo: nftImageView.heightAnchor),
-            nftImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
-            nftImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            nftImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16)
+            nftImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Constants.Layout.imageVerticalInset),
+            nftImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Constants.Layout.imageLeadingInset),
+            nftImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Constants.Layout.imageVerticalInset)
         ])
         
         NSLayoutConstraint.activate([
