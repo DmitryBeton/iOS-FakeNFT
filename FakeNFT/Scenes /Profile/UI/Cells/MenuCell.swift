@@ -9,6 +9,17 @@ final class MenuCell: UITableViewCell, ReuseIdentifying {
         countLabel.text = "(\(count))"
     }
     
+    // MARK: - Private Types
+    
+    private enum Constants {
+        enum Layout {
+            static let stackHorizontalInset: CGFloat = 16
+        }
+        enum Spacing {
+            static let stackSpacing: CGFloat = 8
+        }
+    }
+    
     // MARK: - Views
     
     private lazy var titleLabel: UILabel = {
@@ -37,7 +48,7 @@ final class MenuCell: UITableViewCell, ReuseIdentifying {
             titleLabel, countLabel, UIView(), chevronImageView
         ])
         stackView.axis = .horizontal
-        stackView.spacing = 8
+        stackView.spacing = Constants.Spacing.stackSpacing
         stackView.alignment = .center
         stackView.distribution = .fill
         return stackView
@@ -51,6 +62,7 @@ final class MenuCell: UITableViewCell, ReuseIdentifying {
         setupConstraints()
     }
     
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
         assertionFailure("init(coder:) has not been implemented")
         return nil
@@ -59,6 +71,7 @@ final class MenuCell: UITableViewCell, ReuseIdentifying {
     // MARK: - UI Methods
     
     private func setupViews() {
+        contentView.backgroundColor = UIColor(resource: .nftWhite)
         selectionStyle = .none
         contentView.addSubview(stackView)
     }
@@ -68,8 +81,8 @@ final class MenuCell: UITableViewCell, ReuseIdentifying {
         
         NSLayoutConstraint.activate([
             stackView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            stackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            stackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16)
+            stackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Constants.Layout.stackHorizontalInset),
+            stackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Constants.Layout.stackHorizontalInset)
         ])
     }
     

@@ -3,6 +3,27 @@ import Kingfisher
 
 final class EditProfileViewController: UIViewController {
     
+    // MARK: - Private Types
+    
+    private enum Constants {
+        enum Layout {
+            static let editAvatarSize: CGFloat = 70
+            
+            static let inputFieldsVerticalInset: CGFloat = 24
+            static let inputFieldsHorizontalInset: CGFloat = 16
+            
+            static let saveButtonHeight: CGFloat = 60
+            static let saveButtonHorizontalInset: CGFloat = 16
+            static let saveButtonBottomInset: CGFloat = 16
+        }
+        enum Spacing {
+            static let inputFieldsSpacing: CGFloat = 24
+        }
+        enum Radius {
+            static let buttonRadius: CGFloat = 16
+        }
+    }
+    
     // MARK: - Views
     
     private lazy var editAvatarView: EditAvatarView = {
@@ -35,7 +56,7 @@ final class EditProfileViewController: UIViewController {
             nameInputView, descriptionInputView, websiteInputView
         ])
         stackView.axis = .vertical
-        stackView.spacing = 24
+        stackView.spacing = Constants.Spacing.inputFieldsSpacing
         stackView.alignment = .fill
         stackView.distribution = .fill
         return stackView
@@ -63,7 +84,7 @@ final class EditProfileViewController: UIViewController {
         button.setTitleColor(UIColor(resource: .nftWhite), for: .normal)
         button.backgroundColor = UIColor(resource: .nftBlack)
         button.layer.masksToBounds = true
-        button.layer.cornerRadius = 16
+        button.layer.cornerRadius = Constants.Radius.buttonRadius
         button.isHidden = true
         return button
     }()
@@ -93,6 +114,7 @@ final class EditProfileViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
     
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
         assertionFailure("init(coder:) has not been implemented")
         return nil
@@ -147,22 +169,22 @@ final class EditProfileViewController: UIViewController {
         NSLayoutConstraint.activate([
             editAvatarView.topAnchor.constraint(equalTo: containerView.topAnchor),
             editAvatarView.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
-            editAvatarView.widthAnchor.constraint(equalToConstant: 70),
-            editAvatarView.heightAnchor.constraint(equalToConstant: 70)
+            editAvatarView.widthAnchor.constraint(equalToConstant: Constants.Layout.editAvatarSize),
+            editAvatarView.heightAnchor.constraint(equalToConstant: Constants.Layout.editAvatarSize)
         ])
         
         NSLayoutConstraint.activate([
-            inputFieldsStackView.topAnchor.constraint(equalTo: editAvatarView.bottomAnchor, constant: 24),
-            inputFieldsStackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
-            inputFieldsStackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
-            inputFieldsStackView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -24)
+            inputFieldsStackView.topAnchor.constraint(equalTo: editAvatarView.bottomAnchor, constant: Constants.Layout.inputFieldsVerticalInset),
+            inputFieldsStackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: Constants.Layout.inputFieldsHorizontalInset),
+            inputFieldsStackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -Constants.Layout.inputFieldsHorizontalInset),
+            inputFieldsStackView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -Constants.Layout.inputFieldsVerticalInset)
         ])
         
         NSLayoutConstraint.activate([
-            saveButton.heightAnchor.constraint(equalToConstant: 60),
-            saveButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            saveButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            saveButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16)
+            saveButton.heightAnchor.constraint(equalToConstant: Constants.Layout.saveButtonHeight),
+            saveButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.Layout.saveButtonHorizontalInset),
+            saveButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constants.Layout.saveButtonHorizontalInset),
+            saveButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -Constants.Layout.saveButtonBottomInset)
         ])
     }
     

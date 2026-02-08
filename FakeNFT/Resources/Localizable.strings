@@ -27,3 +27,15 @@
 "ProfileAlert.loadError" = "Не удалось получить данные";
 "ProfileAlert.updateError" = "Не удалось обновить данные";
 "ProfileAlert.retry" = "Повторить";
+
+// MyNFT
+"MyNFT.title" = "Мои NFT";
+"MyNFT.empty" = "У Вас ещё нет NFT";
+"MyNFT.price" = "Цена";
+"MyNFT.fromAuthor" = "от %@";
+"MyNFT.sort" = "Сортировка";
+"MyNFT.byPrice" = "По цене";
+"MyNFT.byRating" = "По рейтингу";
+"MyNFT.byName" = "По названию";
+"MyNFT.close" = "Закрыть";
+

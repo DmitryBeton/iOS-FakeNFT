@@ -6,6 +6,14 @@ final class EditAvatarView: UIView {
     
     var onTap: (() -> Void)?
     
+    // MARK: - Private Types
+    
+    private enum Constants {
+        enum Layout {
+            static let avatarSize: CGFloat = 70
+        }
+    }
+    
     // MARK: - Views
     
     lazy var avatarView = AvatarView()
@@ -25,6 +33,7 @@ final class EditAvatarView: UIView {
         setupGesture()
     }
     
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
         assertionFailure("init(coder:) has not been implemented")
         return nil
@@ -40,8 +49,8 @@ final class EditAvatarView: UIView {
         [avatarView, editIconImageView].disableAutoresizingMasks()
         
         NSLayoutConstraint.activate([
-            avatarView.heightAnchor.constraint(equalToConstant: 70),
-            avatarView.widthAnchor.constraint(equalToConstant: 70),
+            avatarView.heightAnchor.constraint(equalToConstant: Constants.Layout.avatarSize),
+            avatarView.widthAnchor.constraint(equalToConstant: Constants.Layout.avatarSize),
         ])
         avatarView.constraintCenters(to: self)
         
