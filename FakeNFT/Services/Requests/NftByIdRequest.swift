@@ -23,3 +23,29 @@ struct CurrencyRequest: NetworkRequest {
 
     var dto: Dto?
 }
+
+struct SetOrderPaymentCurrencyRequest: NetworkRequest {
+    let currencyID: String
+
+    var endpoint: URL? {
+        URL(string: "\(RequestConstants.baseURL)/api/v1/orders/1/payment/\(currencyID)")
+    }
+
+    var dto: Dto?
+}
+
+struct CompleteOrderRequest: NetworkRequest {
+    var httpMethod: HttpMethod { .post }
+    var endpoint: URL? {
+        URL(string: "\(RequestConstants.baseURL)/api/v1/orders/1")
+    }
+    let dto: Dto?
+}
+
+struct CompleteOrderDto: Dto {
+    let nftsCSV: String
+
+    func asDictionary() -> [String: String] {
+        ["nfts": nftsCSV]
+    }
+}

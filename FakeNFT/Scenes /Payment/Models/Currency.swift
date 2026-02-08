@@ -13,3 +13,9 @@ struct Currency: Codable, Equatable {
     let image: String
     let id: String
 }
+
+struct PaymentCurrencyBindResponse: Codable {
+    let success: Bool
+    let orderId: String
+    let id: String
+}

@@ -22,6 +22,7 @@ enum PaymentViewState {
 enum PaymentError: Error {
     case networkOffline
     case paymentFailed
+    case currencyNotSelected
     case currenciesLoadFailed
     case server(code: Int)
     case unknown(underlying: Error)
@@ -72,6 +73,12 @@ protocol PaymentViewModelProtocol: AnyObject {
     ///
     /// - Important: Для обновления UI по результату вызовите completion на главном потоке.
     func pay(completion: @escaping (Result<Void, Error>) -> Void)
+
+    /// Выбирает валюту по индексу.
+    func selectCurrency(at index: Int)
+
+    /// Сбрасывает выбранную валюту.
+    func clearSelectedCurrency()
 }
 
 final class PaymentViewModel: PaymentViewModelProtocol {
@@ -102,13 +109,14 @@ final class PaymentViewModel: PaymentViewModelProtocol {
         }
     }
     var onStateChange: ((PaymentViewState) -> Void)?
+    private var selectedCurrencyID: String?
 
     private let paymentService: PaymentServiceProtocol
     private let currencyService: CurrencyServiceProtocol
     private let cartService: CartServiceProtocol
 
     // MARK: - Initialization
-    init(paymentService: PaymentServiceProtocol = MockPaymentService(),
+    init(paymentService: PaymentServiceProtocol = PaymentService(),
          currencyService: CurrencyServiceProtocol = CurrencyService(),
          cartService: CartServiceProtocol = CartService()) {
         self.paymentService = paymentService
@@ -142,25 +150,43 @@ final class PaymentViewModel: PaymentViewModelProtocol {
     }
 
     func pay(completion: @escaping (Result<Void, Error>) -> Void) {
+        guard let selectedCurrencyID else {
+            Self.logger.error("Pay requested without selected currency")
+            state = .error(error: .currencyNotSelected)
+            completion(.failure(PaymentError.currencyNotSelected))
+            return
+        }
+
         Self.logger.info("Pay flow started")
         state = .paying
-        paymentService.pay { [weak self] result in
+        paymentService.pay(currencyID: selectedCurrencyID) { [weak self] result in
             guard let self else { return }
             switch result {
             case .success:
-                Self.logger.info("Payment service returned success. Clearing cart...")
-//                self.cartService.clearCart {
-//                    Self.logger.info("Cart cleared. Posting cartDidChange and setting state .paid")
-//                    NotificationCenter.default.post(name: .cartDidChange, object: nil)
-//                    self.state = .paid
-//                    completion(.success(()))
-//                }
+                Self.logger.info("Payment service returned success")
+                self.state = .paid
+                completion(.success(()))
             case .failure(let error):
                 Self.logger.error("Payment service returned failure: \(error.localizedDescription)")
-                self.state = .error(error: PaymentError.paymentFailed)
+                self.state = .error(error: self.mapPaymentError(error))
                 completion(.failure(error))
             }
         }
+    }
+
+    func selectCurrency(at index: Int) {
+        guard index < items.count else {
+            selectedCurrencyID = nil
+            return
+        }
+        selectedCurrencyID = items[index].id
+        let selectedID = selectedCurrencyID ?? ""
+        Self.logger.info("Selected currency id=\(selectedID, privacy: .public)")
+    }
+
+    func clearSelectedCurrency() {
+        selectedCurrencyID = nil
+        Self.logger.debug("Cleared selected currency")
     }
 
     // MARK: - Mapping
@@ -183,6 +209,25 @@ final class PaymentViewModel: PaymentViewModelProtocol {
             case .urlSessionError, .parsingError:
                 return .currenciesLoadFailed
             }
+        }
+
+        return .unknown(underlying: error)
+    }
+
+    private func mapPaymentError(_ error: Error) -> PaymentError {
+        if let networkError = error as? NetworkClientError {
+            switch networkError {
+            case .httpStatusCode(let code):
+                return .server(code: code)
+            case .urlRequestError:
+                return .networkOffline
+            case .urlSessionError, .parsingError:
+                return .paymentFailed
+            }
+        }
+
+        if error is PaymentServiceError {
+            return .paymentFailed
         }
 
         return .unknown(underlying: error)

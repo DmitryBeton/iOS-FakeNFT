@@ -167,6 +167,14 @@ final class PaymentViewController: UIViewController {
                     self?.startLoadCurrency()
                 }
 
+            case .currencyNotSelected:
+                showRetryAlert(
+                    title: Localization.Payment.payErrorTitle.localized,
+                    message: "Select a currency first"
+                ) { [weak self] in
+                    self?.clearSelectionAndDisablePay()
+                }
+
             case .paymentFailed:
                 showRetryAlert(
                     title: Localization.Payment.payErrorTitle.localized,
@@ -318,12 +326,17 @@ extension PaymentViewController: UICollectionViewDelegateFlowLayout {
 extension PaymentViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         Self.logger.debug("Currency selected at index=\(indexPath.row)")
+        viewModel.selectCurrency(at: indexPath.row)
         paymentFooterView.isPayEnabled = true
     }
 
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
         Self.logger.debug("Currency deselected at index=\(indexPath.row)")
+        viewModel.clearSelectedCurrency()
         let hasSelection = !(collectionView.indexPathsForSelectedItems?.isEmpty ?? true)
+        if hasSelection, let selectedIndex = collectionView.indexPathsForSelectedItems?.first?.row {
+            viewModel.selectCurrency(at: selectedIndex)
+        }
         paymentFooterView.isPayEnabled = hasSelection
     }
 }
