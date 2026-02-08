@@ -41,7 +41,6 @@ final class AgreementWebViewController: UIViewController {
         super.viewDidLoad()
         setupUI()
         setupConstraints()
-        setupNavigationBar()
         loadWebPage()
         setupObservers()
     }
@@ -56,21 +55,6 @@ final class AgreementWebViewController: UIViewController {
     }
     
     // MARK: - Private Methods
-    private func setupNavigationBar() {
-        let backButton = UIBarButtonItem(
-            image: UIImage(resource: .backButton),
-            style: .plain,
-            target: self,
-            action: #selector(backButtonTapped)
-        )
-        backButton.tintColor = UIColor(resource: .nftBlack)
-        navigationItem.leftBarButtonItem = backButton
-    }
-
-    @objc private func backButtonTapped() {
-        navigationController?.popViewController(animated: true)
-    }
-
     private func setupUI() {
         view.backgroundColor = UIColor(resource: .nftWhite)
         

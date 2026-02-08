@@ -1,4 +1,5 @@
 import UIKit
+import Kingfisher
 
 final class CollectionDetailViewController: UIViewController {
 
@@ -22,7 +23,7 @@ final class CollectionDetailViewController: UIViewController {
     }()
 
     private let coverImageView: UIImageView = {
-        let imageView = UIImageView(image: UIImage(resource: .mockCover))
+        let imageView = UIImageView()
         imageView.clipsToBounds = true
         imageView.contentMode = .scaleAspectFill
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -32,8 +33,8 @@ final class CollectionDetailViewController: UIViewController {
     }()
 
     private lazy var backButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setImage(UIImage(resource: .backButton), for: .normal)
+        let button = UIButton(type: .custom)
+        button.setImage(UIImage(resource: .backButton).withRenderingMode(.alwaysTemplate), for: .normal)
         button.tintColor = UIColor(resource: .nftBlack)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
@@ -88,23 +89,24 @@ final class CollectionDetailViewController: UIViewController {
         return collectionView
     }()
 
+    private lazy var activityIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .large)
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        return indicator
+    }()
+
     private var collectionViewHeightConstraint: NSLayoutConstraint?
 
     // MARK: - Init
 
     init(
         collectionId: String,
-        collectionName: String,
-        collectionCover: URL? = nil,
-        collectionAuthor: String = "",
-        collectionDescription: String = ""
+        servicesAssembly: ServicesAssembly
     ) {
         self.viewModel = CollectionDetailViewModel(
             collectionId: collectionId,
-            collectionName: collectionName,
-            collectionCover: collectionCover,
-            collectionAuthor: collectionAuthor,
-            collectionDescription: collectionDescription
+            collectionService: servicesAssembly.collectionService,
+            nftService: servicesAssembly.nftService
         )
         super.init(nibName: nil, bundle: nil)
     }
@@ -138,13 +140,14 @@ final class CollectionDetailViewController: UIViewController {
         scrollView.contentInset.bottom = view.safeAreaInsets.bottom
     }
 
-    // MARK: - Setup
+    // MARK: - Private Methods
 
     private func setupUI() {
         view.backgroundColor = UIColor(resource: .nftWhite)
 
         view.addSubview(scrollView)
         view.addSubview(backButton)
+        view.addSubview(activityIndicator)
         scrollView.addSubview(contentView)
 
         contentView.addSubview(coverImageView)
@@ -158,16 +161,18 @@ final class CollectionDetailViewController: UIViewController {
         setupConstraints()
         setupNavigationBar()
         setupGestures()
-        configureWithData()
     }
 
     private func setupNavigationBar() {
         navigationController?.setNavigationBarHidden(true, animated: false)
 
-        let backButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
-        backButtonItem.tintColor = UIColor(resource: .nftBlack)
-        navigationItem.backBarButtonItem = backButtonItem
+        navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
         navigationController?.navigationBar.tintColor = UIColor(resource: .nftBlack)
+
+        let backImage = UIImage(resource: .backButton)
+            .withRenderingMode(.alwaysTemplate)
+        navigationController?.navigationBar.backIndicatorImage = backImage
+        navigationController?.navigationBar.backIndicatorTransitionMaskImage = backImage
     }
 
     private func setupGestures() {
@@ -183,6 +188,12 @@ final class CollectionDetailViewController: UIViewController {
     }
 
     private func bindViewModel() {
+        viewModel.onCollectionLoaded = { [weak self] collection in
+            DispatchQueue.main.async {
+                self?.configureWithCollection(collection)
+            }
+        }
+
         viewModel.onNFTsUpdated = { [weak self] in
             DispatchQueue.main.async {
                 self?.collectionView.reloadData()
@@ -196,6 +207,31 @@ final class CollectionDetailViewController: UIViewController {
                 if let cell = self?.collectionView.cellForItem(at: indexPath) as? DetailCollectionViewCell {
                     cell.setLiked(isLiked)
                 }
+            }
+        }
+
+        viewModel.onNFTCartUpdated = { [weak self] index, isInCart in
+            DispatchQueue.main.async {
+                let indexPath = IndexPath(item: index, section: 0)
+                if let cell = self?.collectionView.cellForItem(at: indexPath) as? DetailCollectionViewCell {
+                    cell.setInCart(isInCart)
+                }
+            }
+        }
+
+        viewModel.onLoadingStateChanged = { [weak self] isLoading in
+            DispatchQueue.main.async {
+                if isLoading {
+                    self?.activityIndicator.startAnimating()
+                } else {
+                    self?.activityIndicator.stopAnimating()
+                }
+            }
+        }
+
+        viewModel.onError = { [weak self] _ in
+            DispatchQueue.main.async {
+                self?.showErrorAlert()
             }
         }
     }
@@ -239,6 +275,9 @@ final class CollectionDetailViewController: UIViewController {
             backButton.widthAnchor.constraint(equalToConstant: 24),
             backButton.heightAnchor.constraint(equalToConstant: 24),
 
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+
             titleLabel.topAnchor.constraint(equalTo: coverImageView.bottomAnchor, constant: 16),
             titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
@@ -262,12 +301,27 @@ final class CollectionDetailViewController: UIViewController {
         ])
     }
 
-    private func configureWithData() {
-        titleLabel.text = viewModel.collectionName.isEmpty ? "Peach" : viewModel.collectionName
-        authorNameLabel.text = viewModel.collectionAuthor.isEmpty ? "John Doe" : viewModel.collectionAuthor
-        descriptionLabel.text = viewModel.collectionDescription.isEmpty
-            ? "Персиковый — как облака над закатным солнцем в океане. В этой коллекции совмещены трогательная нежность и живая игривость сказочных зефирных зверей."
-            : viewModel.collectionDescription
+    private func configureWithCollection(_ collection: NftCollection) {
+        titleLabel.text = collection.name
+        authorNameLabel.text = collection.author
+        descriptionLabel.text = collection.description
+        coverImageView.kf.setImage(with: collection.cover)
+    }
+
+    private func showErrorAlert() {
+        let alert = UIAlertController(
+            title: "Не удалось получить данные",
+            message: nil,
+            preferredStyle: .alert
+        )
+
+        alert.addAction(UIAlertAction(title: "Отмена", style: .default))
+
+        alert.addAction(UIAlertAction(title: "Повторить", style: .default) { [weak self] _ in
+            self?.viewModel.viewDidLoad()
+        })
+
+        present(alert, animated: true)
     }
 
     private func updateCollectionViewHeight() {
@@ -319,12 +373,6 @@ extension CollectionDetailViewController: UICollectionViewDataSource {
 
         return cell
     }
-}
-
-// MARK: - UICollectionViewDelegate
-
-extension CollectionDetailViewController: UICollectionViewDelegate {
-
 }
 
 // MARK: - UICollectionViewDelegateFlowLayout
