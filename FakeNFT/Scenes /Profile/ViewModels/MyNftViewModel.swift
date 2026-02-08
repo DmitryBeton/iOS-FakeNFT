@@ -104,11 +104,11 @@ final class MyNftViewModel: MyNftViewModelProtocol {
     private func sortNfts(_ nfts: [ProfileNft], by sort: SortOption) -> [ProfileNft] {
         switch sort {
         case .name:
-            return nfts.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+            nfts.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
         case .price:
-            return nfts.sorted { $0.price < $1.price }
+            nfts.sorted { $0.price < $1.price }
         case .rating:
-            return nfts.sorted { $0.rating > $1.rating }
+            nfts.sorted { $0.rating > $1.rating }
         }
     }
     

@@ -8,7 +8,7 @@ final class SortOptionStorage: SortOptionStorageProtocol {
         get {
             guard let rawValue = defaults.string(forKey: key),
                   let option = SortOption(rawValue: rawValue)
-            else { return .name }
+            else { return .rating }
             return option
         }
         set {
