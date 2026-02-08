@@ -43,6 +43,10 @@ protocol CartViewModelProtocol: AnyObject {
     /// - Parameter index: Индекс элемента для удаления.
     func deleteItem(at index: Int)
 
+    /// Добавляет элемент в корзину по id.
+    /// - Parameter id: Идентификатор NFT.
+    func addItem(id: String)
+
     /// Сортирует элементы корзины согласно выбранному способу сортировки.
     func sortItems()
 
@@ -151,13 +155,37 @@ final class CartViewModel: CartViewModelProtocol {
     func deleteItem(at index: Int) {
         Self.logger.info("Request to delete item at index=\(index)")
         guard index < items.count else { return }
-        Self.logger.debug("Deleting item id=\(self.items[index].id)")
         let id = items[index].id
-//        self.service.deleteCartItem(id: id) { [weak self] in
-//            guard let self else { return }
-//            Self.logger.info("Cart item deleted successfully. id=\(id)")
-//            self.cartItems.removeAll { $0.id == id }
-//        }
+        Self.logger.debug("Deleting item id=\(id)")
+
+        service.removeCartItem(id: id) { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success:
+                Self.logger.info("Cart item deleted successfully. id=\(id)")
+                self.cartItems.removeAll { $0.id == id }
+                self.requestedItemIDs.removeAll { $0 == id }
+                self.sortItems()
+            case .failure(let error):
+                Self.logger.error("Failed to delete cart item id=\(id). error=\(String(describing: error), privacy: .public)")
+                self.state = .error(message: "Не удалось удалить товар из корзины")
+            }
+        }
+    }
+
+    func addItem(id: String) {
+        Self.logger.info("Request to add item id=\(id, privacy: .public)")
+        service.addCartItem(id: id) { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success:
+                Self.logger.info("Cart item added successfully. id=\(id, privacy: .public)")
+                self.loadItems()
+            case .failure(let error):
+                Self.logger.error("Failed to add cart item id=\(id, privacy: .public). error=\(String(describing: error), privacy: .public)")
+                self.state = .error(message: "Не удалось добавить товар в корзину")
+            }
+        }
     }
 
     func sortItems() {

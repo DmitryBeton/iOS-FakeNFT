@@ -32,6 +32,7 @@ final class ServicesAssembly {
 typealias CartItemsCompletion = (Result<[CartItem], Error>) -> Void
 typealias CartItemsPartialUpdate = ([CartItem]) -> Void
 typealias CartPlaceholdersUpdate = ([String]) -> Void
+typealias CartMutationCompletion = (Result<[String], Error>) -> Void
 
 protocol CartServiceProtocol: AnyObject {
     func fetchCartItems(completion: @escaping CartItemsCompletion)
@@ -40,6 +41,8 @@ protocol CartServiceProtocol: AnyObject {
         onPartialUpdate: CartItemsPartialUpdate?,
         completion: @escaping CartItemsCompletion
     )
+    func addCartItem(id: String, completion: @escaping CartMutationCompletion)
+    func removeCartItem(id: String, completion: @escaping CartMutationCompletion)
 }
 
 extension CartServiceProtocol {
@@ -118,9 +121,137 @@ final class CartService: CartServiceProtocol {
             }
         }
     }
+
+    func addCartItem(id: String, completion: @escaping CartMutationCompletion) {
+        mutateOrder(id: id, action: .add, completion: completion)
+    }
+
+    func removeCartItem(id: String, completion: @escaping CartMutationCompletion) {
+        mutateOrder(id: id, action: .remove, completion: completion)
+    }
 }
 
 private extension CartService {
+    enum CartMutationAction: String {
+        case add
+        case remove
+    }
+
+    func mutateOrder(
+        id: String,
+        action: CartMutationAction,
+        completion: @escaping CartMutationCompletion
+    ) {
+        let traceID = UUID().uuidString
+        Self.logger.info("[\(traceID, privacy: .public)] Starting cart mutation. action=\(action.rawValue, privacy: .public), nftID=\(id, privacy: .public)")
+
+        networkClient.send(
+            request: CartOrderRequest(),
+            type: CartOrderResponse.self,
+            completionQueue: responseQueue
+        ) { [weak self] result in
+            guard let self else { return }
+
+            switch result {
+            case .success(let order):
+                let updatedIDs: [String]
+                switch action {
+                case .add:
+                    updatedIDs = order.nfts.contains(id) ? order.nfts : order.nfts + [id]
+                case .remove:
+                    updatedIDs = order.nfts.filter { $0 != id }
+                }
+
+                if updatedIDs == order.nfts {
+                    Self.logger.info("[\(traceID, privacy: .public)] Cart mutation produced no changes. Returning current IDs.")
+                    DispatchQueue.main.async {
+                        completion(.success(order.nfts))
+                    }
+                    return
+                }
+
+                Self.logger.debug("[\(traceID, privacy: .public)] Sending PUT /api/v1/orders/1 with idsCount=\(updatedIDs.count)")
+                self.sendOrderUpdate(nftIDs: updatedIDs, traceID: traceID, completion: completion)
+
+            case .failure(let error):
+                Self.logger.error("[\(traceID, privacy: .public)] Failed to load order before mutation. error=\(String(describing: error), privacy: .public)")
+                DispatchQueue.main.async {
+                    completion(.failure(error))
+                }
+            }
+        }
+    }
+
+    func sendOrderUpdate(
+        nftIDs: [String],
+        traceID: String,
+        completion: @escaping CartMutationCompletion
+    ) {
+        guard let url = URL(string: "\(RequestConstants.baseURL)/api/v1/orders/1") else {
+            DispatchQueue.main.async {
+                completion(.failure(NetworkClientError.urlSessionError))
+            }
+            return
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = HttpMethod.put.rawValue
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+        request.setValue(RequestConstants.token, forHTTPHeaderField: "X-Practicum-Mobile-Token")
+
+        let body = nftIDs
+            .map { "nfts=\($0.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? $0)" }
+            .joined(separator: "&")
+        request.httpBody = body.data(using: .utf8)
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error {
+                Self.logger.error("[\(traceID, privacy: .public)] PUT order failed with transport error: \(error.localizedDescription, privacy: .public)")
+                DispatchQueue.main.async {
+                    completion(.failure(NetworkClientError.urlRequestError(error)))
+                }
+                return
+            }
+
+            guard let http = response as? HTTPURLResponse else {
+                DispatchQueue.main.async {
+                    completion(.failure(NetworkClientError.urlSessionError))
+                }
+                return
+            }
+
+            guard 200 ..< 300 ~= http.statusCode else {
+                let body = data.flatMap { String(data: $0, encoding: .utf8) } ?? "no-body"
+                Self.logger.error("[\(traceID, privacy: .public)] PUT order failed. status=\(http.statusCode), body=\(body, privacy: .public)")
+                DispatchQueue.main.async {
+                    completion(.failure(NetworkClientError.httpStatusCode(http.statusCode)))
+                }
+                return
+            }
+
+            guard let data else {
+                DispatchQueue.main.async {
+                    completion(.failure(NetworkClientError.urlSessionError))
+                }
+                return
+            }
+
+            do {
+                let response = try JSONDecoder().decode(CartOrderResponse.self, from: data)
+                Self.logger.info("[\(traceID, privacy: .public)] PUT order succeeded. idsCount=\(response.nfts.count)")
+                DispatchQueue.main.async {
+                    completion(.success(response.nfts))
+                }
+            } catch {
+                Self.logger.error("[\(traceID, privacy: .public)] PUT order response parsing failed: \(error.localizedDescription, privacy: .public)")
+                DispatchQueue.main.async {
+                    completion(.failure(NetworkClientError.parsingError))
+                }
+            }
+        }.resume()
+    }
+
     func loadNfts(
         ids: [String],
         traceID: String,
