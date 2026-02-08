@@ -144,7 +144,7 @@ final class OrderSummaryView: UIView {
     }
 
     private func updateTotalPrice() {
-        totalPriceLabel.text = "\(totalPrice) ETH"
+        totalPriceLabel.text = String(format: "%.2f ETH", totalPrice)
     }
 
     @objc private func payTapped() {
