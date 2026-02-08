@@ -103,6 +103,7 @@ final class StatisticsViewController: UIViewController {
         viewModel.onUserSelected = { [weak self] userId in
             guard let self else { return }
             let vc = UserCardModule.make(userId: userId, servicesAssembly: self.servicesAssembly)
+            vc.hidesBottomBarWhenPushed = true
             self.navigationController?.pushViewController(vc, animated: true)
         }
     }

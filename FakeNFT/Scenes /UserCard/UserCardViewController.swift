@@ -37,6 +37,7 @@ final class UserCardViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        hidesBottomBarWhenPushed = true
         setupUI()
         setupLayout()
         setupLoader()
@@ -75,7 +76,7 @@ final class UserCardViewController: UIViewController {
         avatarImageView.contentMode = .scaleAspectFill
         avatarImageView.clipsToBounds = true
         avatarImageView.layer.cornerRadius = 35
-        avatarImageView.image = UIImage(named: "statisticAvatarTable")
+        avatarImageView.image = UIImage(resource: .statisticAvatarTable)
         avatarImageView.backgroundColor = .clear
 
         NSLayoutConstraint.activate([
@@ -103,7 +104,7 @@ final class UserCardViewController: UIViewController {
         // Description
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         descriptionLabel.font = .systemFont(ofSize: 15, weight: .regular)
-        descriptionLabel.textColor = .secondaryLabel
+        descriptionLabel.textColor = UIColor(named: "nftBlack") //исправила
         descriptionLabel.numberOfLines = 0
         descriptionLabel.textAlignment = .left
 
@@ -115,7 +116,7 @@ final class UserCardViewController: UIViewController {
 
         siteButton.layer.cornerRadius = 20
         siteButton.layer.borderWidth = 1
-        siteButton.layer.borderColor = UIColor.separator.cgColor
+        siteButton.layer.borderColor = UIColor(named: "nftBlack")?.cgColor
         siteButton.backgroundColor = .clear
 
         NSLayoutConstraint.activate([
