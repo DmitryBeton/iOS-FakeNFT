@@ -84,16 +84,16 @@ final class CartViewModel: CartViewModelProtocol {
         self.state = .idle
         Self.logger.debug("CartViewModel initialized with sortOption=\(self.sortOption.localizedWord)")
 
-//        NotificationCenter.default.addObserver(self,
-//                                               selector: #selector(handleCartDidChange(_:)),
-//                                               name: .cartDidChange,
-//                                               object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(handleCartDidChange(_:)),
+                                               name: .cartDidChange,
+                                               object: nil)
     }
-//
-//    deinit {
-//        Self.logger.debug("CartViewModel deinit")
-//        NotificationCenter.default.removeObserver(self, name: .cartDidChange, object: nil)
-//    }
+
+    deinit {
+        Self.logger.debug("CartViewModel deinit")
+        NotificationCenter.default.removeObserver(self, name: .cartDidChange, object: nil)
+    }
 
     // MARK: - Properties
     private(set) var state: CartViewState = .idle {
@@ -279,4 +279,8 @@ final class CartViewModel: CartViewModelProtocol {
             isPlaceholder: true
         )
     }
+}
+
+extension Notification.Name {
+    static let cartDidChange = Notification.Name("cartDidChange")
 }
