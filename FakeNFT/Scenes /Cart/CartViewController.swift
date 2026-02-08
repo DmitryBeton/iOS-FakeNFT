@@ -66,7 +66,7 @@ final class CartViewController: UIViewController {
     // MARK: - Initialization
     init(servicesAssembly: ServicesAssembly) {
         self.servicesAssembly = servicesAssembly
-        self.viewModel = CartViewModel()
+        self.viewModel = CartViewModel(service: servicesAssembly.cartService)
         super.init(nibName: nil, bundle: nil)
     }
 

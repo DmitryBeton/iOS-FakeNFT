@@ -1,37 +1,37 @@
+////
+////  CartService.swift
+////  FakeNFT
+////
+////  Created by Дмитрий Чалов on 25.01.2026.
+////
 //
-//  CartService.swift
-//  FakeNFT
+//import Foundation
 //
-//  Created by Дмитрий Чалов on 25.01.2026.
+///// Протокол сервиса для работы с корзиной.
+///// Определяет методы для получения, удаления и сохранения элементов корзины.
+//protocol CartServiceProtocol {
+//    /// Загружает элементы корзины пользователя.
+//    /// - Parameter completion: Замыкание, вызываемое после завершения загрузки.
+//    /// Передает результат с массивом элементов или ошибкой.
+//    func fetchCartItems(completion: @escaping (Result<[CartItem], Error>) -> Void)
 //
-
-import Foundation
-
-/// Протокол сервиса для работы с корзиной.
-/// Определяет методы для получения, удаления и сохранения элементов корзины.
-protocol CartServiceProtocol {
-    /// Загружает элементы корзины пользователя.
-    /// - Parameter completion: Замыкание, вызываемое после завершения загрузки.
-    /// Передает результат с массивом элементов или ошибкой.
-    func fetchCartItems(completion: @escaping (Result<[CartItem], Error>) -> Void)
-
-    /// Удаляет элемент корзины по идентификатору.
-    /// - Parameters:
-    ///   - id: Уникальный идентификатор элемента корзины.
-    ///   - completion: Замыкание, вызываемое после удаления элемента.
-    func deleteCartItem(id: String, completion: @escaping () -> Void)
-
-    /// Сохраняет все элементы корзины.
-    /// - Parameters:
-    ///   - items: Массив элементов корзины для сохранения.
-    ///   - completion: Замыкание, вызываемое после завершения сохранения.
-    func saveCartItems(_ items: [CartItem], completion: @escaping () -> Void)
-
-    /// Очищает корзину целиком.
-    /// - Parameter completion: Вызывается после очистки.
-    func clearCart(completion: @escaping () -> Void)
-}
-
+//    /// Удаляет элемент корзины по идентификатору.
+//    /// - Parameters:
+//    ///   - id: Уникальный идентификатор элемента корзины.
+//    ///   - completion: Замыкание, вызываемое после удаления элемента.
+//    func deleteCartItem(id: String, completion: @escaping () -> Void)
+//
+//    /// Сохраняет все элементы корзины.
+//    /// - Parameters:
+//    ///   - items: Массив элементов корзины для сохранения.
+//    ///   - completion: Замыкание, вызываемое после завершения сохранения.
+//    func saveCartItems(_ items: [CartItem], completion: @escaping () -> Void)
+//
+//    /// Очищает корзину целиком.
+//    /// - Parameter completion: Вызывается после очистки.
+//    func clearCart(completion: @escaping () -> Void)
+//}
+//
 final class CartService: CartServiceProtocol {
 
     // MARK: - Properties
@@ -69,6 +69,6 @@ final class CartService: CartServiceProtocol {
 }
 
 // Глобальное уведомление об изменениях корзины (очистка/добавление/удаление)
-extension Notification.Name {
-    static let cartDidChange = Notification.Name("CartDidChange")
-}
+//extension Notification.Name {
+//    static let cartDidChange = Notification.Name("CartDidChange")
+//}

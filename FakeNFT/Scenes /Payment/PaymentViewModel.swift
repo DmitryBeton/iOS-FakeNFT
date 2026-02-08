@@ -149,12 +149,12 @@ final class PaymentViewModel: PaymentViewModelProtocol {
             switch result {
             case .success:
                 Self.logger.info("Payment service returned success. Clearing cart...")
-                self.cartService.clearCart {
-                    Self.logger.info("Cart cleared. Posting cartDidChange and setting state .paid")
-                    NotificationCenter.default.post(name: .cartDidChange, object: nil)
-                    self.state = .paid
-                    completion(.success(()))
-                }
+//                self.cartService.clearCart {
+//                    Self.logger.info("Cart cleared. Posting cartDidChange and setting state .paid")
+//                    NotificationCenter.default.post(name: .cartDidChange, object: nil)
+//                    self.state = .paid
+//                    completion(.success(()))
+//                }
             case .failure(let error):
                 Self.logger.error("Payment service returned failure: \(error.localizedDescription)")
                 self.state = .error(error: PaymentError.paymentFailed)

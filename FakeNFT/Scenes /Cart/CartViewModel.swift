@@ -75,7 +75,7 @@ final class CartViewModel: CartViewModelProtocol {
     }
 
     // MARK: - Init
-    init(service: CartServiceProtocol = CartService(),
+    init(service: CartServiceProtocol,
          sortStore: SortOptionStore = UserDefaultsSortOptionStore()) {
         self.service = service
         self.sortStore = sortStore
@@ -84,16 +84,16 @@ final class CartViewModel: CartViewModelProtocol {
         self.state = .idle
         Self.logger.debug("CartViewModel initialized with sortOption=\(self.sortOption.localizedWord)")
 
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(handleCartDidChange(_:)),
-                                               name: .cartDidChange,
-                                               object: nil)
+//        NotificationCenter.default.addObserver(self,
+//                                               selector: #selector(handleCartDidChange(_:)),
+//                                               name: .cartDidChange,
+//                                               object: nil)
     }
-
-    deinit {
-        Self.logger.debug("CartViewModel deinit")
-        NotificationCenter.default.removeObserver(self, name: .cartDidChange, object: nil)
-    }
+//
+//    deinit {
+//        Self.logger.debug("CartViewModel deinit")
+//        NotificationCenter.default.removeObserver(self, name: .cartDidChange, object: nil)
+//    }
 
     // MARK: - Properties
     private(set) var state: CartViewState = .idle {
@@ -123,7 +123,7 @@ final class CartViewModel: CartViewModelProtocol {
     func loadItems() {
         Self.logger.info("Loading cart items started")
         state = .loading
-        service.fetchCartItems { [weak self] result in
+        self.service.fetchCartItems { [weak self] result in
             guard let self else { return }
             switch result {
             case .success(let items):
@@ -143,11 +143,11 @@ final class CartViewModel: CartViewModelProtocol {
         guard index < items.count else { return }
         Self.logger.debug("Deleting item id=\(self.items[index].id)")
         let id = items[index].id
-        service.deleteCartItem(id: id) { [weak self] in
-            guard let self else { return }
-            Self.logger.info("Cart item deleted successfully. id=\(id)")
-            self.cartItems.removeAll { $0.id == id }
-        }
+//        self.service.deleteCartItem(id: id) { [weak self] in
+//            guard let self else { return }
+//            Self.logger.info("Cart item deleted successfully. id=\(id)")
+//            self.cartItems.removeAll { $0.id == id }
+//        }
     }
 
     func sortItems() {
@@ -214,3 +214,4 @@ final class CartViewModel: CartViewModelProtocol {
         loadItems()
     }
 }
+

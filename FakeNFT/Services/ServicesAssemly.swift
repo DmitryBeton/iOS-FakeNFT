@@ -17,4 +17,12 @@ final class ServicesAssembly {
             storage: nftStorage
         )
     }
+    
+    var cartService: CartServiceProtocol {
+        CartNetworkService(
+            networkClient: networkClient,
+            nftStorage: nftStorage,
+            orderId: "1",
+        )
+    }
 }
