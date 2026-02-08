@@ -288,12 +288,42 @@ final class CartItemViewCell: UITableViewCell, ReuseIdentifying {
             $0.translatesAutoresizingMaskIntoConstraints = false
         }
 
+        let cellBottom = cellContentView.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -Layout.Spacing.verticalInset)
+        cellBottom.priority = .defaultHigh
+
+        let imageAspect = nftImageView.heightAnchor.constraint(equalTo: nftImageView.widthAnchor)
+        imageAspect.priority = .defaultHigh
+
+        let shortInfoBottom = shortInfoContainerView.bottomAnchor.constraint(lessThanOrEqualTo: fullInfoContainerView.bottomAnchor, constant: -Layout.Spacing.infoVertical)
+        shortInfoBottom.priority = .defaultHigh
+
+        let titleSkeletonHeight = titleSkeletonView.heightAnchor.constraint(equalToConstant: Layout.Size.titleSkeletonHeight)
+        titleSkeletonHeight.priority = .defaultHigh
+
+        let ratingSkeletonHeight = ratingSkeletonView.heightAnchor.constraint(equalToConstant: Layout.Size.ratingSkeletonHeight)
+        ratingSkeletonHeight.priority = .defaultHigh
+
+        let ratingTop = ratingView.topAnchor.constraint(equalTo: nftTitleLabel.bottomAnchor, constant: Layout.Spacing.nameToRating)
+        ratingTop.priority = .defaultHigh
+
+        let ratingSkeletonTop = ratingSkeletonView.topAnchor.constraint(equalTo: titleSkeletonView.bottomAnchor, constant: Layout.Spacing.nameToRating)
+        ratingSkeletonTop.priority = .defaultHigh
+
+        let priceContainerTop = priceContainerView.topAnchor.constraint(equalTo: nameAndRatingContainerView.bottomAnchor, constant: Layout.Spacing.nameToPrice)
+        priceContainerTop.priority = .defaultHigh
+
+        let priceBottom = priceContainerView.bottomAnchor.constraint(lessThanOrEqualTo: shortInfoContainerView.bottomAnchor)
+        priceBottom.priority = .defaultHigh
+
+        let priceSkeletonHeight = priceSkeletonView.heightAnchor.constraint(equalToConstant: Layout.Size.priceSkeletonHeight)
+        priceSkeletonHeight.priority = .defaultHigh
+
         NSLayoutConstraint.activate([
             // cellContentView
             cellContentView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Layout.Spacing.horizontalInset),
             cellContentView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Layout.Spacing.horizontalInset),
             cellContentView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Layout.Spacing.verticalInset),
-            cellContentView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Layout.Spacing.verticalInset),
+            cellBottom,
 
             // fullInfoContainerView
             fullInfoContainerView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
@@ -306,7 +336,7 @@ final class CartItemViewCell: UITableViewCell, ReuseIdentifying {
             nftImageView.topAnchor.constraint(equalTo: fullInfoContainerView.topAnchor),
             nftImageView.bottomAnchor.constraint(lessThanOrEqualTo: fullInfoContainerView.bottomAnchor),
             nftImageView.widthAnchor.constraint(equalToConstant: Layout.Image.size),
-            nftImageView.heightAnchor.constraint(equalTo: nftImageView.widthAnchor),
+            imageAspect,
 
             // imageSkeletonView
             imageSkeletonView.leadingAnchor.constraint(equalTo: nftImageView.leadingAnchor),
@@ -318,7 +348,7 @@ final class CartItemViewCell: UITableViewCell, ReuseIdentifying {
             shortInfoContainerView.leadingAnchor.constraint(equalTo: nftImageView.trailingAnchor, constant: Layout.Spacing.imageToInfo),
             shortInfoContainerView.trailingAnchor.constraint(equalTo: fullInfoContainerView.trailingAnchor),
             shortInfoContainerView.topAnchor.constraint(equalTo: fullInfoContainerView.topAnchor, constant: Layout.Spacing.infoVertical),
-            shortInfoContainerView.bottomAnchor.constraint(equalTo: fullInfoContainerView.bottomAnchor, constant: -Layout.Spacing.infoVertical),
+            shortInfoBottom,
 
             // nameAndRatingContainerView
             nameAndRatingContainerView.topAnchor.constraint(equalTo: shortInfoContainerView.topAnchor),
@@ -333,26 +363,26 @@ final class CartItemViewCell: UITableViewCell, ReuseIdentifying {
             // titleSkeletonView
             titleSkeletonView.topAnchor.constraint(equalTo: nameAndRatingContainerView.topAnchor),
             titleSkeletonView.leadingAnchor.constraint(equalTo: nameAndRatingContainerView.leadingAnchor),
-            titleSkeletonView.heightAnchor.constraint(equalToConstant: Layout.Size.titleSkeletonHeight),
+            titleSkeletonHeight,
             titleSkeletonView.widthAnchor.constraint(equalToConstant: Layout.Size.titleSkeletonWidth),
 
             // ratingView
-            ratingView.topAnchor.constraint(equalTo: nftTitleLabel.bottomAnchor, constant: Layout.Spacing.nameToRating),
+            ratingTop,
             ratingView.leadingAnchor.constraint(equalTo: nameAndRatingContainerView.leadingAnchor),
             ratingView.bottomAnchor.constraint(equalTo: nameAndRatingContainerView.bottomAnchor),
 
             // ratingSkeletonView
-            ratingSkeletonView.topAnchor.constraint(equalTo: titleSkeletonView.bottomAnchor, constant: Layout.Spacing.nameToRating),
+            ratingSkeletonTop,
             ratingSkeletonView.leadingAnchor.constraint(equalTo: nameAndRatingContainerView.leadingAnchor),
-            ratingSkeletonView.heightAnchor.constraint(equalToConstant: Layout.Size.ratingSkeletonHeight),
+            ratingSkeletonHeight,
             ratingSkeletonView.widthAnchor.constraint(equalToConstant: Layout.Size.ratingSkeletonWidth),
             ratingSkeletonView.bottomAnchor.constraint(equalTo: nameAndRatingContainerView.bottomAnchor),
 
             // priceContainerView
-            priceContainerView.topAnchor.constraint(equalTo: nameAndRatingContainerView.bottomAnchor, constant: Layout.Spacing.nameToPrice),
+            priceContainerTop,
             priceContainerView.leadingAnchor.constraint(equalTo: shortInfoContainerView.leadingAnchor),
             priceContainerView.trailingAnchor.constraint(equalTo: shortInfoContainerView.trailingAnchor),
-            priceContainerView.bottomAnchor.constraint(equalTo: shortInfoContainerView.bottomAnchor),
+            priceBottom,
 
             // priceLabel
             priceLabel.topAnchor.constraint(equalTo: priceContainerView.topAnchor),
@@ -368,7 +398,7 @@ final class CartItemViewCell: UITableViewCell, ReuseIdentifying {
             // priceSkeletonView
             priceSkeletonView.topAnchor.constraint(equalTo: priceContainerView.topAnchor, constant: Layout.Spacing.priceSkeletonTopInset),
             priceSkeletonView.leadingAnchor.constraint(equalTo: priceContainerView.leadingAnchor),
-            priceSkeletonView.heightAnchor.constraint(equalToConstant: Layout.Size.priceSkeletonHeight),
+            priceSkeletonHeight,
             priceSkeletonView.widthAnchor.constraint(equalToConstant: Layout.Size.priceSkeletonWidth),
 
             // deleteButton
