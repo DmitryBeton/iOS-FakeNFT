@@ -109,7 +109,7 @@ final class PaymentViewModel: PaymentViewModelProtocol {
 
     // MARK: - Initialization
     init(paymentService: PaymentServiceProtocol = MockPaymentService(),
-         currencyService: CurrencyServiceProtocol = MockCurrencyService(),
+         currencyService: CurrencyServiceProtocol = CurrencyService(),
          cartService: CartServiceProtocol = CartService()) {
         self.paymentService = paymentService
         self.currencyService = currencyService
@@ -125,10 +125,10 @@ final class PaymentViewModel: PaymentViewModelProtocol {
             case .success(let currencies):
                 Self.logger.info("Currencies loaded successfully. count=\(currencies.count)")
                 self.currencyItems = currencies
-            case .failure:
-                Self.logger.error("Failed to load currencies")
+            case .failure(let error):
+                Self.logger.error("Failed to load currencies: \(error.localizedDescription)")
                 self.currencyItems = []
-                self.state = .error(error: PaymentError.currenciesLoadFailed)
+                self.state = .error(error: self.mapCurrencyLoadError(error))
             }
         }
     }
@@ -165,11 +165,26 @@ final class PaymentViewModel: PaymentViewModelProtocol {
 
     // MARK: - Mapping
     private func mapToUI(_ currency: Currency) -> UICurrency {
-        let image = UIImage(named: currency.logo)
         return UICurrency(
+            id: currency.id,
             title: currency.title,
             name: currency.name,
-            logo: image
+            imageURL: URL(string: currency.image)
         )
+    }
+
+    private func mapCurrencyLoadError(_ error: Error) -> PaymentError {
+        if let networkError = error as? NetworkClientError {
+            switch networkError {
+            case .httpStatusCode(let code):
+                return .server(code: code)
+            case .urlRequestError:
+                return .networkOffline
+            case .urlSessionError, .parsingError:
+                return .currenciesLoadFailed
+            }
+        }
+
+        return .unknown(underlying: error)
     }
 }

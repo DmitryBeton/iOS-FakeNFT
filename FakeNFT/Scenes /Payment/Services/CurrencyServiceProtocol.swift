@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import OSLog
 
 /// Сервис получения списка доступных валют для оплаты.
 ///
@@ -41,14 +42,18 @@ final class MockCurrencyService: CurrencyServiceProtocol {
     var delay: TimeInterval = 0.5
 
     var stubCurrencies: [Currency] = [
-        Currency(title: "Bitcoin", name: "BTC", logo: "Bitcoin"),
-        Currency(title: "Dogecoin", name: "DOGE", logo: "Dogecoin"),
-        Currency(title: "Tether", name: "USDT", logo: "Tether"),
-        Currency(title: "Apecoin", name: "APE", logo: "Apecoin"),
-        Currency(title: "Solana", name: "SOL", logo: "Solana"),
-        Currency(title: "Ethereum", name: "ETH", logo: "Ethereum"),
-        Currency(title: "Cardano", name: "ADA", logo: "Cardano"),
-        Currency(title: "Shiba Inu", name: "SHIB", logo: "ShibaInu")
+        Currency(
+            title: "Shiba_Inu",
+            name: "SHIB",
+            image: "https://code.s3.yandex.net/Mobile/iOS/Currencies/Shiba_Inu_(SHIB).png",
+            id: "0"
+        ),
+        Currency(
+            title: "Cardano",
+            name: "ADA",
+            image: "https://code.s3.yandex.net/Mobile/iOS/Currencies/Cardano_(ADA).png",
+            id: "1"
+        )
     ]
 
     func fetchCurrencies(completion: @escaping (Result<[Currency], Error>) -> Void) {
@@ -57,6 +62,39 @@ final class MockCurrencyService: CurrencyServiceProtocol {
                 completion(.success(self.stubCurrencies))
             } else {
                 completion(.failure(MockError.failed))
+            }
+        }
+    }
+}
+
+final class CurrencyService: CurrencyServiceProtocol {
+    private static let logger = Logger(subsystem: "com.fakenft.app", category: "CurrencyService")
+
+    private let networkClient: NetworkClient
+    private let callbackQueue = DispatchQueue(label: "com.fakenft.currency.callback", qos: .userInitiated)
+
+    init(networkClient: NetworkClient = DefaultNetworkClient()) {
+        self.networkClient = networkClient
+    }
+
+    func fetchCurrencies(completion: @escaping (Result<[Currency], Error>) -> Void) {
+        Self.logger.info("Fetching currencies from /api/v1/currencies")
+        networkClient.send(
+            request: CurrencyRequest(),
+            type: [Currency].self,
+            completionQueue: callbackQueue
+        ) { result in
+            switch result {
+            case .success(let currencies):
+                Self.logger.info("Currencies fetched successfully. count=\(currencies.count)")
+                DispatchQueue.main.async {
+                    completion(.success(currencies))
+                }
+            case .failure(let error):
+                Self.logger.error("Failed to fetch currencies: \(String(describing: error), privacy: .public)")
+                DispatchQueue.main.async {
+                    completion(.failure(error))
+                }
             }
         }
     }

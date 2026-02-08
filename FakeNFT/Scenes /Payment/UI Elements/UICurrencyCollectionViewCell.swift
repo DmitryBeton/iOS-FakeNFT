@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class UICurrencyCollectionViewCell: UICollectionViewCell, ReuseIdentifying {
     // MARK: - UI Elements
@@ -20,7 +21,8 @@ final class UICurrencyCollectionViewCell: UICollectionViewCell, ReuseIdentifying
 
     private let currencyImageView: UIImageView = {
         let view = UIImageView()
-        view.contentMode = .center
+        view.contentMode = .scaleAspectFit
+        view.clipsToBounds = true
         return view
     }()
 
@@ -57,9 +59,23 @@ final class UICurrencyCollectionViewCell: UICollectionViewCell, ReuseIdentifying
     }
 
     func configure(currency: UICurrency) {
-        currencyImageView.image = currency.logo
+        currencyImageView.kf.cancelDownloadTask()
+        currencyImageView.image = nil
+
+        if let imageURL = currency.imageURL {
+            currencyImageView.kf.setImage(with: imageURL)
+        }
+
         currencyTitleLabel.text = currency.title
         currencyNameLabel.text = String(currency.name.prefix(4))
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        currencyImageView.kf.cancelDownloadTask()
+        currencyImageView.image = nil
+        currencyTitleLabel.text = nil
+        currencyNameLabel.text = nil
     }
 
     // MARK: - Selection
@@ -109,10 +125,10 @@ final class UICurrencyCollectionViewCell: UICollectionViewCell, ReuseIdentifying
             paddingImageView.heightAnchor.constraint(equalToConstant: Constants.Layout.imageContainerSide),
 
             // currencyImageView inside container
-            currencyImageView.topAnchor.constraint(lessThanOrEqualTo: paddingImageView.topAnchor, constant: Constants.Layout.imageInset),
-            currencyImageView.leadingAnchor.constraint(lessThanOrEqualTo: paddingImageView.leadingAnchor, constant: Constants.Layout.imageInset),
-            currencyImageView.trailingAnchor.constraint(greaterThanOrEqualTo: paddingImageView.trailingAnchor, constant: -Constants.Layout.imageInset),
-            currencyImageView.bottomAnchor.constraint(greaterThanOrEqualTo: paddingImageView.bottomAnchor, constant: -Constants.Layout.imageInset),
+            currencyImageView.topAnchor.constraint(equalTo: paddingImageView.topAnchor, constant: Constants.Layout.imageInset),
+            currencyImageView.leadingAnchor.constraint(equalTo: paddingImageView.leadingAnchor, constant: Constants.Layout.imageInset),
+            currencyImageView.trailingAnchor.constraint(equalTo: paddingImageView.trailingAnchor, constant: -Constants.Layout.imageInset),
+            currencyImageView.bottomAnchor.constraint(equalTo: paddingImageView.bottomAnchor, constant: -Constants.Layout.imageInset),
 
             // currencyView
             currencyView.topAnchor.constraint(equalTo: paddingView.topAnchor),
@@ -145,6 +161,6 @@ private enum Constants {
         static let imageContainerSide: CGFloat = 36
         static let imageContainerCornerRadius: CGFloat = 6
         static let currencyViewLeading: CGFloat = 4
-        static let imageInset: CGFloat = 2.25
+        static let imageInset: CGFloat = 5
     }
 }
