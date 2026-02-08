@@ -95,7 +95,6 @@ final class PaymentFooterView: UIView {
             payButton.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: Constants.Layout.payLeadingInset),
             payButton.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -Constants.Layout.payTrailingInset),
             payButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -Constants.Layout.payBottomInset),
-            payButton.widthAnchor.constraint(equalToConstant: Constants.Layout.payWidth),
             payButton.heightAnchor.constraint(equalToConstant: Constants.Layout.payHeight)
         ])
     }
@@ -132,10 +131,9 @@ private enum Constants {
         static let contentInset: CGFloat = 16
         static let linkTopSpacing: CGFloat = 4
         static let payTopSpacing: CGFloat = 16
-        static let payLeadingInset: CGFloat = 20
-        static let payTrailingInset: CGFloat = 12
+        static let payLeadingInset: CGFloat = 16
+        static let payTrailingInset: CGFloat = 16
         static let payBottomInset: CGFloat = 16
-        static let payWidth: CGFloat = 343
         static let payHeight: CGFloat = 60
     }
 }

@@ -118,9 +118,8 @@ final class UICurrencyCollectionViewCell: UICollectionViewCell, ReuseIdentifying
             paddingView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: Constants.Layout.paddingViewBottom),
 
             // currencyImage container
-            paddingImageView.topAnchor.constraint(equalTo: paddingView.topAnchor),
             paddingImageView.leadingAnchor.constraint(equalTo: paddingView.leadingAnchor),
-            paddingImageView.bottomAnchor.constraint(equalTo: paddingView.bottomAnchor),
+            paddingImageView.centerYAnchor.constraint(equalTo: paddingView.centerYAnchor),
             paddingImageView.widthAnchor.constraint(equalToConstant: Constants.Layout.imageContainerSide),
             paddingImageView.heightAnchor.constraint(equalToConstant: Constants.Layout.imageContainerSide),
 
