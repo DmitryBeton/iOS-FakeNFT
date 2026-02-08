@@ -133,15 +133,16 @@ final class CartViewModel: CartViewModelProtocol {
             case .success(let items):
                 Self.logger.info("Cart items loaded successfully. count=\(items.count)")
                 self.requestedItemIDs = []
-                if self.cartItems != items {
-                    self.applyLoadedItems(items)
-                } else {
-                    Self.logger.debug("Final cart payload equals partial payload, skip redundant state update")
-                }
+                // Always finalize into .loaded/.empty after placeholders/partials.
+                // Even if payload is unchanged, UI must leave loadingPlaceholders state.
+                self.applyLoadedItems(items)
             case .failure:
                 Self.logger.error("Failed to load cart items")
                 if self.cartItems.isEmpty {
                     self.state = .error(message: "Не удалось загрузить корзину")
+                } else {
+                    // Keep last known content visible if refresh failed.
+                    self.sortItems()
                 }
             }
         })
