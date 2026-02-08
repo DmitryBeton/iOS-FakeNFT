@@ -11,11 +11,12 @@ import OSLog
 final class CartViewController: UIViewController {
 
     private static let logger = Logger(subsystem: "com.fakenft.app", category: "CartViewController")
-    
+
     private var isNavigatingToPayment = false
 
     // MARK: - Properties
     private let viewModel: CartViewModelProtocol
+    let servicesAssembly: ServicesAssembly
 
     // MARK: - UI Elements
     private let refreshControl: UIRefreshControl = {
@@ -63,14 +64,20 @@ final class CartViewController: UIViewController {
     }()
 
     // MARK: - Initialization
-    init(viewModel: CartViewModelProtocol = CartViewModel()) {
-        self.viewModel = viewModel
+    init(servicesAssembly: ServicesAssembly) {
+        self.servicesAssembly = servicesAssembly
+        self.viewModel = CartViewModel()
         super.init(nibName: nil, bundle: nil)
     }
 
     @available(*, unavailable)
+    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
+        fatalError("init(nibName:bundle:) is unavailable, use init(servicesAssembly:) instead")
+    }
+
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
-        nil
+        return nil
     }
 
     // MARK: - LifeCycle
@@ -82,7 +89,7 @@ final class CartViewController: UIViewController {
 
         viewModel.loadItems()
     }
-    
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         isNavigatingToPayment = false
@@ -295,4 +302,3 @@ extension CartViewController: UITableViewDataSource, UITableViewDelegate {
         return UISwipeActionsConfiguration(actions: [deleteAction])
     }
 }
-
