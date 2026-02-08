@@ -10,12 +10,14 @@ enum NetworkClientError: Error {
 protocol NetworkClient {
     @discardableResult
     func send(request: NetworkRequest,
+              onTaskMetrics: ((URLSessionTaskMetrics) -> Void)?,
               completionQueue: DispatchQueue,
               onResponse: @escaping (Result<Data, Error>) -> Void) -> NetworkTask?
 
     @discardableResult
     func send<T: Decodable>(request: NetworkRequest,
                             type: T.Type,
+                            onTaskMetrics: ((URLSessionTaskMetrics) -> Void)?,
                             completionQueue: DispatchQueue,
                             onResponse: @escaping (Result<T, Error>) -> Void) -> NetworkTask?
 }
@@ -25,33 +27,83 @@ extension NetworkClient {
     @discardableResult
     func send(request: NetworkRequest,
               onResponse: @escaping (Result<Data, Error>) -> Void) -> NetworkTask? {
-        send(request: request, completionQueue: .main, onResponse: onResponse)
+        send(
+            request: request,
+            onTaskMetrics: nil,
+            completionQueue: .main,
+            onResponse: onResponse
+        )
+    }
+
+    @discardableResult
+    func send(
+        request: NetworkRequest,
+        completionQueue: DispatchQueue,
+        onResponse: @escaping (Result<Data, Error>) -> Void
+    ) -> NetworkTask? {
+        send(
+            request: request,
+            onTaskMetrics: nil,
+            completionQueue: completionQueue,
+            onResponse: onResponse
+        )
     }
 
     @discardableResult
     func send<T: Decodable>(request: NetworkRequest,
                             type: T.Type,
                             onResponse: @escaping (Result<T, Error>) -> Void) -> NetworkTask? {
-        send(request: request, type: type, completionQueue: .main, onResponse: onResponse)
+        send(
+            request: request,
+            type: type,
+            onTaskMetrics: nil,
+            completionQueue: .main,
+            onResponse: onResponse
+        )
+    }
+
+    @discardableResult
+    func send<T: Decodable>(
+        request: NetworkRequest,
+        type: T.Type,
+        completionQueue: DispatchQueue,
+        onResponse: @escaping (Result<T, Error>) -> Void
+    ) -> NetworkTask? {
+        send(
+            request: request,
+            type: type,
+            onTaskMetrics: nil,
+            completionQueue: completionQueue,
+            onResponse: onResponse
+        )
     }
 }
 
-struct DefaultNetworkClient: NetworkClient {
+final class DefaultNetworkClient: NetworkClient {
     private let session: URLSession
+    private let metricsSession: URLSession
+    private let metricsCollector: URLSessionMetricsCollector
     private let decoder: JSONDecoder
-    private let encoder: JSONEncoder
 
     init(session: URLSession = URLSession.shared,
          decoder: JSONDecoder = JSONDecoder(),
          encoder: JSONEncoder = JSONEncoder()) {
         self.session = session
+        self.metricsCollector = URLSessionMetricsCollector()
+        let configuration = session.configuration
+        self.metricsSession = URLSession(
+            configuration: configuration,
+            delegate: metricsCollector,
+            delegateQueue: nil
+        )
         self.decoder = decoder
-        self.encoder = encoder
+        _ = encoder
     }
 
     @discardableResult
     func send(
         request: NetworkRequest,
+        onTaskMetrics: ((URLSessionTaskMetrics) -> Void)?,
         completionQueue: DispatchQueue,
         onResponse: @escaping (Result<Data, Error>) -> Void
     ) -> NetworkTask? {
@@ -62,7 +114,8 @@ struct DefaultNetworkClient: NetworkClient {
         }
         guard let urlRequest = create(request: request) else { return nil }
 
-        let task = session.dataTask(with: urlRequest) { data, response, error in
+        let targetSession = onTaskMetrics == nil ? session : metricsSession
+        let task = targetSession.dataTask(with: urlRequest) { data, response, error in
             guard let response = response as? HTTPURLResponse else {
                 onResponse(.failure(NetworkClientError.urlSessionError))
                 return
@@ -85,6 +138,10 @@ struct DefaultNetworkClient: NetworkClient {
             }
         }
 
+        if let onTaskMetrics {
+            metricsCollector.register(callback: onTaskMetrics, for: task.taskIdentifier)
+        }
+
         task.resume()
 
         return DefaultNetworkTask(dataTask: task)
@@ -94,10 +151,11 @@ struct DefaultNetworkClient: NetworkClient {
     func send<T: Decodable>(
         request: NetworkRequest,
         type: T.Type,
+        onTaskMetrics: ((URLSessionTaskMetrics) -> Void)?,
         completionQueue: DispatchQueue,
         onResponse: @escaping (Result<T, Error>) -> Void
     ) -> NetworkTask? {
-        return send(request: request, completionQueue: completionQueue) { result in
+        return send(request: request, onTaskMetrics: onTaskMetrics, completionQueue: completionQueue) { result in
             switch result {
             case let .success(data):
                 self.parse(data: data, type: type, onResponse: onResponse)
@@ -146,5 +204,27 @@ struct DefaultNetworkClient: NetworkClient {
         } catch {
             onResponse(.failure(NetworkClientError.parsingError))
         }
+    }
+}
+
+private final class URLSessionMetricsCollector: NSObject, URLSessionTaskDelegate {
+    private let lock = NSLock()
+    private var callbacksByTaskID: [Int: (URLSessionTaskMetrics) -> Void] = [:]
+
+    func register(callback: @escaping (URLSessionTaskMetrics) -> Void, for taskID: Int) {
+        lock.lock()
+        callbacksByTaskID[taskID] = callback
+        lock.unlock()
+    }
+
+    func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        didFinishCollecting metrics: URLSessionTaskMetrics
+    ) {
+        lock.lock()
+        let callback = callbacksByTaskID.removeValue(forKey: task.taskIdentifier)
+        lock.unlock()
+        callback?(metrics)
     }
 }

@@ -85,6 +85,9 @@ final class CartService: CartServiceProtocol {
         networkClient.send(
             request: CartOrderRequest(),
             type: CartOrderResponse.self,
+            onTaskMetrics: { metrics in
+                self.logOrderRequestMetrics(metrics, traceID: requestID)
+            },
             completionQueue: responseQueue
         ) { [weak self] result in
             guard let self else { return }
@@ -209,5 +212,49 @@ private extension CartService {
             rating: nft.rating,
             price: nft.price
         )
+    }
+
+    func logOrderRequestMetrics(_ metrics: URLSessionTaskMetrics, traceID: String) {
+        var dnsDuration: TimeInterval = 0
+        var connectDuration: TimeInterval = 0
+        var tlsDuration: TimeInterval = 0
+        var requestSendDuration: TimeInterval = 0
+        var waitForResponseDuration: TimeInterval = 0
+        var responseReadDuration: TimeInterval = 0
+        var reusedConnections = 0
+
+        for transaction in metrics.transactionMetrics {
+            dnsDuration += duration(from: transaction.domainLookupStartDate, to: transaction.domainLookupEndDate)
+            connectDuration += duration(from: transaction.connectStartDate, to: transaction.connectEndDate)
+            tlsDuration += duration(from: transaction.secureConnectionStartDate, to: transaction.secureConnectionEndDate)
+            requestSendDuration += duration(from: transaction.requestStartDate, to: transaction.requestEndDate)
+            waitForResponseDuration += duration(from: transaction.requestEndDate, to: transaction.responseStartDate)
+            responseReadDuration += duration(from: transaction.responseStartDate, to: transaction.responseEndDate)
+            if transaction.isReusedConnection {
+                reusedConnections += 1
+            }
+        }
+
+        let totalDuration = metrics.taskInterval.duration
+        Self.logger.info(
+            """
+            [\(traceID, privacy: .public)] URLSessionTaskMetrics \
+            total=\(totalDuration, format: .fixed(precision: 3))s \
+            dns=\(dnsDuration, format: .fixed(precision: 3))s \
+            connect=\(connectDuration, format: .fixed(precision: 3))s \
+            tls=\(tlsDuration, format: .fixed(precision: 3))s \
+            requestSend=\(requestSendDuration, format: .fixed(precision: 3))s \
+            waitResponse=\(waitForResponseDuration, format: .fixed(precision: 3))s \
+            responseRead=\(responseReadDuration, format: .fixed(precision: 3))s \
+            redirects=\(metrics.redirectCount) \
+            transactions=\(metrics.transactionMetrics.count) \
+            reusedConnections=\(reusedConnections)
+            """
+        )
+    }
+
+    func duration(from start: Date?, to end: Date?) -> TimeInterval {
+        guard let start, let end else { return 0 }
+        return max(0, end.timeIntervalSince(start))
     }
 }
