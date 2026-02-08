@@ -7,3 +7,11 @@ struct NFTRequest: NetworkRequest {
     }
     var dto: Dto?
 }
+
+struct CartOrderRequest: NetworkRequest {
+    var endpoint: URL? {
+        URL(string: "\(RequestConstants.baseURL)/api/v1/orders/1")
+    }
+
+    var dto: Dto?
+}

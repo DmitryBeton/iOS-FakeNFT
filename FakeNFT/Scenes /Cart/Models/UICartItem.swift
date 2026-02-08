@@ -9,8 +9,9 @@ import UIKit
 
 struct UICartItem {
     let id: String
-    let image: UIImage
+    let imageURL: URL?
     let title: String
     let rating: Int
     let price: String
+    let isPlaceholder: Bool
 }

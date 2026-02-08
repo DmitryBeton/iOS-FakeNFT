@@ -10,6 +10,7 @@ final class NftServiceImpl: NftService {
 
     private let networkClient: NetworkClient
     private let storage: NftStorage
+    private let callbackQueue = DispatchQueue(label: "com.fakenft.nftservice.callback", qos: .userInitiated)
 
     init(networkClient: NetworkClient, storage: NftStorage) {
         self.storage = storage
@@ -18,12 +19,18 @@ final class NftServiceImpl: NftService {
 
     func loadNft(id: String, completion: @escaping NftCompletion) {
         if let nft = storage.getNft(with: id) {
-            completion(.success(nft))
+            callbackQueue.async {
+                completion(.success(nft))
+            }
             return
         }
 
         let request = NFTRequest(id: id)
-        networkClient.send(request: request, type: Nft.self) { [weak storage] result in
+        networkClient.send(
+            request: request,
+            type: Nft.self,
+            completionQueue: callbackQueue
+        ) { [weak storage] result in
             switch result {
             case .success(let nft):
                 storage?.saveNft(nft)

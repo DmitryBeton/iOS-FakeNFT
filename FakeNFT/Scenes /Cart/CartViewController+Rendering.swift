@@ -52,6 +52,8 @@ private extension CartViewController {
             renderIdle()
         case .loading:
             renderLoading()
+        case .loadingPlaceholders(let items):
+            renderLoadingPlaceholders(items: items)
         case .loaded(let items, let total):
             renderLoaded(items: items, total: total)
         case .empty:
@@ -70,6 +72,15 @@ private extension CartViewController {
         emptyStateLabel.isHidden = true
         orderSummaryView.isHidden = true
         navigationItem.rightBarButtonItem = nil
+    }
+
+    func renderLoadingPlaceholders(items: [UICartItem]) {
+        UIBlockingProgressHUD.dismiss()
+        emptyStateLabel.isHidden = true
+        orderSummaryView.isHidden = true
+        navigationItem.rightBarButtonItem = nil
+        Self.logger.debug("Rendering placeholders: \(items.count)")
+        tableView.reloadData()
     }
 
     func renderLoaded(items: [UICartItem], total: Double) {
@@ -164,6 +175,8 @@ private extension CartViewController {
             Self.logger.debug("State changed -> idle")
         case .loading:
             Self.logger.debug("State changed -> loading")
+        case .loadingPlaceholders(let items):
+            Self.logger.debug("State changed -> loading placeholders. items=\(items.count)")
         case .loaded(let items, let total):
             Self.logger.info("State changed -> loaded. items=\(items.count), total=\(total, format: .fixed(precision: 2))")
         case .empty:

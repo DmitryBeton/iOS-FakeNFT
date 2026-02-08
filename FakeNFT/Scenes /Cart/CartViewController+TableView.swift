@@ -20,12 +20,19 @@ extension CartViewController: UITableViewDataSource, UITableViewDelegate {
         }
 
         cell.configure(data: cartItem)
+        if !cartItem.isPlaceholder {
+            configCell(for: cell, with: cartItem)
+        }
         Self.logger.debug("Configured cell for row=\(indexPath.row), id=\(cartItem.id)")
 
-        cell.onDeleteButtonTapped = { [weak self, weak cell] in
-            guard let self, let cell, let actualIndexPath = self.tableView.indexPath(for: cell) else { return }
-            Self.logger.info("Delete button tapped for row=\(actualIndexPath.row), id=\(cartItem.id)")
-            self.presentDeleteAlert(for: cartItem, at: actualIndexPath)
+        if cartItem.isPlaceholder {
+            cell.onDeleteButtonTapped = nil
+        } else {
+            cell.onDeleteButtonTapped = { [weak self, weak cell] in
+                guard let self, let cell, let actualIndexPath = self.tableView.indexPath(for: cell) else { return }
+                Self.logger.info("Delete button tapped for row=\(actualIndexPath.row), id=\(cartItem.id)")
+                self.presentDeleteAlert(for: cartItem, at: actualIndexPath, image: cell.currentImage)
+            }
         }
 
         return cell
@@ -52,11 +59,17 @@ extension CartViewController: UITableViewDataSource, UITableViewDelegate {
         deleteAction.backgroundColor = UIColor(resource: .nftRed)
         return UISwipeActionsConfiguration(actions: [deleteAction])
     }
+
+    func configCell(for cell: CartItemViewCell, with photo: UICartItem) {
+        if let url = photo.imageURL {
+            cell.setCellImage(with: url)
+        }
+    }
 }
 
 private extension CartViewController {
-    func presentDeleteAlert(for item: UICartItem, at indexPath: IndexPath) {
-        let alertVC = DeleteConfirmationAlertViewController(image: item.image)
+    func presentDeleteAlert(for item: UICartItem, at indexPath: IndexPath, image: UIImage?) {
+        let alertVC = DeleteConfirmationAlertViewController(image: image)
         alertVC.onDeleteTapped = { [weak self] in
             self?.viewModel.deleteItem(at: indexPath.row)
         }

@@ -12,6 +12,7 @@ import OSLog
 enum CartViewState {
     case idle
     case loading
+    case loadingPlaceholders(items: [UICartItem])
     case loaded(items: [UICartItem], total: Double)
     case empty
     case error(message: String)
@@ -59,18 +60,13 @@ final class CartViewModel: CartViewModelProtocol {
     // MARK: - Dependencies
     private let service: CartServiceProtocol
     private let sortStore: SortOptionStore
+    private var requestedItemIDs: [String] = []
 
     // MARK: - Backing storage
     private var cartItems: [CartItem] = [] {
         didSet {
             Self.logger.debug("cartItems didSet. newCount=\(self.cartItems.count)")
-            items = cartItems.map { self.mapToUI($0) }
             totalPrice = cartItems.reduce(0) { $0 + $1.price }
-            if cartItems.isEmpty {
-                state = .empty
-            } else {
-                state = .loaded(items: items, total: totalPrice)
-            }
         }
     }
 
@@ -123,19 +119,32 @@ final class CartViewModel: CartViewModelProtocol {
     func loadItems() {
         Self.logger.info("Loading cart items started")
         state = .loading
-        self.service.fetchCartItems { [weak self] result in
+        self.service.fetchCartItems(onPlaceholders: { [weak self] ids in
+            guard let self else { return }
+            Self.logger.info("Received placeholders IDs. count=\(ids.count)")
+            self.applyPlaceholderItems(for: ids)
+        }, onPartialUpdate: { [weak self] partialItems in
+            guard let self else { return }
+            Self.logger.info("Received partial cart items. count=\(partialItems.count)")
+            self.applyPartialItems(partialItems)
+        }, completion: { [weak self] result in
             guard let self else { return }
             switch result {
             case .success(let items):
                 Self.logger.info("Cart items loaded successfully. count=\(items.count)")
-                self.cartItems = items
-                self.sortItems()
+                self.requestedItemIDs = []
+                if self.cartItems != items {
+                    self.applyLoadedItems(items)
+                } else {
+                    Self.logger.debug("Final cart payload equals partial payload, skip redundant state update")
+                }
             case .failure:
                 Self.logger.error("Failed to load cart items")
-                self.cartItems = []
-                self.state = .error(message: "Не удалось загрузить корзину")
+                if self.cartItems.isEmpty {
+                    self.state = .error(message: "Не удалось загрузить корзину")
+                }
             }
-        }
+        })
     }
 
     func deleteItem(at index: Int) {
@@ -154,32 +163,15 @@ final class CartViewModel: CartViewModelProtocol {
         Self.logger.debug("Sorting items by option=\(self.sortOption.localizedWord)")
         switch sortOption {
         case .name:
-            items.sort { $0.title < $1.title }
-            if items.isEmpty {
-                state = .empty
-            } else {
-                state = .loaded(items: items, total: totalPrice)
-            }
-            Self.logger.debug("Sorted by name. count=\(self.items.count)")
+            cartItems.sort { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
         case .rating:
-            items.sort { $0.rating > $1.rating }
-            if items.isEmpty {
-                state = .empty
-            } else {
-                state = .loaded(items: items, total: totalPrice)
-            }
-            Self.logger.debug("Sorted by rating. count=\(self.items.count)")
+            cartItems.sort { $0.rating > $1.rating }
         case .price:
             cartItems.sort { $0.price < $1.price }
-            items = cartItems.map { self.mapToUI($0) }
-            totalPrice = cartItems.reduce(0) { $0 + $1.price }
-            if cartItems.isEmpty {
-                state = .empty
-            } else {
-                state = .loaded(items: items, total: totalPrice)
-            }
-            Self.logger.debug("Sorted by price. count=\(self.items.count)")
         }
+        items = cartItems.map { self.mapToUI($0) }
+        Self.logger.debug("Sorted items ready. count=\(self.items.count)")
+        emitLoadedOrEmptyState()
     }
 
     func getUICartItem(at index: Int) -> UICartItem? {
@@ -195,16 +187,15 @@ final class CartViewModel: CartViewModelProtocol {
 
     // MARK: - Mapping
     private func mapToUI(_ item: CartItem) -> UICartItem {
-        // Плейсхолдер т.к. загрузки по URL пока нет
-        let placeholder = UIImage(resource: .mock)
-        // TODO: - в будущем заменить ETH на выбранную в currencyService валюту
+        let imageURL = item.images.first.flatMap(URL.init(string:))
         let formattedPrice = String(format: "%.2f ETH", item.price)
         return UICartItem(
             id: item.id,
-            image: placeholder,
+            imageURL: imageURL,
             title: item.name,
             rating: item.rating,
-            price: formattedPrice
+            price: formattedPrice,
+            isPlaceholder: false
         )
     }
 
@@ -213,5 +204,50 @@ final class CartViewModel: CartViewModelProtocol {
         Self.logger.info("Notification received: cartDidChange. Reloading items")
         loadItems()
     }
-}
 
+    private func applyLoadedItems(_ newItems: [CartItem]) {
+        cartItems = newItems
+        sortItems()
+    }
+
+    private func emitLoadedOrEmptyState() {
+        if items.isEmpty {
+            state = .empty
+        } else {
+            state = .loaded(items: items, total: totalPrice)
+        }
+    }
+
+    private func applyPlaceholderItems(for ids: [String]) {
+        requestedItemIDs = ids
+        items = ids.map(makePlaceholderItem)
+        state = .loadingPlaceholders(items: items)
+    }
+
+    private func applyPartialItems(_ partialItems: [CartItem]) {
+        guard !requestedItemIDs.isEmpty else {
+            applyLoadedItems(partialItems)
+            return
+        }
+
+        let partialByID = Dictionary(uniqueKeysWithValues: partialItems.map { ($0.id, $0) })
+        items = requestedItemIDs.map { id in
+            if let realItem = partialByID[id] {
+                return mapToUI(realItem)
+            }
+            return makePlaceholderItem(id: id)
+        }
+        state = .loadingPlaceholders(items: items)
+    }
+
+    private func makePlaceholderItem(id: String) -> UICartItem {
+        UICartItem(
+            id: id,
+            imageURL: nil,
+            title: "",
+            rating: 0,
+            price: "",
+            isPlaceholder: true
+        )
+    }
+}

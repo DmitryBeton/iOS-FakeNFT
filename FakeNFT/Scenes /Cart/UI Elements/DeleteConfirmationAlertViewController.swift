@@ -26,6 +26,8 @@ final class DeleteConfirmationAlertViewController: UIViewController {
     private lazy var imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
+        imageView.layer.cornerRadius = 12
+        imageView.layer.masksToBounds = true
         return imageView
     }()
 

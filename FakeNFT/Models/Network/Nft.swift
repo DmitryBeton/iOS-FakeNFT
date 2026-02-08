@@ -23,3 +23,8 @@ struct Nft: Codable, Equatable {
         case website
     }
 }
+
+struct CartOrderResponse: Codable {
+    let nfts: [String]
+    let id: String
+}
