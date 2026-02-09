@@ -22,12 +22,6 @@ final class StatisticsPresenter: StatisticsPresenterProtocol {
     var onLoadingChanged: ((Bool) -> Void)?
     var onError: ((String) -> Void)?
 
-    private struct User {
-        let name: String
-        let value: Int 
-        let avatarURL: String
-    }
-
     private let service: StatisticsServiceProtocol
 
     private var users: [StatisticsUser] = []
@@ -37,7 +31,9 @@ final class StatisticsPresenter: StatisticsPresenterProtocol {
         self.service = service
     }
 
-    var usersCount: Int { users.count }
+    var usersCount: Int {
+        users.count
+    }
 
     func viewDidLoad() {
         sortOption = loadSortOption()
@@ -58,26 +54,24 @@ final class StatisticsPresenter: StatisticsPresenterProtocol {
                     self.onLoadingChanged?(false)
                     self.onDataUpdated?()
                 }
-                
+
             case .failure(let error):
                 AppLog.ui.error("Statistics load error: \(error.localizedDescription, privacy: .public)")
                 DispatchQueue.main.async {
                     self.onLoadingChanged?(false)
                     self.onError?("Не удалось загрузить статистику: \(error)")
                 }
-
             }
         }
     }
 
     func getUser(at index: Int) -> StatisticsUserCellModel {
-        let sorted = sortedUsers()
-        let user = sorted[index]
+        let user = sortedUsers()[index]
         return .init(
             place: index + 1,
             name: user.name,
             nftCount: user.value,
-            avatarURL: user.avatarURL
+            avatarURL: user.avatarURL, avatarImage: nil
         )
     }
 
@@ -87,15 +81,17 @@ final class StatisticsPresenter: StatisticsPresenterProtocol {
         onDataUpdated?()
     }
 
-    private func sortedUsers() -> [User] {
+    private func sortedUsers() -> [StatisticsUser] {
         switch sortOption {
         case .name:
-            return users.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+            return users.sorted {
+                $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+            }
         case .rating:
             return users.sorted { $0.value > $1.value }
         }
     }
-    
+
     private func loadSortOption() -> StatisticsSortOption {
         let value = UserDefaults.standard.string(forKey: Defaults.sortKey)
         return value == "name" ? .name : .rating
@@ -105,6 +101,5 @@ final class StatisticsPresenter: StatisticsPresenterProtocol {
         let value = option == .name ? "name" : "rating"
         UserDefaults.standard.set(value, forKey: Defaults.sortKey)
     }
-
 }
 

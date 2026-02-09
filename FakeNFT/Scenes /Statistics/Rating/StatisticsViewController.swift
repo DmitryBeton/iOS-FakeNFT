@@ -6,18 +6,17 @@ final class StatisticsViewController: UIViewController {
     private let tableView = UITableView()
     private var sortOption: StatisticsSortOption = .rating
     private var imageTasks: [IndexPath: UUID] = [:]
-
+    private let servicesAssembly: ServicesAssembly
     
     private let loader = UIActivityIndicatorView(style: .medium)
 
-    init(viewModel: StatisticsViewModelProtocol) {
+    init(viewModel: StatisticsViewModelProtocol, servicesAssembly: ServicesAssembly) {
         self.viewModel = viewModel
+        self.servicesAssembly = servicesAssembly
         super.init(nibName: nil, bundle: nil)
     }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+
+    required init?(coder: NSCoder) { nil }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -42,6 +41,7 @@ final class StatisticsViewController: UIViewController {
     private func setupTableView() {
         view.addSubview(tableView)
         tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.delegate = self
         
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -98,6 +98,13 @@ final class StatisticsViewController: UIViewController {
                 alert.addAction(UIAlertAction(title: "ОК", style: .default))
                 self?.present(alert, animated: true)
             }
+        }
+        
+        viewModel.onUserSelected = { [weak self] userId in
+            guard let self else { return }
+            let vc = UserCardModule.make(userId: userId, servicesAssembly: self.servicesAssembly)
+            vc.hidesBottomBarWhenPushed = true
+            self.navigationController?.pushViewController(vc, animated: true)
         }
     }
     
@@ -162,6 +169,11 @@ extension StatisticsViewController: UITableViewDataSource {
         return cell
 
     }
-
 }
 
+extension StatisticsViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        viewModel.selectUser(at: indexPath.row)
+    }
+}

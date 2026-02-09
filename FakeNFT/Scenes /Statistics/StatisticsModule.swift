@@ -8,7 +8,10 @@ enum StatisticsModule {
             service: servicesAssembly.statisticsService
         )
 
-        let viewController = StatisticsViewController(viewModel: viewModel)
+        let viewController = StatisticsViewController(
+            viewModel: viewModel,
+            servicesAssembly: servicesAssembly
+        )
 
         let nav = UINavigationController(rootViewController: viewController)
         nav.navigationBar.tintColor = .label
