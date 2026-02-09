@@ -6,6 +6,7 @@ final class CollectionDetailViewController: UIViewController {
     // MARK: - Properties
 
     private let viewModel: CollectionDetailViewModel
+    private let servicesAssembly: ServicesAssembly
 
     // MARK: - UI Elements
 
@@ -103,6 +104,7 @@ final class CollectionDetailViewController: UIViewController {
         collectionId: String,
         servicesAssembly: ServicesAssembly
     ) {
+        self.servicesAssembly = servicesAssembly
         self.viewModel = CollectionDetailViewModel(
             collectionId: collectionId,
             collectionService: servicesAssembly.collectionService,
@@ -372,6 +374,17 @@ extension CollectionDetailViewController: UICollectionViewDataSource {
         }
 
         return cell
+    }
+}
+
+// MARK: - UICollectionViewDelegate
+
+extension CollectionDetailViewController: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let nft = viewModel.nft(at: indexPath.item)
+        let assembly = NftDetailAssembly(servicesAssembler: servicesAssembly)
+        let detailViewController = assembly.build(with: NftDetailInput(id: nft.id))
+        present(detailViewController, animated: true)
     }
 }
 
