@@ -58,10 +58,15 @@ extension CartServiceProtocol {
 final class CartService: CartServiceProtocol {
     private static let logger = Logger(subsystem: "com.fakenft.app", category: "CartService")
     private static let progressBatchSize = 3
+    private static let orderCacheTTL: TimeInterval = 15
 
     private let networkClient: NetworkClient
     private let nftService: NftService
     private let responseQueue = DispatchQueue(label: "com.fakenft.cartservice.response", qos: .userInitiated)
+    private let cacheQueue = DispatchQueue(label: "com.fakenft.cartservice.cache")
+    private var cachedOrder: CartOrderResponse?
+    private var orderCacheTimestamp: Date?
+    private var cartDidChangeObserver: NSObjectProtocol?
 
     init(
         networkClient: NetworkClient = DefaultNetworkClient(),
@@ -69,11 +74,19 @@ final class CartService: CartServiceProtocol {
     ) {
         self.networkClient = networkClient
         self.nftService = NftServiceImpl(networkClient: networkClient, storage: nftStorage)
+        subscribeToCartChanges()
     }
 
     init(networkClient: NetworkClient, nftService: NftService) {
         self.networkClient = networkClient
         self.nftService = nftService
+        subscribeToCartChanges()
+    }
+
+    deinit {
+        if let observer = cartDidChangeObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
     }
 
     func fetchCartItems(
@@ -83,6 +96,22 @@ final class CartService: CartServiceProtocol {
     ) {
         let requestID = UUID().uuidString
         let startedAt = Date()
+        if let cachedOrder = cachedOrderIfValid() {
+            Self.logger.info("[\(requestID, privacy: .public)] Returning cached order. orderID=\(cachedOrder.id, privacy: .public), idsCount=\(cachedOrder.nfts.count)")
+            DispatchQueue.main.async {
+                Self.logger.debug("[\(requestID, privacy: .public)] Sending placeholders to UI. placeholdersCount=\(cachedOrder.nfts.count)")
+                onPlaceholders?(cachedOrder.nfts)
+            }
+            loadNfts(
+                ids: cachedOrder.nfts,
+                traceID: requestID,
+                requestStartedAt: startedAt,
+                onPartialUpdate: onPartialUpdate,
+                completion: completion
+            )
+            return
+        }
+
         Self.logger.info("[\(requestID, privacy: .public)] Starting cart order request: /api/v1/orders/1")
 
         networkClient.send(
@@ -96,6 +125,7 @@ final class CartService: CartServiceProtocol {
             guard let self else { return }
             switch result {
             case .success(let order):
+                self.storeOrderInCache(order)
                 let orderRequestDuration = Date().timeIntervalSince(startedAt)
                 Self.logger.info("[\(requestID, privacy: .public)] Order response received. orderID=\(order.id, privacy: .public), idsCount=\(order.nfts.count), duration=\(orderRequestDuration, format: .fixed(precision: 3))s")
                 let joinedIDs = order.nfts.joined(separator: ",")
@@ -154,6 +184,7 @@ private extension CartService {
 
             switch result {
             case .success(let order):
+                self.storeOrderInCache(order)
                 let updatedIDs: [String]
                 switch action {
                 case .add:
@@ -239,6 +270,7 @@ private extension CartService {
 
             do {
                 let response = try JSONDecoder().decode(CartOrderResponse.self, from: data)
+                self.storeOrderInCache(response)
                 Self.logger.info("[\(traceID, privacy: .public)] PUT order succeeded. idsCount=\(response.nfts.count)")
                 DispatchQueue.main.async {
                     completion(.success(response.nfts))
@@ -387,5 +419,42 @@ private extension CartService {
     func duration(from start: Date?, to end: Date?) -> TimeInterval {
         guard let start, let end else { return 0 }
         return max(0, end.timeIntervalSince(start))
+    }
+
+    func subscribeToCartChanges() {
+        cartDidChangeObserver = NotificationCenter.default.addObserver(
+            forName: .cartDidChange,
+            object: nil,
+            queue: nil
+        ) { [weak self] _ in
+            self?.invalidateOrderCache()
+        }
+    }
+
+    func storeOrderInCache(_ order: CartOrderResponse) {
+        cacheQueue.async {
+            self.cachedOrder = order
+            self.orderCacheTimestamp = Date()
+        }
+    }
+
+    func cachedOrderIfValid() -> CartOrderResponse? {
+        cacheQueue.sync {
+            guard
+                let cachedOrder,
+                let orderCacheTimestamp,
+                Date().timeIntervalSince(orderCacheTimestamp) <= Self.orderCacheTTL
+            else {
+                return nil
+            }
+            return cachedOrder
+        }
+    }
+
+    func invalidateOrderCache() {
+        cacheQueue.async {
+            self.cachedOrder = nil
+            self.orderCacheTimestamp = nil
+        }
     }
 }

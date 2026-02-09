@@ -69,6 +69,10 @@ final class MockCurrencyService: CurrencyServiceProtocol {
 
 final class CurrencyService: CurrencyServiceProtocol {
     private static let logger = Logger(subsystem: "com.fakenft.app", category: "CurrencyService")
+    private static let cacheTTL: TimeInterval = 300
+    private static let cacheQueue = DispatchQueue(label: "com.fakenft.currency.cache")
+    private static var cachedCurrencies: [Currency] = []
+    private static var cacheTimestamp: Date?
 
     private let networkClient: NetworkClient
     private let callbackQueue = DispatchQueue(label: "com.fakenft.currency.callback", qos: .userInitiated)
@@ -78,6 +82,14 @@ final class CurrencyService: CurrencyServiceProtocol {
     }
 
     func fetchCurrencies(completion: @escaping (Result<[Currency], Error>) -> Void) {
+        if let cached = Self.cachedCurrenciesIfValid() {
+            Self.logger.info("Returning currencies from cache. count=\(cached.count)")
+            DispatchQueue.main.async {
+                completion(.success(cached))
+            }
+            return
+        }
+
         Self.logger.info("Fetching currencies from /api/v1/currencies")
         networkClient.send(
             request: CurrencyRequest(),
@@ -86,6 +98,7 @@ final class CurrencyService: CurrencyServiceProtocol {
         ) { result in
             switch result {
             case .success(let currencies):
+                Self.storeCurrenciesInCache(currencies)
                 Self.logger.info("Currencies fetched successfully. count=\(currencies.count)")
                 DispatchQueue.main.async {
                     completion(.success(currencies))
@@ -96,6 +109,28 @@ final class CurrencyService: CurrencyServiceProtocol {
                     completion(.failure(error))
                 }
             }
+        }
+    }
+}
+
+private extension CurrencyService {
+    static func cachedCurrenciesIfValid() -> [Currency]? {
+        cacheQueue.sync {
+            guard
+                let cacheTimestamp,
+                Date().timeIntervalSince(cacheTimestamp) <= cacheTTL,
+                !cachedCurrencies.isEmpty
+            else {
+                return nil
+            }
+            return cachedCurrencies
+        }
+    }
+
+    static func storeCurrenciesInCache(_ currencies: [Currency]) {
+        cacheQueue.async {
+            cachedCurrencies = currencies
+            cacheTimestamp = Date()
         }
     }
 }
