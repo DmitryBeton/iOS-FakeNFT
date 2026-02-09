@@ -1,10 +1,5 @@
 import Foundation
 
-protocol ProfileNftStorageProtocol {
-    func saveNfts(_ nfts: [ProfileNft])
-    func getNfts() -> [ProfileNft]
-}
-
 final class ProfileNftStorage: ProfileNftStorageProtocol {
     
     // MARK: - Public Methods
@@ -25,7 +20,7 @@ final class ProfileNftStorage: ProfileNftStorageProtocol {
     
     private var storage: [ProfileNft] = []
     private let concurrentQueue = DispatchQueue(
-        label: "profile-nft-storage-queue",
+        label: "profile-nfts-storage-queue",
         attributes: .concurrent
     )
     
