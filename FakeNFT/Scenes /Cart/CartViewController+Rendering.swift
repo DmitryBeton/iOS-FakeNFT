@@ -14,11 +14,21 @@ extension CartViewController {
         bindOrderSummary()
     }
 
+    func loadItemsOrShowOfflineAlert() {
+        guard !connectivity.isOfflineNow() else {
+            Self.logger.warning("Cart load blocked: no internet connection")
+            showNoInternetAlert()
+            finishRefreshingIfNeeded()
+            return
+        }
+        viewModel.loadItems()
+    }
+
     @objc func refreshPulled() {
         Self.logger.info("Pull-to-refresh triggered")
         AnalyticsService.shared.track(.buttonTapped(name: "pull_to_refresh", screen: "cart"))
         emptyStateLabel.isHidden = true
-        viewModel.loadItems()
+        loadItemsOrShowOfflineAlert()
     }
 
     @objc func sortButtonTapped() {
@@ -28,6 +38,19 @@ extension CartViewController {
 }
 
 private extension CartViewController {
+    func showNoInternetAlert() {
+        let alert = UIAlertController(
+            title: Localization.Payment.noInternet.localized,
+            message: Localization.Payment.noInternetMessage.localized,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: Localization.Payment.retry.localized, style: .default) { [weak self] _ in
+            self?.loadItemsOrShowOfflineAlert()
+        })
+        alert.addAction(UIAlertAction(title: Localization.Payment.cancel.localized, style: .cancel))
+        present(alert, animated: true)
+    }
+
     func bindViewModel() {
         viewModel.onStateChange = { [weak self] state in
             guard let self else { return }

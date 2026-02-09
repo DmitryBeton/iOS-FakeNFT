@@ -5,7 +5,6 @@
 //  Created by Дмитрий Чалов on 09.02.2026.
 //
 
-
 import Foundation
 import AppMetricaCore
 

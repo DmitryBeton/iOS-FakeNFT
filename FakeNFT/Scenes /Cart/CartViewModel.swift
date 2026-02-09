@@ -140,10 +140,14 @@ final class CartViewModel: CartViewModelProtocol {
                 // Always finalize into .loaded/.empty after placeholders/partials.
                 // Even if payload is unchanged, UI must leave loadingPlaceholders state.
                 self.applyLoadedItems(items)
-            case .failure:
+            case .failure(let error):
                 Self.logger.error("Failed to load cart items")
                 if self.cartItems.isEmpty {
-                    self.state = .error(message: "Не удалось загрузить корзину")
+                    if case NetworkClientError.urlRequestError = error {
+                        self.state = .error(message: Localization.Payment.noInternetMessage.localized)
+                    } else {
+                        self.state = .error(message: "Не удалось загрузить корзину")
+                    }
                 } else {
                     // Keep last known content visible if refresh failed.
                     self.sortItems()

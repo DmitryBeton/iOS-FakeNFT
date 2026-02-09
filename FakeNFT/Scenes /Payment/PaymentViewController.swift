@@ -231,6 +231,17 @@ final class PaymentViewController: UIViewController {
     }
 
     private func startPayment() {
+        guard !connectivity.isOfflineNow() else {
+            Self.logger.warning("Payment blocked: no internet connection")
+            showRetryAlert(
+                title: Localization.Payment.noInternet.localized,
+                message: Localization.Payment.noInternetMessage.localized
+            ) { [weak self] in
+                self?.startPayment()
+            }
+            return
+        }
+
         Self.logger.info("Starting payment...")
         viewModel.pay { [weak self] result in
             guard let self else { return }
@@ -246,6 +257,17 @@ final class PaymentViewController: UIViewController {
     }
 
     private func startLoadCurrency() {
+        guard !connectivity.isOfflineNow() else {
+            Self.logger.warning("Currency load blocked: no internet connection")
+            showRetryAlert(
+                title: Localization.Payment.noInternet.localized,
+                message: Localization.Payment.noInternetMessage.localized
+            ) { [weak self] in
+                self?.startLoadCurrency()
+            }
+            return
+        }
+
         Self.logger.info("Loading currencies requested")
         AnalyticsService.shared.track(.buttonTapped(name: "load_currencies", screen: "payment"))
         viewModel.loadItems()

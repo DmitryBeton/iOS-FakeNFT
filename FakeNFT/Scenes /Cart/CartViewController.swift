@@ -18,6 +18,7 @@ final class CartViewController: UIViewController {
 
     // MARK: - State
     var isNavigatingToPayment = false
+    let connectivity = ConnectivityService()
 
     // MARK: - UI Elements
     let refreshControl: UIRefreshControl = {
@@ -83,16 +84,21 @@ final class CartViewController: UIViewController {
         super.viewDidLoad()
         Self.logger.debug("viewDidLoad")
         AnalyticsService.shared.track(.screenOpened(name: "cart"))
+        connectivity.start()
 
         setupUI()
         setupBindings()
-        viewModel.loadItems()
+        loadItemsOrShowOfflineAlert()
     }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         isNavigatingToPayment = false
         orderSummaryView.isUserInteractionEnabled = true
+    }
+
+    deinit {
+        connectivity.stop()
     }
 }
 
