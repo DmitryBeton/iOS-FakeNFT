@@ -1,5 +1,5 @@
 import UIKit
 
-final class FavouritesViewController: UIViewController {
+final class FavouritesViewController: UIViewController, NetworkErrorView {
     
 }

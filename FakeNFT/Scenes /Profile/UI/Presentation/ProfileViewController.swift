@@ -2,7 +2,7 @@ import UIKit
 import Kingfisher
 import ProgressHUD
 
-final class ProfileViewController: UIViewController {
+final class ProfileViewController: UIViewController, NetworkErrorView {
     
     // MARK: - Private Types
     
@@ -245,7 +245,9 @@ final class ProfileViewController: UIViewController {
                     
                 case .failed:
                     UIBlockingProgressHUD.dismiss()
-                    self?.showErrorAlert()
+                    self?.showNetworkError() {
+                        self?.viewModel.loadProfile()
+                    }
                 }
             }
         }
@@ -287,23 +289,6 @@ final class ProfileViewController: UIViewController {
         let favouritesVC = FavouritesViewController()
         favouritesVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(favouritesVC, animated: true)
-    }
-    
-    private func showErrorAlert() {
-        let alert = UIAlertController(
-            title: Localization.ProfileAlert.loadError,
-            message: nil,
-            preferredStyle: .alert
-        )
-        let cancelAction = UIAlertAction(title: Localization.ProfileAlert.cancel, style: .cancel)
-        let retryAction = UIAlertAction(title: Localization.ProfileAlert.retry, style: .default) { [weak self] _ in
-            self?.viewModel.loadProfile()
-        }
-        
-        alert.addAction(cancelAction)
-        alert.addAction(retryAction)
-        
-        present(alert, animated: true)
     }
     
 }

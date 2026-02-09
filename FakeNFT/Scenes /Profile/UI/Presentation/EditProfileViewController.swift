@@ -1,7 +1,7 @@
 import UIKit
 import Kingfisher
 
-final class EditProfileViewController: UIViewController {
+final class EditProfileViewController: UIViewController, NetworkErrorView {
     
     // MARK: - Private Types
     
@@ -242,7 +242,9 @@ final class EditProfileViewController: UIViewController {
                     
                 case .failed:
                     UIBlockingProgressHUD.dismiss()
-                    self?.showErrorAlert()
+                    self?.showNetworkError() {
+                        self?.viewModel.saveChanges()
+                    }
                 }
             }
         }
@@ -348,23 +350,6 @@ final class EditProfileViewController: UIViewController {
         
         alert.addAction(cancelAction)
         alert.addAction(extitAction)
-        
-        present(alert, animated: true)
-    }
-    
-    private func showErrorAlert() {
-        let alert = UIAlertController(
-            title: Localization.ProfileAlert.updateError,
-            message: nil,
-            preferredStyle: .alert
-        )
-        let cancelAction = UIAlertAction(title: Localization.ProfileAlert.cancel, style: .cancel)
-        let retryAction = UIAlertAction(title: Localization.ProfileAlert.retry, style: .default) { [weak self] _ in
-            self?.viewModel.saveChanges()
-        }
-        
-        alert.addAction(cancelAction)
-        alert.addAction(retryAction)
         
         present(alert, animated: true)
     }

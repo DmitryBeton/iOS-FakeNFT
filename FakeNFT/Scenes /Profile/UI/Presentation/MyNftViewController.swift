@@ -1,6 +1,6 @@
 import UIKit
 
-final class MyNftViewController: UIViewController {
+final class MyNftViewController: UIViewController, NetworkErrorView {
     
     // MARK: - Private Types
     
@@ -161,7 +161,9 @@ final class MyNftViewController: UIViewController {
                     
                 case .failed:
                     UIBlockingProgressHUD.dismiss()
-                    self.showErrorAlert()
+                    self.showNetworkError() {
+                        self.viewModel.loadNfts()
+                    }
                 }
             }
         }
@@ -202,23 +204,6 @@ final class MyNftViewController: UIViewController {
         alert.addAction(byRatingAction)
         alert.addAction(byNameAction)
         alert.addAction(cancelAction)
-        
-        present(alert, animated: true)
-    }
-    
-    private func showErrorAlert() {
-        let alert = UIAlertController(
-            title: Localization.ProfileAlert.loadError,
-            message: nil,
-            preferredStyle: .alert
-        )
-        let cancelAction = UIAlertAction(title: Localization.ProfileAlert.cancel, style: .cancel)
-        let retryAction = UIAlertAction(title: Localization.ProfileAlert.retry, style: .default) { [weak self] _ in
-            self?.viewModel.loadNfts()
-        }
-        
-        alert.addAction(cancelAction)
-        alert.addAction(retryAction)
         
         present(alert, animated: true)
     }
