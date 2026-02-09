@@ -43,6 +43,12 @@
 		3FC8C39329D246BA0081F015 /* DateFormatters+Presets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FC8C39229D246BA0081F015 /* DateFormatters+Presets.swift */; };
 		558E39E72C68CE0A00FB86AC /* NftService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 558E39E62C68CE0900FB86AC /* NftService.swift */; };
 		8C6D9DC42F33344C0007FDD6 /* AgreementWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C6D9DC32F33344C0007FDD6 /* AgreementWebViewController.swift */; };
+		8C9814752F39DD7300759B83 /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C9814742F39DD7300759B83 /* AnalyticsService.swift */; };
+		8C9814782F39DDD000759B83 /* AppMetricaAdSupport in Frameworks */ = {isa = PBXBuildFile; productRef = 8C9814772F39DDD000759B83 /* AppMetricaAdSupport */; };
+		8C98147A2F39DDD000759B83 /* AppMetricaCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8C9814792F39DDD000759B83 /* AppMetricaCore */; };
+		8C98147C2F39DDD000759B83 /* AppMetricaCrashes in Frameworks */ = {isa = PBXBuildFile; productRef = 8C98147B2F39DDD000759B83 /* AppMetricaCrashes */; };
+		8C98147E2F39DDD000759B83 /* AppMetricaIDSync in Frameworks */ = {isa = PBXBuildFile; productRef = 8C98147D2F39DDD000759B83 /* AppMetricaIDSync */; };
+		8C9814802F39DDD000759B83 /* AppMetricaLibraryAdapter in Frameworks */ = {isa = PBXBuildFile; productRef = 8C98147F2F39DDD000759B83 /* AppMetricaLibraryAdapter */; };
 		9D00C62B2F23D072000528BC /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D00C62A2F23D062000528BC /* Localization.swift */; };
 		E19CD5AB2A98B56600CA39A5 /* NftImageCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E19CD5AA2A98B56600CA39A5 /* NftImageCollectionViewCell.swift */; };
 		E1A1B9DA2AA01CE400C3AFBC /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A1B9D92AA01CE400C3AFBC /* TabBarController.swift */; };
@@ -112,6 +118,7 @@
 		3FC8C39229D246BA0081F015 /* DateFormatters+Presets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DateFormatters+Presets.swift"; sourceTree = "<group>"; };
 		558E39E62C68CE0900FB86AC /* NftService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftService.swift; sourceTree = "<group>"; };
 		8C6D9DC32F33344C0007FDD6 /* AgreementWebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgreementWebViewController.swift; sourceTree = "<group>"; };
+		8C9814742F39DD7300759B83 /* AnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
 		9D00C62A2F23D062000528BC /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
 		E19CD5AA2A98B56600CA39A5 /* NftImageCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftImageCollectionViewCell.swift; sourceTree = "<group>"; };
 		E1A1B9D92AA01CE400C3AFBC /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
@@ -138,6 +145,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				3F603CD029DB4A74000C43D7 /* Kingfisher in Frameworks */,
+				8C9814802F39DDD000759B83 /* AppMetricaLibraryAdapter in Frameworks */,
+				8C98147C2F39DDD000759B83 /* AppMetricaCrashes in Frameworks */,
+				8C98147A2F39DDD000759B83 /* AppMetricaCore in Frameworks */,
+				8C9814782F39DDD000759B83 /* AppMetricaAdSupport in Frameworks */,
+				8C98147E2F39DDD000759B83 /* AppMetricaIDSync in Frameworks */,
 				3F603CCD29DB4A53000C43D7 /* ProgressHUD in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -278,6 +290,7 @@
 				0C79EE6B2A76DE2E00EE90EA /* ServicesAssemly.swift */,
 				558E39E62C68CE0900FB86AC /* NftService.swift */,
 				0CFCB73F2A78002A0009A829 /* ExamplePutService.swift */,
+				8C9814742F39DD7300759B83 /* AnalyticsService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -415,6 +428,11 @@
 			packageProductDependencies = (
 				3F603CCC29DB4A53000C43D7 /* ProgressHUD */,
 				3F603CCF29DB4A74000C43D7 /* Kingfisher */,
+				8C9814772F39DDD000759B83 /* AppMetricaAdSupport */,
+				8C9814792F39DDD000759B83 /* AppMetricaCore */,
+				8C98147B2F39DDD000759B83 /* AppMetricaCrashes */,
+				8C98147D2F39DDD000759B83 /* AppMetricaIDSync */,
+				8C98147F2F39DDD000759B83 /* AppMetricaLibraryAdapter */,
 			);
 			productName = FakeNFT;
 			productReference = 3F68069329CBBAF100B4F915 /* FakeNFT.app */;
@@ -492,6 +510,7 @@
 			packageReferences = (
 				3F603CCB29DB4A53000C43D7 /* XCRemoteSwiftPackageReference "ProgressHUD" */,
 				3F603CCE29DB4A74000C43D7 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				8C9814762F39DDD000759B83 /* XCRemoteSwiftPackageReference "appmetrica-sdk-ios" */,
 			);
 			productRefGroup = 3F68069429CBBAF100B4F915 /* Products */;
 			projectDirPath = "";
@@ -555,6 +574,7 @@
 				3F6806D529CBBEC700B4F915 /* NetworkTask.swift in Sources */,
 				0CF2C2DB2A783C1B00FDC837 /* LoadingView.swift in Sources */,
 				558E39E72C68CE0A00FB86AC /* NftService.swift in Sources */,
+				8C9814752F39DD7300759B83 /* AnalyticsService.swift in Sources */,
 				FDBD45772F2CAF1100F94560 /* NftCollection.swift in Sources */,
 				FD81B0712F3237DC00202A98 /* FavoritesStorage.swift in Sources */,
 				3F68069729CBBAF100B4F915 /* AppDelegate.swift in Sources */,
@@ -936,6 +956,14 @@
 				minimumVersion = 7.0.0;
 			};
 		};
+		8C9814762F39DDD000759B83 /* XCRemoteSwiftPackageReference "appmetrica-sdk-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/appmetrica/appmetrica-sdk-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -948,6 +976,31 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 3F603CCE29DB4A74000C43D7 /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
+		};
+		8C9814772F39DDD000759B83 /* AppMetricaAdSupport */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8C9814762F39DDD000759B83 /* XCRemoteSwiftPackageReference "appmetrica-sdk-ios" */;
+			productName = AppMetricaAdSupport;
+		};
+		8C9814792F39DDD000759B83 /* AppMetricaCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8C9814762F39DDD000759B83 /* XCRemoteSwiftPackageReference "appmetrica-sdk-ios" */;
+			productName = AppMetricaCore;
+		};
+		8C98147B2F39DDD000759B83 /* AppMetricaCrashes */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8C9814762F39DDD000759B83 /* XCRemoteSwiftPackageReference "appmetrica-sdk-ios" */;
+			productName = AppMetricaCrashes;
+		};
+		8C98147D2F39DDD000759B83 /* AppMetricaIDSync */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8C9814762F39DDD000759B83 /* XCRemoteSwiftPackageReference "appmetrica-sdk-ios" */;
+			productName = AppMetricaIDSync;
+		};
+		8C98147F2F39DDD000759B83 /* AppMetricaLibraryAdapter */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8C9814762F39DDD000759B83 /* XCRemoteSwiftPackageReference "appmetrica-sdk-ios" */;
+			productName = AppMetricaLibraryAdapter;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
