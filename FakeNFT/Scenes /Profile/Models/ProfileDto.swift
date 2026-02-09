@@ -6,16 +6,16 @@ struct ProfileDto: Dto {
     let avatar: URL?
     let website: URL?
     
-    enum CodingKeys: String, CodingKey {
+    private enum Keys: String {
         case name, description, avatar, website
     }
     
     func asDictionary() -> [String : String] {
         let dictionary: [String : String] = [
-            CodingKeys.name.rawValue: name,
-            CodingKeys.description.rawValue: description,
-            CodingKeys.avatar.rawValue: avatar?.absoluteString ?? "",
-            CodingKeys.website.rawValue: website?.absoluteString ?? ""
+            Keys.name.rawValue: name,
+            Keys.description.rawValue: description,
+            Keys.avatar.rawValue: avatar?.absoluteString ?? "",
+            Keys.website.rawValue: website?.absoluteString ?? ""
         ]
         return dictionary
     }
