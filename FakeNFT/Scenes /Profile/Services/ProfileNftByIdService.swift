@@ -30,7 +30,7 @@ final class ProfileNftByIdService: ProfileNftByIdServiceProtocol {
     // MARK: - Private Methods
     
     private func loadNft(withId id: UUID) {
-        
+        let request = LoadNftRequest(id: id)
     }
     
 }
