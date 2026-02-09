@@ -16,11 +16,13 @@ extension CartViewController {
 
     @objc func refreshPulled() {
         Self.logger.info("Pull-to-refresh triggered")
+        AnalyticsService.shared.track(.buttonTapped(name: "pull_to_refresh", screen: "cart"))
         emptyStateLabel.isHidden = true
         viewModel.loadItems()
     }
 
     @objc func sortButtonTapped() {
+        AnalyticsService.shared.track(.buttonTapped(name: "sort", screen: "cart"))
         showSortOptionsMenu()
     }
 }
@@ -139,6 +141,7 @@ private extension CartViewController {
         for option in SortOption.allCases {
             let action = UIAlertAction(title: option.localizedWord, style: .default) { [weak self] _ in
                 Self.logger.info("Sort option selected: \(option.localizedWord)")
+                AnalyticsService.shared.track(.buttonTapped(name: "sort_\(option.localizedWord)", screen: "cart"))
                 self?.viewModel.sortOption = option
             }
             alert.addAction(action)
@@ -154,8 +157,12 @@ private extension CartViewController {
         isNavigatingToPayment = true
         orderSummaryView.isUserInteractionEnabled = false
         Self.logger.info("Pay tapped from cart. Navigating to PaymentViewController")
+        AnalyticsService.shared.track(.buttonTapped(name: "pay", screen: "cart"))
+        AnalyticsService.shared.track(.checkoutStarted(itemCount: viewModel.itemsCount, totalPrice: viewModel.totalPrice))
 
-        let paymentViewController = PaymentViewController()
+        let paymentViewController = PaymentViewController(
+            checkoutContext: .init(itemCount: viewModel.itemsCount, totalPrice: viewModel.totalPrice)
+        )
         paymentViewController.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(paymentViewController, animated: true)
     }

@@ -14,6 +14,8 @@ final class PaymentViewController: UIViewController {
 
     // MARK: - Properties
     private let viewModel: PaymentViewModelProtocol
+    private let checkoutContext: CheckoutAnalyticsContext?
+    private var selectedCurrencyID: String?
 
     private let connectivity = ConnectivityService()
 
@@ -30,8 +32,12 @@ final class PaymentViewController: UIViewController {
     private let paymentFooterView = PaymentFooterView()
 
     // MARK: - Initialization
-    init(viewModel: PaymentViewModelProtocol = PaymentViewModel()) {
+    init(
+        viewModel: PaymentViewModelProtocol = PaymentViewModel(),
+        checkoutContext: CheckoutAnalyticsContext? = nil
+    ) {
         self.viewModel = viewModel
+        self.checkoutContext = checkoutContext
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -44,6 +50,7 @@ final class PaymentViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         Self.logger.debug("viewDidLoad")
+        AnalyticsService.shared.track(.screenOpened(name: "payment"))
         navigationItem.title = Constants.Text.navTitle
 
         connectivity.start()
@@ -90,11 +97,13 @@ final class PaymentViewController: UIViewController {
     private func setupBindings() {
         paymentFooterView.onPayTapped = { [weak self] in
             Self.logger.info("Pay tapped on Payment screen")
+            AnalyticsService.shared.track(.buttonTapped(name: "pay", screen: "payment"))
             self?.startPayment()
         }
 
         paymentFooterView.onAgreementTapped = { [weak self] in
             Self.logger.info("Agreement tapped. Opening: \(Constants.Text.agreementURL)")
+            AnalyticsService.shared.track(.buttonTapped(name: "agreement", screen: "payment"))
             let vc = AgreementWebViewController(urlString: Constants.Text.agreementURL)
             self?.navigationController?.pushViewController(vc, animated: true)
         }
@@ -148,6 +157,15 @@ final class PaymentViewController: UIViewController {
             UIBlockingProgressHUD.show()
         case .paid:
             UIBlockingProgressHUD.dismiss()
+            if let checkoutContext {
+                AnalyticsService.shared.track(
+                    .purchaseCompleted(
+                        itemCount: checkoutContext.itemCount,
+                        totalPrice: checkoutContext.totalPrice,
+                        currencyID: selectedCurrencyID
+                    )
+                )
+            }
             let successVC = PaymentSuccessViewController()
             successVC.navigationItem.hidesBackButton = true
             successVC.onBackToCartTapped = { [weak self] in
@@ -157,6 +175,7 @@ final class PaymentViewController: UIViewController {
         case .error(let error):
             Self.logger.error("Render error state with message: \(error.localizedDescription)")
             UIBlockingProgressHUD.dismiss()
+            AnalyticsService.shared.track(.purchaseFailed(reason: String(describing: error)))
 
             switch error {
             case .networkOffline:
@@ -228,6 +247,7 @@ final class PaymentViewController: UIViewController {
 
     private func startLoadCurrency() {
         Self.logger.info("Loading currencies requested")
+        AnalyticsService.shared.track(.buttonTapped(name: "load_currencies", screen: "payment"))
         viewModel.loadItems()
     }
 
@@ -327,6 +347,10 @@ extension PaymentViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         Self.logger.debug("Currency selected at index=\(indexPath.row)")
         viewModel.selectCurrency(at: indexPath.row)
+        if let currency = viewModel.getUICurrency(at: indexPath.row) {
+            selectedCurrencyID = currency.id
+            AnalyticsService.shared.track(.currencySelected(id: currency.id, name: currency.name))
+        }
         paymentFooterView.isPayEnabled = true
     }
 
@@ -336,9 +360,16 @@ extension PaymentViewController: UICollectionViewDelegate {
         let hasSelection = !(collectionView.indexPathsForSelectedItems?.isEmpty ?? true)
         if hasSelection, let selectedIndex = collectionView.indexPathsForSelectedItems?.first?.row {
             viewModel.selectCurrency(at: selectedIndex)
+            selectedCurrencyID = viewModel.getUICurrency(at: selectedIndex)?.id
         }
+        if !hasSelection { selectedCurrencyID = nil }
         paymentFooterView.isPayEnabled = hasSelection
     }
+}
+
+struct CheckoutAnalyticsContext {
+    let itemCount: Int
+    let totalPrice: Double
 }
 
 private enum Constants {

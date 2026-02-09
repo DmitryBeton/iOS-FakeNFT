@@ -71,8 +71,11 @@
 		8C6ACD2A2F38E8F6007FD718 /* CartViewController+Rendering.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C6ACD272F38E8F6007FD718 /* CartViewController+Rendering.swift */; };
 		8C6D9DC42F33344C0007FDD6 /* AgreementWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C6D9DC32F33344C0007FDD6 /* AgreementWebViewController.swift */; };
 		8CBC5E272F39536F0067422A /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CBC5E262F39536F0067422A /* AnalyticsService.swift */; };
-		8CBC5E2B2F3954530067422A /* YandexMobileMetrica in Frameworks */ = {isa = PBXBuildFile; productRef = 8CBC5E2A2F3954530067422A /* YandexMobileMetrica */; };
-		8CBC5E2D2F3954530067422A /* YandexMobileMetricaCrashes in Frameworks */ = {isa = PBXBuildFile; productRef = 8CBC5E2C2F3954530067422A /* YandexMobileMetricaCrashes */; };
+		8CBC5E302F3955BB0067422A /* AppMetricaAdSupport in Frameworks */ = {isa = PBXBuildFile; productRef = 8CBC5E2F2F3955BB0067422A /* AppMetricaAdSupport */; };
+		8CBC5E322F3955BB0067422A /* AppMetricaCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8CBC5E312F3955BB0067422A /* AppMetricaCore */; };
+		8CBC5E342F3955BB0067422A /* AppMetricaCrashes in Frameworks */ = {isa = PBXBuildFile; productRef = 8CBC5E332F3955BB0067422A /* AppMetricaCrashes */; };
+		8CBC5E362F3955BB0067422A /* AppMetricaIDSync in Frameworks */ = {isa = PBXBuildFile; productRef = 8CBC5E352F3955BB0067422A /* AppMetricaIDSync */; };
+		8CBC5E382F3955BB0067422A /* AppMetricaLibraryAdapter in Frameworks */ = {isa = PBXBuildFile; productRef = 8CBC5E372F3955BB0067422A /* AppMetricaLibraryAdapter */; };
 		9D00C62B2F23D072000528BC /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D00C62A2F23D062000528BC /* Localization.swift */; };
 		E19CD5AB2A98B56600CA39A5 /* NftImageCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E19CD5AA2A98B56600CA39A5 /* NftImageCollectionViewCell.swift */; };
 		E1A1B9DA2AA01CE400C3AFBC /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A1B9D92AA01CE400C3AFBC /* TabBarController.swift */; };
@@ -181,9 +184,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8CBC5E2B2F3954530067422A /* YandexMobileMetrica in Frameworks */,
-				8CBC5E2D2F3954530067422A /* YandexMobileMetricaCrashes in Frameworks */,
 				3F603CD029DB4A74000C43D7 /* Kingfisher in Frameworks */,
+				8CBC5E382F3955BB0067422A /* AppMetricaLibraryAdapter in Frameworks */,
+				8CBC5E342F3955BB0067422A /* AppMetricaCrashes in Frameworks */,
+				8CBC5E322F3955BB0067422A /* AppMetricaCore in Frameworks */,
+				8CBC5E302F3955BB0067422A /* AppMetricaAdSupport in Frameworks */,
+				8CBC5E362F3955BB0067422A /* AppMetricaIDSync in Frameworks */,
 				3F603CCD29DB4A53000C43D7 /* ProgressHUD in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -546,8 +552,11 @@
 			packageProductDependencies = (
 				3F603CCC29DB4A53000C43D7 /* ProgressHUD */,
 				3F603CCF29DB4A74000C43D7 /* Kingfisher */,
-				8CBC5E2A2F3954530067422A /* YandexMobileMetrica */,
-				8CBC5E2C2F3954530067422A /* YandexMobileMetricaCrashes */,
+				8CBC5E2F2F3955BB0067422A /* AppMetricaAdSupport */,
+				8CBC5E312F3955BB0067422A /* AppMetricaCore */,
+				8CBC5E332F3955BB0067422A /* AppMetricaCrashes */,
+				8CBC5E352F3955BB0067422A /* AppMetricaIDSync */,
+				8CBC5E372F3955BB0067422A /* AppMetricaLibraryAdapter */,
 			);
 			productName = FakeNFT;
 			productReference = 3F68069329CBBAF100B4F915 /* FakeNFT.app */;
@@ -627,7 +636,7 @@
 				3F603CCB29DB4A53000C43D7 /* XCRemoteSwiftPackageReference "ProgressHUD" */,
 				3F603CCE29DB4A74000C43D7 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				8C62FF8D2F33BF6100C2A8B9 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */,
-				8CBC5E292F3954530067422A /* XCRemoteSwiftPackageReference "metrica-sdk-ios" */,
+				8CBC5E2E2F3955BB0067422A /* XCRemoteSwiftPackageReference "appmetrica-sdk-ios" */,
 			);
 			productRefGroup = 3F68069429CBBAF100B4F915 /* Products */;
 			projectDirPath = "";
@@ -1114,12 +1123,12 @@
 				minimumVersion = 0.63.2;
 			};
 		};
-		8CBC5E292F3954530067422A /* XCRemoteSwiftPackageReference "metrica-sdk-ios" */ = {
+		8CBC5E2E2F3955BB0067422A /* XCRemoteSwiftPackageReference "appmetrica-sdk-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/yandexmobile/metrica-sdk-ios";
+			repositoryURL = "https://github.com/appmetrica/appmetrica-sdk-ios";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 4.5.2;
+				minimumVersion = 6.0.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -1140,15 +1149,30 @@
 			package = 8C62FF8D2F33BF6100C2A8B9 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
 			productName = "plugin:SwiftLintBuildToolPlugin";
 		};
-		8CBC5E2A2F3954530067422A /* YandexMobileMetrica */ = {
+		8CBC5E2F2F3955BB0067422A /* AppMetricaAdSupport */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 8CBC5E292F3954530067422A /* XCRemoteSwiftPackageReference "metrica-sdk-ios" */;
-			productName = YandexMobileMetrica;
+			package = 8CBC5E2E2F3955BB0067422A /* XCRemoteSwiftPackageReference "appmetrica-sdk-ios" */;
+			productName = AppMetricaAdSupport;
 		};
-		8CBC5E2C2F3954530067422A /* YandexMobileMetricaCrashes */ = {
+		8CBC5E312F3955BB0067422A /* AppMetricaCore */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 8CBC5E292F3954530067422A /* XCRemoteSwiftPackageReference "metrica-sdk-ios" */;
-			productName = YandexMobileMetricaCrashes;
+			package = 8CBC5E2E2F3955BB0067422A /* XCRemoteSwiftPackageReference "appmetrica-sdk-ios" */;
+			productName = AppMetricaCore;
+		};
+		8CBC5E332F3955BB0067422A /* AppMetricaCrashes */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8CBC5E2E2F3955BB0067422A /* XCRemoteSwiftPackageReference "appmetrica-sdk-ios" */;
+			productName = AppMetricaCrashes;
+		};
+		8CBC5E352F3955BB0067422A /* AppMetricaIDSync */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8CBC5E2E2F3955BB0067422A /* XCRemoteSwiftPackageReference "appmetrica-sdk-ios" */;
+			productName = AppMetricaIDSync;
+		};
+		8CBC5E372F3955BB0067422A /* AppMetricaLibraryAdapter */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8CBC5E2E2F3955BB0067422A /* XCRemoteSwiftPackageReference "appmetrica-sdk-ios" */;
+			productName = AppMetricaLibraryAdapter;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

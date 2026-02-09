@@ -82,6 +82,7 @@ final class CartViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         Self.logger.debug("viewDidLoad")
+        AnalyticsService.shared.track(.screenOpened(name: "cart"))
 
         setupUI()
         setupBindings()
