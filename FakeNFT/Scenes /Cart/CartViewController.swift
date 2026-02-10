@@ -89,7 +89,7 @@ final class CartViewController: UIViewController {
         let textField = UITextField(frame: .zero)
         textField.placeholder = "Search"
         textField.borderStyle = .none
-        textField.backgroundColor = .clear
+        textField.backgroundColor = UIColor(resource: .nftLightGray)
         textField.textColor = UIColor(resource: .nftBlack)
         textField.autocapitalizationType = .none
         textField.clearButtonMode = .whileEditing
