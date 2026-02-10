@@ -22,9 +22,10 @@ final class OnboardingViewController: UIViewController {
     private let pageControl: UIPageControl = {
         let control = UIPageControl()
         control.currentPageIndicatorTintColor = UIColor(resource: .nftWhiteUni)
-        control.pageIndicatorTintColor = UIColor(resource: .nftBlack).withAlphaComponent(0.3)
+        control.pageIndicatorTintColor = UIColor(resource: .nftWhiteUni).withAlphaComponent(0.3)
         control.translatesAutoresizingMaskIntoConstraints = false
-        control.preferredIndicatorImage = UIImage( resource: .paginator)
+        control.preferredIndicatorImage = UIImage(resource: .paginator)
+        control.transform = CGAffineTransform(scaleX: 0.7, y: 0.7)
         return control
     }()
     
@@ -50,7 +51,7 @@ final class OnboardingViewController: UIViewController {
         view.addSubview(pageControl)
         
         NSLayoutConstraint.activate([
-            pageControl.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
+            pageControl.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 56),
             pageControl.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
     }
