@@ -19,6 +19,12 @@ final class TabBarController: UITabBarController {
         cartNavController.tabBarItem = cartTabBarItem
         viewControllers = [cartNavController]
 
-        view.backgroundColor = .systemBackground
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor(resource: .nftWhite)
+
+        tabBar.standardAppearance = appearance
+        tabBar.scrollEdgeAppearance = appearance
+
     }
 }
