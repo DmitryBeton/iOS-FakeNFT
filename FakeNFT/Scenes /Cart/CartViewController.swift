@@ -8,6 +8,29 @@
 import UIKit
 import OSLog
 
+final class SearchTitleContainerView: UIView {
+    private let fixedWidth: CGFloat
+
+    init(width: CGFloat) {
+        self.fixedWidth = width
+        super.init(frame: .zero)
+        translatesAutoresizingMaskIntoConstraints = false
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        nil
+    }
+
+    override var intrinsicContentSize: CGSize {
+        CGSize(width: fixedWidth, height: 36)
+    }
+
+    override func sizeThatFits(_ size: CGSize) -> CGSize {
+        intrinsicContentSize
+    }
+}
+
 final class CartViewController: UIViewController {
 
     static let logger = Logger(subsystem: "com.fakenft.app", category: "CartViewController")
@@ -62,12 +85,75 @@ final class CartViewController: UIViewController {
         return sortButton
     }()
 
-    lazy var searchController: UISearchController = {
-        let searchController = UISearchController(searchResultsController: nil)
-        searchController.obscuresBackgroundDuringPresentation = false
-        searchController.searchResultsUpdater = self
-        searchController.searchBar.placeholder = "Search"
-        return searchController
+    lazy var searchTextField: UITextField = {
+        let textField = UITextField(frame: .zero)
+        textField.placeholder = "Search"
+        textField.borderStyle = .none
+        textField.backgroundColor = .clear
+        textField.textColor = UIColor(resource: .nftBlack)
+        textField.autocapitalizationType = .none
+        textField.clearButtonMode = .whileEditing
+        textField.returnKeyType = .search
+        textField.delegate = self
+        textField.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        textField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+
+        let leftIcon = UIImageView(image: UIImage(systemName: "magnifyingglass"))
+        leftIcon.tintColor = UIColor(resource: .nftBlack).withAlphaComponent(0.6)
+        leftIcon.contentMode = .scaleAspectFit
+        leftIcon.frame = CGRect(x: 0, y: 0, width: 16, height: 16)
+        let leftContainer = UIView(frame: CGRect(x: 0, y: 0, width: 28, height: 16))
+        leftContainer.addSubview(leftIcon)
+        leftIcon.center = CGPoint(x: leftContainer.bounds.midX, y: leftContainer.bounds.midY)
+        textField.leftView = leftContainer
+        textField.leftViewMode = .always
+
+        textField.addTarget(self, action: #selector(searchTextChanged(_:)), for: .editingChanged)
+        return textField
+    }()
+
+    lazy var searchTitleContainer: UIView = {
+        let targetWidth = min(max(UIScreen.main.bounds.width - 130, 260), 340)
+        let container = SearchTitleContainerView(width: targetWidth)
+        container.backgroundColor = .clear
+        container.layer.cornerRadius = 18
+        container.layer.cornerCurve = .continuous
+        container.layer.masksToBounds = true
+
+        let blur = UIBlurEffect(style: .systemUltraThinMaterialLight)
+        let blurView = UIVisualEffectView(effect: blur)
+        blurView.translatesAutoresizingMaskIntoConstraints = false
+        blurView.isUserInteractionEnabled = false
+        container.addSubview(blurView)
+
+        let tintLayer = UIView()
+        tintLayer.translatesAutoresizingMaskIntoConstraints = false
+        tintLayer.backgroundColor = UIColor.white.withAlphaComponent(0.15)
+        tintLayer.isUserInteractionEnabled = false
+        container.addSubview(tintLayer)
+
+        searchTextField.translatesAutoresizingMaskIntoConstraints = false
+        container.addSubview(searchTextField)
+        NSLayoutConstraint.activate([
+            container.widthAnchor.constraint(equalToConstant: targetWidth),
+            container.heightAnchor.constraint(equalToConstant: 36),
+
+            blurView.topAnchor.constraint(equalTo: container.topAnchor),
+            blurView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            blurView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            blurView.bottomAnchor.constraint(equalTo: container.bottomAnchor),
+
+            tintLayer.topAnchor.constraint(equalTo: container.topAnchor),
+            tintLayer.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            tintLayer.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            tintLayer.bottomAnchor.constraint(equalTo: container.bottomAnchor),
+
+            searchTextField.topAnchor.constraint(equalTo: container.topAnchor),
+            searchTextField.bottomAnchor.constraint(equalTo: container.bottomAnchor),
+            searchTextField.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            searchTextField.trailingAnchor.constraint(equalTo: container.trailingAnchor)
+        ])
+        return container
     }()
 
     // MARK: - Initialization
@@ -143,13 +229,22 @@ private extension CartViewController {
         tableView.dataSource = self
         tableView.delegate = self
         tableView.accessibilityIdentifier = "cart_table"
+        tableView.keyboardDismissMode = .interactive
         refreshControl.addTarget(self, action: #selector(refreshPulled), for: .valueChanged)
         tableView.refreshControl = refreshControl
     }
 
     func configureSearch() {
-        navigationItem.hidesSearchBarWhenScrolling = false
-        definesPresentationContext = true
+        let rootTapGesture = UITapGestureRecognizer(target: self, action: #selector(handleBackgroundTap))
+        rootTapGesture.cancelsTouchesInView = false
+        rootTapGesture.delegate = self
+        view.addGestureRecognizer(rootTapGesture)
+
+        let tableTapGesture = UITapGestureRecognizer(target: self, action: #selector(handleBackgroundTap))
+        tableTapGesture.cancelsTouchesInView = false
+        tableTapGesture.delegate = self
+        tableView.addGestureRecognizer(tableTapGesture)
+
         setSearchVisible(false)
     }
 }

@@ -36,23 +36,51 @@ extension CartViewController {
         showSortOptionsMenu()
     }
 
+    @objc func searchTextChanged(_ sender: UITextField) {
+        viewModel.updateSearchQuery(sender.text ?? "")
+    }
+
+    @objc func handleBackgroundTap() {
+        navigationController?.view.endEditing(true)
+        view.window?.endEditing(true)
+        view.endEditing(true)
+    }
+
     func setSearchVisible(_ isVisible: Bool) {
         if !isVisible {
-            if searchController.isActive {
-                searchController.isActive = false
-            }
-            if let text = searchController.searchBar.text, !text.isEmpty {
-                searchController.searchBar.text = ""
+            if let text = searchTextField.text, !text.isEmpty {
+                searchTextField.text = ""
                 viewModel.updateSearchQuery("")
             }
+            navigationItem.titleView = nil
+            navigationItem.rightBarButtonItem = nil
+            return
         }
-        navigationItem.searchController = isVisible ? searchController : nil
+        navigationItem.titleView = searchTitleContainer
+        navigationItem.rightBarButtonItem = sortButton
     }
 }
 
-extension CartViewController: UISearchResultsUpdating {
-    func updateSearchResults(for searchController: UISearchController) {
-        viewModel.updateSearchQuery(searchController.searchBar.text ?? "")
+extension CartViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+}
+
+extension CartViewController: UIGestureRecognizerDelegate {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        guard searchTextField.isFirstResponder else { return false }
+        guard let touchedView = touch.view else { return false }
+
+        if touchedView.isDescendant(of: searchTitleContainer) {
+            return false
+        }
+        return true
+    }
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        true
     }
 }
 
@@ -115,7 +143,6 @@ private extension CartViewController {
         UIBlockingProgressHUD.show()
         emptyStateLabel.isHidden = true
         orderSummaryView.isHidden = true
-        navigationItem.rightBarButtonItem = nil
         setSearchVisible(false)
     }
 
@@ -123,7 +150,6 @@ private extension CartViewController {
         UIBlockingProgressHUD.dismiss()
         emptyStateLabel.isHidden = true
         orderSummaryView.isHidden = true
-        navigationItem.rightBarButtonItem = nil
         setSearchVisible(false)
         Self.logger.debug("Rendering placeholders: \(items.count)")
         tableView.reloadData()
@@ -135,7 +161,6 @@ private extension CartViewController {
         emptyStateLabel.text = isSearchNoResults ? "Ничего не найдено" : Localization.Cart.emptyStateMessage.localized
         emptyStateLabel.isHidden = !isSearchNoResults
         orderSummaryView.isHidden = false
-        navigationItem.rightBarButtonItem = sortButton
         setSearchVisible(true)
         orderSummaryView.updateOrderSummary(count: viewModel.totalItemsCount, price: total)
         tableView.reloadData()
@@ -146,7 +171,6 @@ private extension CartViewController {
         emptyStateLabel.text = Localization.Cart.emptyStateMessage.localized
         emptyStateLabel.isHidden = false
         orderSummaryView.isHidden = true
-        navigationItem.rightBarButtonItem = nil
         setSearchVisible(false)
         tableView.reloadData()
     }
@@ -156,7 +180,6 @@ private extension CartViewController {
         emptyStateLabel.text = Localization.Cart.emptyStateMessage.localized
         emptyStateLabel.isHidden = false
         orderSummaryView.isHidden = true
-        navigationItem.rightBarButtonItem = nil
         setSearchVisible(false)
         tableView.reloadData()
 
@@ -176,7 +199,6 @@ private extension CartViewController {
         emptyStateLabel.text = Localization.Cart.emptyStateMessage.localized
         emptyStateLabel.isHidden = !isEmpty
         orderSummaryView.isHidden = isEmpty
-        navigationItem.rightBarButtonItem = isEmpty ? nil : sortButton
         setSearchVisible(!isEmpty)
     }
 }
