@@ -52,7 +52,7 @@ extension CartViewController: UITableViewDataSource, UITableViewDelegate {
 
             Self.logger.info("Swipe-to-delete initiated for row=\(indexPath.row)")
             if let item = self.viewModel.getUICartItem(at: indexPath.row) {
-                AnalyticsService.shared.track(.cartItemRemoved(id: item.id, source: "swipe"))
+                AnalyticsService.shared.track(.cartItemRemoved(id: item.id, source: .swipe))
             }
             self.viewModel.deleteItem(at: indexPath.row)
             Self.logger.debug("Requested deletion for cart item at row=\(indexPath.row)")
@@ -74,7 +74,7 @@ private extension CartViewController {
     func presentDeleteAlert(for item: UICartItem, at indexPath: IndexPath, image: UIImage?) {
         let alertVC = DeleteConfirmationAlertViewController(image: image)
         alertVC.onDeleteTapped = { [weak self] in
-            AnalyticsService.shared.track(.cartItemRemoved(id: item.id, source: "alert"))
+            AnalyticsService.shared.track(.cartItemRemoved(id: item.id, source: .alert))
             self?.viewModel.deleteItem(at: indexPath.row)
         }
         alertVC.onCancelTapped = {}

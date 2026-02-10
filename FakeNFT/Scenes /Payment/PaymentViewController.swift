@@ -18,6 +18,7 @@ final class PaymentViewController: UIViewController {
     var selectedCurrencyID: String?
 
     private let connectivity = ConnectivityService()
+    lazy var errorPresenter: ErrorPresenting = ErrorPresenter(viewController: self)
 
     // MARK: - UI Elements
     let collection: UICollectionView = {
@@ -50,7 +51,7 @@ final class PaymentViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         Self.logger.debug("viewDidLoad")
-        AnalyticsService.shared.track(.screenOpened(name: "payment"))
+        AnalyticsService.shared.track(.screenOpened(screen: .payment))
         navigationItem.title = PaymentViewConstants.Text.navTitle
 
         connectivity.start()
@@ -97,13 +98,13 @@ final class PaymentViewController: UIViewController {
     private func setupBindings() {
         paymentFooterView.onPayTapped = { [weak self] in
             Self.logger.info("Pay tapped on Payment screen")
-            AnalyticsService.shared.track(.buttonTapped(name: "pay", screen: "payment"))
+            AnalyticsService.shared.track(.buttonTapped(button: .pay, screen: .payment))
             self?.startPayment()
         }
 
         paymentFooterView.onAgreementTapped = { [weak self] in
             Self.logger.info("Agreement tapped. Opening: \(PaymentViewConstants.Text.agreementURL)")
-            AnalyticsService.shared.track(.buttonTapped(name: "agreement", screen: "payment"))
+            AnalyticsService.shared.track(.buttonTapped(button: .agreement, screen: .payment))
             let vc = AgreementWebViewController(urlString: PaymentViewConstants.Text.agreementURL)
             self?.navigationController?.pushViewController(vc, animated: true)
         }
@@ -175,7 +176,7 @@ final class PaymentViewController: UIViewController {
         case .error(let error):
             Self.logger.error("Render error state with message: \(error.localizedDescription)")
             UIBlockingProgressHUD.dismiss()
-            AnalyticsService.shared.track(.purchaseFailed(reason: String(describing: error)))
+            AnalyticsService.shared.track(.purchaseFailed(reason: String(describing: error), screen: .payment))
 
             switch error {
             case .networkOffline:
@@ -268,7 +269,7 @@ final class PaymentViewController: UIViewController {
         }
 
         Self.logger.info("Loading currencies requested")
-        AnalyticsService.shared.track(.buttonTapped(name: "load_currencies", screen: "payment"))
+        AnalyticsService.shared.track(.buttonTapped(button: .loadCurrencies, screen: .payment))
         viewModel.loadItems()
     }
 

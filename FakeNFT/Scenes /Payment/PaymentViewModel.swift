@@ -8,6 +8,68 @@
 import UIKit
 import OSLog
 
+protocol LoadCurrenciesUseCaseProtocol {
+    func execute(completion: @escaping (Result<[Currency], Error>) -> Void)
+}
+
+final class LoadCurrenciesUseCase: LoadCurrenciesUseCaseProtocol {
+    private let currencyService: CurrencyServiceProtocol
+
+    init(currencyService: CurrencyServiceProtocol) {
+        self.currencyService = currencyService
+    }
+
+    func execute(completion: @escaping (Result<[Currency], Error>) -> Void) {
+        currencyService.fetchCurrencies(completion: completion)
+    }
+}
+
+protocol PayOrderUseCaseProtocol {
+    func execute(currencyID: String, completion: @escaping (Result<Void, Error>) -> Void)
+}
+
+final class PayOrderUseCase: PayOrderUseCaseProtocol {
+    private let paymentService: PaymentServiceProtocol
+
+    init(paymentService: PaymentServiceProtocol) {
+        self.paymentService = paymentService
+    }
+
+    func execute(currencyID: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        paymentService.pay(currencyID: currencyID, completion: completion)
+    }
+}
+
+enum PaymentErrorContext {
+    case currencyLoad
+    case payment
+}
+
+protocol PaymentErrorMapping {
+    func map(_ error: Error, context: PaymentErrorContext) -> PaymentError
+}
+
+final class PaymentErrorMapper: PaymentErrorMapping {
+    func map(_ error: Error, context: PaymentErrorContext) -> PaymentError {
+        if let networkError = error as? NetworkClientError {
+            switch networkError {
+            case .httpStatusCode(let code):
+                return .server(code: code)
+            case .urlRequestError:
+                return .networkOffline
+            case .urlSessionError, .parsingError:
+                return context == .currencyLoad ? .currenciesLoadFailed : .paymentFailed
+            }
+        }
+
+        if context == .payment, error is PaymentServiceError {
+            return .paymentFailed
+        }
+
+        return .unknown(underlying: error)
+    }
+}
+
 /// Состояния экрана оплаты (FSM)
 enum PaymentViewState {
     case idle
@@ -111,23 +173,36 @@ final class PaymentViewModel: PaymentViewModelProtocol {
     var onStateChange: ((PaymentViewState) -> Void)?
     private var selectedCurrencyID: String?
 
-    private let paymentService: PaymentServiceProtocol
-    private let currencyService: CurrencyServiceProtocol
-    private let cartService: CartServiceProtocol
+    private let loadCurrenciesUseCase: LoadCurrenciesUseCaseProtocol
+    private let payOrderUseCase: PayOrderUseCaseProtocol
+    private let errorMapper: PaymentErrorMapping
 
     // MARK: - Initialization
-    init(paymentService: PaymentServiceProtocol = PaymentService(),
-         currencyService: CurrencyServiceProtocol = CurrencyService(),
-         cartService: CartServiceProtocol = CartService()) {
-        self.paymentService = paymentService
-        self.currencyService = currencyService
-        self.cartService = cartService
+    init(
+        loadCurrenciesUseCase: LoadCurrenciesUseCaseProtocol,
+        payOrderUseCase: PayOrderUseCaseProtocol,
+        errorMapper: PaymentErrorMapping = PaymentErrorMapper()
+    ) {
+        self.loadCurrenciesUseCase = loadCurrenciesUseCase
+        self.payOrderUseCase = payOrderUseCase
+        self.errorMapper = errorMapper
+    }
+
+    convenience init(
+        paymentService: PaymentServiceProtocol = PaymentService(),
+        currencyService: CurrencyServiceProtocol = CurrencyService()
+    ) {
+        self.init(
+            loadCurrenciesUseCase: LoadCurrenciesUseCase(currencyService: currencyService),
+            payOrderUseCase: PayOrderUseCase(paymentService: paymentService),
+            errorMapper: PaymentErrorMapper()
+        )
     }
 
     func loadItems() {
         Self.logger.info("Loading currencies started")
         state = .loadingCurrencies
-        currencyService.fetchCurrencies { [weak self] result in
+        loadCurrenciesUseCase.execute { [weak self] result in
             guard let self else { return }
             switch result {
             case .success(let currencies):
@@ -136,7 +211,7 @@ final class PaymentViewModel: PaymentViewModelProtocol {
             case .failure(let error):
                 Self.logger.error("Failed to load currencies: \(error.localizedDescription)")
                 self.currencyItems = []
-                self.state = .error(error: self.mapCurrencyLoadError(error))
+                self.state = .error(error: self.errorMapper.map(error, context: .currencyLoad))
             }
         }
     }
@@ -159,7 +234,7 @@ final class PaymentViewModel: PaymentViewModelProtocol {
 
         Self.logger.info("Pay flow started")
         state = .paying
-        paymentService.pay(currencyID: selectedCurrencyID) { [weak self] result in
+        payOrderUseCase.execute(currencyID: selectedCurrencyID) { [weak self] result in
             guard let self else { return }
             switch result {
             case .success:
@@ -168,7 +243,7 @@ final class PaymentViewModel: PaymentViewModelProtocol {
                 completion(.success(()))
             case .failure(let error):
                 Self.logger.error("Payment service returned failure: \(error.localizedDescription)")
-                self.state = .error(error: self.mapPaymentError(error))
+                self.state = .error(error: self.errorMapper.map(error, context: .payment))
                 completion(.failure(error))
             }
         }
@@ -197,39 +272,5 @@ final class PaymentViewModel: PaymentViewModelProtocol {
             name: currency.name,
             imageURL: URL(string: currency.image)
         )
-    }
-
-    private func mapCurrencyLoadError(_ error: Error) -> PaymentError {
-        if let networkError = error as? NetworkClientError {
-            switch networkError {
-            case .httpStatusCode(let code):
-                return .server(code: code)
-            case .urlRequestError:
-                return .networkOffline
-            case .urlSessionError, .parsingError:
-                return .currenciesLoadFailed
-            }
-        }
-
-        return .unknown(underlying: error)
-    }
-
-    private func mapPaymentError(_ error: Error) -> PaymentError {
-        if let networkError = error as? NetworkClientError {
-            switch networkError {
-            case .httpStatusCode(let code):
-                return .server(code: code)
-            case .urlRequestError:
-                return .networkOffline
-            case .urlSessionError, .parsingError:
-                return .paymentFailed
-            }
-        }
-
-        if error is PaymentServiceError {
-            return .paymentFailed
-        }
-
-        return .unknown(underlying: error)
     }
 }

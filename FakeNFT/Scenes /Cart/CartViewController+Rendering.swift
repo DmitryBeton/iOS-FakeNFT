@@ -26,13 +26,13 @@ extension CartViewController {
 
     @objc func refreshPulled() {
         Self.logger.info("Pull-to-refresh triggered")
-        AnalyticsService.shared.track(.buttonTapped(name: "pull_to_refresh", screen: "cart"))
+        AnalyticsService.shared.track(.buttonTapped(button: .pullToRefresh, screen: .cart))
         emptyStateLabel.isHidden = true
         loadItemsOrShowOfflineAlert()
     }
 
     @objc func sortButtonTapped() {
-        AnalyticsService.shared.track(.buttonTapped(name: "sort", screen: "cart"))
+        AnalyticsService.shared.track(.buttonTapped(button: .sort, screen: .cart))
         showSortOptionsMenu()
     }
 
@@ -86,16 +86,12 @@ extension CartViewController: UIGestureRecognizerDelegate {
 
 private extension CartViewController {
     func showNoInternetAlert() {
-        let alert = UIAlertController(
+        errorPresenter.presentRetry(
             title: Localization.Payment.noInternet.localized,
-            message: Localization.Payment.noInternetMessage.localized,
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(title: Localization.Payment.retry.localized, style: .default) { [weak self] _ in
+            message: Localization.Payment.noInternetMessage.localized
+        ) { [weak self] in
             self?.loadItemsOrShowOfflineAlert()
-        })
-        alert.addAction(UIAlertAction(title: Localization.Payment.cancel.localized, style: .cancel))
-        present(alert, animated: true)
+        }
     }
 
     func bindViewModel() {
@@ -185,13 +181,10 @@ private extension CartViewController {
         setSearchVisible(false)
         tableView.reloadData()
 
-        let alert = UIAlertController(
+        errorPresenter.presentInfo(
             title: Localization.Cart.emptyStateMessage.localized,
-            message: message,
-            preferredStyle: .alert
+            message: message
         )
-        alert.addAction(UIAlertAction(title: Localization.Cart.close.localized, style: .default))
-        present(alert, animated: true)
     }
 
     func updateCartState() {
@@ -218,7 +211,7 @@ private extension CartViewController {
         for option in SortOption.allCases {
             let action = UIAlertAction(title: option.localizedWord, style: .default) { [weak self] _ in
                 Self.logger.info("Sort option selected: \(option.localizedWord)")
-                AnalyticsService.shared.track(.buttonTapped(name: "sort_\(option.localizedWord)", screen: "cart"))
+                AnalyticsService.shared.track(.buttonTapped(button: .sortOption(name: option.localizedWord), screen: .cart))
                 self?.viewModel.sortOption = option
             }
             alert.addAction(action)
@@ -234,14 +227,10 @@ private extension CartViewController {
         isNavigatingToPayment = true
         orderSummaryView.isUserInteractionEnabled = false
         Self.logger.info("Pay tapped from cart. Navigating to PaymentViewController")
-        AnalyticsService.shared.track(.buttonTapped(name: "pay", screen: "cart"))
+        AnalyticsService.shared.track(.buttonTapped(button: .pay, screen: .cart))
         AnalyticsService.shared.track(.checkoutStarted(itemCount: viewModel.totalItemsCount, totalPrice: viewModel.totalPrice))
 
-        let paymentViewController = PaymentViewController(
-            checkoutContext: .init(itemCount: viewModel.totalItemsCount, totalPrice: viewModel.totalPrice)
-        )
-        paymentViewController.hidesBottomBarWhenPushed = true
-        navigationController?.pushViewController(paymentViewController, animated: true)
+        routeToPayment(checkoutContext: .init(itemCount: viewModel.totalItemsCount, totalPrice: viewModel.totalPrice))
     }
 }
 

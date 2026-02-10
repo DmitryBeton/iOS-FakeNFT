@@ -8,6 +8,34 @@
 import UIKit
 import OSLog
 
+protocol CartRouting: AnyObject {
+    func routeToPayment(
+        from viewController: UIViewController,
+        checkoutContext: CheckoutAnalyticsContext
+    )
+}
+
+final class CartRouter: CartRouting {
+    private let makePaymentViewController: (CheckoutAnalyticsContext) -> UIViewController
+
+    init(
+        makePaymentViewController: @escaping (CheckoutAnalyticsContext) -> UIViewController = {
+            PaymentViewController(checkoutContext: $0)
+        }
+    ) {
+        self.makePaymentViewController = makePaymentViewController
+    }
+
+    func routeToPayment(
+        from viewController: UIViewController,
+        checkoutContext: CheckoutAnalyticsContext
+    ) {
+        let paymentViewController = makePaymentViewController(checkoutContext)
+        paymentViewController.hidesBottomBarWhenPushed = true
+        viewController.navigationController?.pushViewController(paymentViewController, animated: true)
+    }
+}
+
 final class SearchTitleContainerView: UIView {
     private let fixedWidth: CGFloat
 
@@ -37,11 +65,12 @@ final class CartViewController: UIViewController {
 
     // MARK: - Dependencies
     let viewModel: CartViewModelProtocol
-    let servicesAssembly: ServicesAssembly
+    private let router: CartRouting
 
     // MARK: - State
     var isNavigatingToPayment = false
     let connectivity = ConnectivityService()
+    lazy var errorPresenter: ErrorPresenting = ErrorPresenter(viewController: self)
 
     // MARK: - UI Elements
     let refreshControl: UIRefreshControl = {
@@ -157,15 +186,18 @@ final class CartViewController: UIViewController {
     }()
 
     // MARK: - Initialization
-    init(servicesAssembly: ServicesAssembly) {
-        self.servicesAssembly = servicesAssembly
-        self.viewModel = CartViewModel(service: servicesAssembly.cartService)
+    init(
+        viewModel: CartViewModelProtocol,
+        router: CartRouting
+    ) {
+        self.viewModel = viewModel
+        self.router = router
         super.init(nibName: nil, bundle: nil)
     }
 
     @available(*, unavailable)
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        fatalError("init(nibName:bundle:) is unavailable, use init(servicesAssembly:) instead")
+        fatalError("init(nibName:bundle:) is unavailable, use init(viewModel:router:) instead")
     }
 
     @available(*, unavailable)
@@ -177,7 +209,7 @@ final class CartViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         Self.logger.debug("viewDidLoad")
-        AnalyticsService.shared.track(.screenOpened(name: "cart"))
+        AnalyticsService.shared.track(.screenOpened(screen: .cart))
         connectivity.start()
 
         setupUI()
@@ -193,6 +225,12 @@ final class CartViewController: UIViewController {
 
     deinit {
         connectivity.stop()
+    }
+}
+
+extension CartViewController {
+    func routeToPayment(checkoutContext: CheckoutAnalyticsContext) {
+        router.routeToPayment(from: self, checkoutContext: checkoutContext)
     }
 }
 
