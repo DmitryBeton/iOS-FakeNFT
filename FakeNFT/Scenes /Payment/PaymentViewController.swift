@@ -125,8 +125,8 @@ final class PaymentViewController: UIViewController {
                     Self.logger.info("State -> paying")
                 case .paid:
                     Self.logger.info("State -> paid")
-                case .error(let message):
-                    Self.logger.error("State -> error: \(message)")
+                case .error(let error, let recovery):
+                    Self.logger.error("State -> error: \(String(describing: error), privacy: .public), recovery=\(String(describing: recovery), privacy: .public)")
                 }
                 self.render(state: state)
             }
@@ -175,11 +175,11 @@ final class PaymentViewController: UIViewController {
                 self?.navigationController?.popToViewController(ofType: CartViewController.self, animated: true)
             }
             navigationController?.pushViewController(successVC, animated: true)
-        case .error(let error):
-            Self.logger.error("Render error state with message: \(error.localizedDescription)")
+        case .error(let error, let recovery):
+            Self.logger.error("Render error state with message: \(String(describing: error), privacy: .public)")
             UIBlockingProgressHUD.dismiss()
             AnalyticsService.shared.track(.purchaseFailed(reason: String(describing: error), screen: .payment))
-            presentPaymentError(error)
+            presentPaymentError(error, recovery: recovery)
         }
     }
 
@@ -223,36 +223,18 @@ final class PaymentViewController: UIViewController {
 }
 
 private extension PaymentViewController {
-    func presentPaymentError(_ error: PaymentError) {
-        let appError = mapToAppError(error)
+    func presentPaymentError(_ error: AppError, recovery: PaymentRecoveryAction) {
         let retryAction: (() -> Void)?
-
-        switch error {
-        case .currencyNotSelected:
-            retryAction = { [weak self] in self?.clearSelectionAndDisablePay() }
-        case .paymentFailed:
-            retryAction = { [weak self] in self?.startPayment() }
-        case .networkOffline, .currenciesLoadFailed, .server, .unknown:
+        switch recovery {
+        case .retryLoadCurrencies:
             retryAction = { [weak self] in self?.startLoadCurrency() }
+        case .retryPayment:
+            retryAction = { [weak self] in self?.startPayment() }
+        case .clearSelection:
+            retryAction = { [weak self] in self?.clearSelectionAndDisablePay() }
+        case .none:
+            retryAction = nil
         }
-
-        errorPresenter.present(error: appError, retryAction: retryAction)
-    }
-
-    func mapToAppError(_ error: PaymentError) -> AppError {
-        switch error {
-        case .networkOffline:
-            return .networkOffline
-        case .paymentFailed:
-            return .paymentFailed
-        case .currencyNotSelected:
-            return .currencyNotSelected
-        case .currenciesLoadFailed:
-            return .currenciesLoadFailed
-        case .server(let code):
-            return .server(code: code)
-        case .unknown(let underlying):
-            return .unknown(message: underlying.localizedDescription)
-        }
+        errorPresenter.present(error: error, retryAction: retryAction)
     }
 }

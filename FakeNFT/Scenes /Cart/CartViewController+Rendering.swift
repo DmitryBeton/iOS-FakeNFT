@@ -9,11 +9,16 @@ import UIKit
 
 // MARK: - Bindings
 extension CartViewController {
+    /// Подписывает экран на изменения VM и action-кнопок нижней панели.
     func setupBindings() {
         bindViewModel()
         bindOrderSummary()
     }
 
+    /// Запускает загрузку корзины или показывает ошибку оффлайна.
+    ///
+    /// - Important: При отсутствии сети загрузка не стартует, чтобы не плодить
+    ///   заведомо неуспешные запросы.
     func loadItemsOrShowOfflineAlert() {
         guard !connectivity.isOfflineNow() else {
             Self.logger.warning("Cart load blocked: no internet connection")
@@ -24,6 +29,9 @@ extension CartViewController {
         viewModel.loadItems()
     }
 
+    /// Обработчик pull-to-refresh.
+    ///
+    /// - Side effect: сбрасывает визуальное empty-состояние до получения нового state из VM.
     @objc func refreshPulled() {
         Self.logger.info("Pull-to-refresh triggered")
         AnalyticsService.shared.track(.buttonTapped(button: .pullToRefresh, screen: .cart))
@@ -36,6 +44,7 @@ extension CartViewController {
         showSortOptionsMenu()
     }
 
+    /// Локальный поиск по уже загруженным элементам корзины.
     @objc func searchTextChanged(_ sender: UITextField) {
         viewModel.updateSearchQuery(sender.text ?? "")
     }
@@ -91,6 +100,9 @@ private extension CartViewController {
         }
     }
 
+    /// Подписывает UI на изменения состояния VM.
+    ///
+    /// - Important: Рендер всегда выполняется в main thread.
     func bindViewModel() {
         viewModel.onStateChange = { [weak self] state in
             guard let self else { return }
@@ -111,6 +123,7 @@ private extension CartViewController {
 
 // MARK: - Render
 private extension CartViewController {
+    /// Рендерит одно из конечных состояний экрана корзины.
     func render(state: CartViewState) {
         switch state {
         case .idle:
@@ -238,6 +251,15 @@ private extension CartViewController {
 
 // MARK: - Helpers
 private extension CartViewController {
+    /// Применяет дифф-обновление таблицы без полного `reloadData`, где это безопасно.
+    ///
+    /// Почему такой алгоритм:
+    /// - сначала считаем delete/insert/move по `id`, чтобы сохранить анимации и избежать наложений;
+    /// - для хрупких переходов (например, в пустой список) используем fallback на `reloadData`.
+    ///
+    /// Ограничения:
+    /// - метод должен вызываться на main thread;
+    /// - `renderedItemsSnapshot` считается источником истины для предыдущего кадра UI.
     func applyTableUpdates(with items: [UICartItem], animated: Bool) {
         let newSnapshot = items.map(RenderedCartItem.init)
         let oldSnapshot = renderedItemsSnapshot

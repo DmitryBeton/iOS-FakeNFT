@@ -22,6 +22,7 @@ protocol CurrencyServiceProtocol {
     ///     - `.success([Currency])` — массив валют в случае успешной загрузки.
     ///     - `.failure(Error)` — ошибка загрузки/парсинга/сети.
     ///
+    /// - Guarantees: Реализация `CurrencyService` вызывает `completion` на `DispatchQueue.main`.
     /// - Note: Моковая реализация вызывает completion на главном потоке с искусственной задержкой.
     /// - Important: В прод-реализации убедитесь, что вы документируете поток вызова completion,
     ///   либо всегда переключайтесь на нужный поток на стороне клиента.
@@ -71,6 +72,7 @@ final class CurrencyService: CurrencyServiceProtocol {
     private static let logger = Logger(subsystem: "com.fakenft.app", category: "CurrencyService")
 
     private let networkClient: NetworkClient
+    /// Фоновая очередь для обработки сетевого ответа до переключения на main.
     private let callbackQueue = DispatchQueue(label: "com.fakenft.currency.callback", qos: .userInitiated)
 
     init(networkClient: NetworkClient = DefaultNetworkClient()) {
@@ -87,11 +89,13 @@ final class CurrencyService: CurrencyServiceProtocol {
             switch result {
             case .success(let currencies):
                 Self.logger.info("Currencies fetched successfully. count=\(currencies.count)")
+                // Сервис гарантирует UI-безопасную доставку callback-а.
                 DispatchQueue.main.async {
                     completion(.success(currencies))
                 }
             case .failure(let error):
                 Self.logger.error("Failed to fetch currencies: \(String(describing: error), privacy: .public)")
+                // Сохраняем одинаковый потоковый контракт и для успеха, и для ошибки.
                 DispatchQueue.main.async {
                     completion(.failure(error))
                 }

@@ -7,13 +7,44 @@ enum NetworkClientError: Error {
     case parsingError
 }
 
+/// Единый сетевой интерфейс для raw- и decodable-запросов.
+///
+/// Контракт по потокам:
+/// - `onResponse` всегда вызывается на `completionQueue`.
+/// - Возвращаемый `NetworkTask` можно отменить со стороны вызывающего кода.
 protocol NetworkClient {
+    /// Выполняет сетевой запрос и возвращает сырые `Data`.
+    ///
+    /// - Parameters:
+    ///   - request: Описание endpoint-а, метода, заголовков, body и cache policy.
+    ///   - onTaskMetrics: Опциональный callback метрик URLSessionTask.
+    ///   - completionQueue: Очередь, на которой гарантирован вызов `onResponse`.
+    ///   - onResponse: Результат запроса:
+    ///     - `.success(Data)` при HTTP 2xx и наличии данных;
+    ///     - `.failure(NetworkClientError)` при сетевой/HTTP/парсинг ошибке.
+    /// - Returns: Отменяемая задача (`NetworkTask`) или `nil`, если запрос завершен синхронно
+    ///   (например, cache hit) или если `URLRequest` не удалось собрать.
     @discardableResult
     func send(request: NetworkRequest,
               onTaskMetrics: ((URLSessionTaskMetrics) -> Void)?,
               completionQueue: DispatchQueue,
               onResponse: @escaping (Result<Data, Error>) -> Void) -> NetworkTask?
 
+    /// Выполняет сетевой запрос и декодирует ответ в тип `T`.
+    ///
+    /// - Important: Декодирование выполняется после получения `Data`; поток callback-а
+    ///   контролируется только через `completionQueue`.
+    ///
+    /// - Parameters:
+    ///   - request: Описание endpoint-а, метода, заголовков, body и cache policy.
+    ///   - type: Модель декодирования.
+    ///   - onTaskMetrics: Опциональный callback метрик URLSessionTask.
+    ///   - completionQueue: Очередь, на которой гарантирован вызов `onResponse`.
+    ///   - onResponse: Результат:
+    ///     - `.success(T)` при HTTP 2xx и успешном декодировании;
+    ///     - `.failure(NetworkClientError)` при сетевой/HTTP/парсинг ошибке.
+    /// - Returns: Отменяемая задача (`NetworkTask`) или `nil`, если запрос завершен синхронно
+    ///   (например, cache hit) или если `URLRequest` не удалось собрать.
     @discardableResult
     func send<T: Decodable>(request: NetworkRequest,
                             type: T.Type,
@@ -118,6 +149,8 @@ final class DefaultNetworkClient: NetworkClient {
         completionQueue: DispatchQueue,
         onResponse: @escaping (Result<Data, Error>) -> Void
     ) -> NetworkTask? {
+        // Нормализуем все callback-и ответа на очередь, запрошенную вызывающей стороной.
+        // Это делает обновления UI предсказуемыми и исключает случайные UI-операции в фоне.
         let onResponse: (Result<Data, Error>) -> Void = { result in
             completionQueue.async {
                 onResponse(result)
@@ -125,10 +158,13 @@ final class DefaultNetworkClient: NetworkClient {
         }
         guard let urlRequest = create(request: request) else { return nil }
         if let cachedData = cacheStore.cachedData(for: urlRequest, policy: request.cachePolicy) {
+            // При cache hit результат возвращаем сразу и намеренно не создаем URLSessionTask.
             onResponse(.success(cachedData))
             return nil
         }
 
+        // Для сбора metrics нужна сессия с delegate.
+        // Для обычных запросов используем простую сессию, чтобы уменьшить overhead.
         let targetSession = onTaskMetrics == nil ? session : metricsSession
         let task = targetSession.dataTask(with: urlRequest) { data, response, error in
             guard let response = response as? HTTPURLResponse else {
@@ -204,6 +240,8 @@ final class DefaultNetworkClient: NetworkClient {
         if let body = request.body {
             urlRequest.httpBody = body
         } else if let dtoDictionary = request.dto?.asDictionary() {
+            // Бэкенд ожидает x-www-form-urlencoded для DTO-запросов.
+            // Поэтому DTO кодируем как query-строку в HTTP body.
             var urlComponents = URLComponents()
             let queryItems = dtoDictionary.map { field in
                 URLQueryItem(
@@ -218,6 +256,7 @@ final class DefaultNetworkClient: NetworkClient {
         if let contentType = request.contentType {
             urlRequest.setValue(contentType, forHTTPHeaderField: "Content-Type")
         } else if request.body != nil || request.dto != nil {
+            // Fallback content type для body/dto-запросов, если request его явно не переопределил.
             urlRequest.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         }
 
@@ -267,6 +306,7 @@ private final class ResponseCacheStore {
         let key = makeKey(for: request)
         let expiresAt = Date().addingTimeInterval(ttl)
 
+        // Общий изменяемый словарь; lock предотвращает гонки между конкурентными запросами.
         lock.lock()
         entries[key] = CacheEntry(data: data, expiresAt: expiresAt)
         lock.unlock()
@@ -290,6 +330,8 @@ private final class URLSessionMetricsCollector: NSObject, URLSessionTaskDelegate
     private var callbacksByTaskID: [Int: (URLSessionTaskMetrics) -> Void] = [:]
 
     func register(callback: @escaping (URLSessionTaskMetrics) -> Void, for taskID: Int) {
+        // Метрики задачи приходят асинхронно через URLSession delegate.
+        // Callback сохраняем по task identifier и удаляем после первой доставки.
         lock.lock()
         callbacksByTaskID[taskID] = callback
         lock.unlock()

@@ -78,7 +78,14 @@ enum PaymentViewState {
     case empty
     case paying
     case paid
-    case error(error: PaymentError)
+    case error(error: AppError, recovery: PaymentRecoveryAction)
+}
+
+enum PaymentRecoveryAction {
+    case retryLoadCurrencies
+    case retryPayment
+    case clearSelection
+    case none
 }
 
 enum PaymentError: Error {
@@ -211,7 +218,11 @@ final class PaymentViewModel: PaymentViewModelProtocol {
             case .failure(let error):
                 Self.logger.error("Failed to load currencies: \(error.localizedDescription)")
                 self.currencyItems = []
-                self.state = .error(error: self.errorMapper.map(error, context: .currencyLoad))
+                let paymentError = self.errorMapper.map(error, context: .currencyLoad)
+                self.state = .error(
+                    error: self.mapToAppError(paymentError),
+                    recovery: self.recoveryAction(for: paymentError)
+                )
             }
         }
     }
@@ -227,7 +238,7 @@ final class PaymentViewModel: PaymentViewModelProtocol {
     func pay(completion: @escaping (Result<Void, Error>) -> Void) {
         guard let selectedCurrencyID else {
             Self.logger.error("Pay requested without selected currency")
-            state = .error(error: .currencyNotSelected)
+            state = .error(error: .currencyNotSelected, recovery: .clearSelection)
             completion(.failure(PaymentError.currencyNotSelected))
             return
         }
@@ -243,7 +254,11 @@ final class PaymentViewModel: PaymentViewModelProtocol {
                 completion(.success(()))
             case .failure(let error):
                 Self.logger.error("Payment service returned failure: \(error.localizedDescription)")
-                self.state = .error(error: self.errorMapper.map(error, context: .payment))
+                let paymentError = self.errorMapper.map(error, context: .payment)
+                self.state = .error(
+                    error: self.mapToAppError(paymentError),
+                    recovery: self.recoveryAction(for: paymentError)
+                )
                 completion(.failure(error))
             }
         }
@@ -272,5 +287,33 @@ final class PaymentViewModel: PaymentViewModelProtocol {
             name: currency.name,
             imageURL: URL(string: currency.image)
         )
+    }
+
+    private func mapToAppError(_ error: PaymentError) -> AppError {
+        switch error {
+        case .networkOffline:
+            return .networkOffline
+        case .paymentFailed:
+            return .paymentFailed
+        case .currencyNotSelected:
+            return .currencyNotSelected
+        case .currenciesLoadFailed:
+            return .currenciesLoadFailed
+        case .server(let code):
+            return .server(code: code)
+        case .unknown(let underlying):
+            return .unknown(message: underlying.localizedDescription)
+        }
+    }
+
+    private func recoveryAction(for error: PaymentError) -> PaymentRecoveryAction {
+        switch error {
+        case .currencyNotSelected:
+            return .clearSelection
+        case .paymentFailed:
+            return .retryPayment
+        case .networkOffline, .currenciesLoadFailed, .server, .unknown:
+            return .retryLoadCurrencies
+        }
     }
 }

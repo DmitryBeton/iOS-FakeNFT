@@ -18,13 +18,16 @@ import OSLog
 protocol PaymentServiceProtocol {
     /// Выполняет оплату.
     ///
-    /// - Parameter completion: Замыкание, вызываемое один раз по завершении оплаты.
+    /// - Parameters:
+    ///   - currencyID: Идентификатор выбранной валюты для привязки к заказу.
+    ///   - completion: Замыкание, вызываемое один раз по завершении оплаты.
     ///   - result:
     ///     - `.success(())` — оплата прошла успешно.
     ///     - `.failure(Error)` — ошибка оплаты (например, сетевая/таймаут/отмена/валидация).
     ///
     /// - Important: Если реализация не гарантирует главный поток, вызывающая сторона
     /// должна самостоятельно переключаться на нужный поток.
+    /// - Important: Успех означает, что валюта привязана, заказ оплачен и очищен после оплаты.
     func pay(currencyID: String, completion: @escaping (Result<Void, Error>) -> Void)
 }
 
@@ -60,6 +63,8 @@ final class PaymentService: PaymentServiceProtocol {
     private static let logger = Logger(subsystem: "com.fakenft.app", category: "PaymentService")
 
     private let networkClient: NetworkClient
+    /// Все callback-и от `NetworkClient` приходят в эту очередь и только после этого
+    /// переключаются в `DispatchQueue.main` для безопасной интеграции с UI.
     private let callbackQueue = DispatchQueue(label: "com.fakenft.payment.callback", qos: .userInitiated)
 
     init(networkClient: NetworkClient = DefaultNetworkClient()) {
@@ -70,6 +75,8 @@ final class PaymentService: PaymentServiceProtocol {
         let traceID = UUID().uuidString
         Self.logger.info("[\(traceID, privacy: .public)] Start payment flow. currencyID=\(currencyID, privacy: .public)")
 
+        // Бэкенд требует двухфазный сценарий оплаты:
+        // 1) привязать выбранную валюту, 2) оплатить заказ текущим списком nft ids.
         bindCurrency(currencyID: currencyID, traceID: traceID) { [weak self] result in
             guard let self else { return }
             switch result {
@@ -98,6 +105,7 @@ private extension PaymentService {
                 if response.success {
                     completion(.success(()))
                 } else {
+                    // Бэкенд может вернуть HTTP 200, но бизнес-ошибку в payload.
                     completion(.failure(PaymentServiceError.paymentNotAllowed))
                 }
             case .failure(let error):
@@ -119,6 +127,7 @@ private extension PaymentService {
             switch result {
             case .success(let order):
                 Self.logger.info("[\(traceID, privacy: .public)] Order fetched. nftsCount=\(order.nfts.count), orderID=\(order.id, privacy: .public)")
+                // Payment endpoint ожидает полный список nft в form body.
                 self.sendCompleteOrderRequest(nftIDs: order.nfts, traceID: traceID, completion: completion)
             case .failure(let error):
                 Self.logger.error("[\(traceID, privacy: .public)] Failed to load order before payment: \(String(describing: error), privacy: .public)")
@@ -162,6 +171,7 @@ private extension PaymentService {
             case .success:
                 Self.logger.info("[\(traceID, privacy: .public)] Order cleared successfully after payment")
                 DispatchQueue.main.async {
+                    // Side effect: уведомляем экран корзины о необходимости обновления.
                     NotificationCenter.default.post(name: .cartDidChange, object: nil)
                     completion(.success(()))
                 }

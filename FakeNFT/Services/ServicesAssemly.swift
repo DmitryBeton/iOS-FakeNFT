@@ -34,14 +34,46 @@ typealias CartItemsPartialUpdate = ([CartItem]) -> Void
 typealias CartPlaceholdersUpdate = ([String]) -> Void
 typealias CartMutationCompletion = (Result<[String], Error>) -> Void
 
+/// Сервис данных корзины.
+///
+/// Контракт по потокам:
+/// - Все callbacks (`completion`, `partial`, `placeholders`) отдаются в main queue.
+/// - Сетевую работу и агрегацию сервис может выполнять в фоновых очередях.
 protocol CartServiceProtocol: AnyObject {
+    /// Загружает полный снимок корзины.
+    ///
+    /// - Parameter completion: Финальный результат загрузки:
+    ///   - `.success([CartItem])` — полный список элементов в порядке сервера.
+    ///   - `.failure(Error)` — ошибка сетевого запроса/декодирования.
     func fetchCartItems(completion: @escaping CartItemsCompletion)
+
+    /// Загружает корзину с прогрессивной выдачей:
+    /// 1) placeholders (ids), 2) partial items, 3) финальный упорядоченный снимок.
+    ///
+    /// - Parameters:
+    ///   - onPlaceholders: Callback c id элементов до загрузки их деталей.
+    ///   - onPartialUpdate: Callback с частично загруженными элементами.
+    ///   - completion: Финальный результат загрузки.
+    ///
+    /// - Important: `completion` вызывается ровно один раз.
     func fetchCartItems(
         onPlaceholders: CartPlaceholdersUpdate?,
         onPartialUpdate: CartItemsPartialUpdate?,
         completion: @escaping CartItemsCompletion
     )
+
+    /// Добавляет item id через перезапись списка `nfts` в заказе на бэкенде.
+    ///
+    /// - Parameters:
+    ///   - id: Идентификатор NFT для добавления.
+    ///   - completion: Обновленный список id (`.success`) или ошибка (`.failure`).
     func addCartItem(id: String, completion: @escaping CartMutationCompletion)
+
+    /// Удаляет item id через перезапись списка `nfts` в заказе на бэкенде.
+    ///
+    /// - Parameters:
+    ///   - id: Идентификатор NFT для удаления.
+    ///   - completion: Обновленный список id (`.success`) или ошибка (`.failure`).
     func removeCartItem(id: String, completion: @escaping CartMutationCompletion)
 }
 
@@ -76,6 +108,15 @@ final class CartService: CartServiceProtocol {
         self.nftService = nftService
     }
 
+    /// Загружает корзину с прогрессивными обновлениями.
+    ///
+    /// Алгоритм:
+    /// 1. Получить список `nfts` из заказа.
+    /// 2. Сразу отдать placeholders в UI.
+    /// 3. Параллельно загрузить детали каждого NFT.
+    /// 4. Периодически отправлять partial update и затем финальный список.
+    ///
+    /// Такой порядок уменьшает perceived latency: экран появляется сразу, а контент догружается постепенно.
     func fetchCartItems(
         onPlaceholders: CartPlaceholdersUpdate?,
         onPartialUpdate: CartItemsPartialUpdate?,
@@ -154,6 +195,8 @@ private extension CartService {
 
             switch result {
             case .success(let order):
+                // В этом API нет отдельных add/remove endpoint-ов.
+                // Мутация реализуется как: GET текущих ids -> вычисление нового списка -> PUT полного списка.
                 let updatedIDs: [String]
                 switch action {
                 case .add:
@@ -226,6 +269,8 @@ private extension CartService {
 
         Self.logger.info("[\(traceID, privacy: .public)] Starting NFT details loading for \(ids.count) IDs. batchSize=\(Self.progressBatchSize)")
 
+        // Общее агрегирующее состояние изменяется из нескольких async callback-ов NFT.
+        // NSLock защищает словари/счетчики и предотвращает data race.
         let lock = NSLock()
         let group = DispatchGroup()
         var firstError: Error?
@@ -247,6 +292,9 @@ private extension CartService {
                     loadedCount += 1
                     Self.logger.debug("[\(traceID, privacy: .public)] NFT loaded: id=\(id, privacy: .public), loadedCount=\(loadedCount)/\(ids.count)")
 
+                    // Намеренно "дросселируем" частичные обновления UI:
+                    // первый загруженный элемент + каждый N-й элемент.
+                    // Это сохраняет отзывчивость UI и снижает churn в таблице.
                     let shouldEmitProgress = loadedCount == 1 ||
                     loadedCount - lastEmittedCount >= Self.progressBatchSize
                     if shouldEmitProgress {
@@ -282,6 +330,7 @@ private extension CartService {
                 return
             }
 
+            // Сохраняем исходный порядок из массива ids, пришедшего с бэкенда.
             let orderedItems = ids.compactMap { itemsByID[$0] }
             let totalDuration = Date().timeIntervalSince(requestStartedAt)
             Self.logger.info("[\(traceID, privacy: .public)] Completed cart load successfully. orderedItemsCount=\(orderedItems.count), duration=\(totalDuration, format: .fixed(precision: 3))s")

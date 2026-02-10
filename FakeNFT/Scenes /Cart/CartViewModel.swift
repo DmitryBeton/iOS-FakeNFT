@@ -74,6 +74,21 @@ final class CartViewModel: CartViewModelProtocol {
     var onSortChanged: (() -> Void)?
 
     // MARK: - Public Methods
+    /// Запускает загрузку корзины с прогрессивными обновлениями.
+    ///
+    /// Алгоритм:
+    /// 1. Генерируется `requestID` и становится активным.
+    /// 2. Сервис отдает placeholders/partial/final.
+    /// 3. Callback-и со старым `requestID` игнорируются.
+    ///
+    /// Почему так:
+    /// - при pull-to-refresh и быстрых повторных загрузках защищаемся от устаревших ответов,
+    ///   которые могли бы перетереть более свежие данные.
+    ///
+    /// Контракт:
+    /// - при успехе состояние переходит в `.loaded`/`.empty`;
+    /// - при ошибке и пустой корзине выставляется `.error`;
+    /// - при ошибке во время refresh сохраняется последний корректный контент.
     func loadItems() {
         let requestID = UUID()
         activeLoadRequestID = requestID
@@ -126,6 +141,10 @@ final class CartViewModel: CartViewModelProtocol {
         })
     }
 
+    /// Удаляет элемент по индексу из текущего отображаемого списка.
+    ///
+    /// - Important: Индекс относится к `items` (уже отсортированным/отфильтрованным данным), а не к `cartItems`.
+    /// - Side effect: после успешного удаления пересчитываются `totalPrice` и итоговое состояние экрана.
     func deleteItem(at index: Int) {
         Self.logger.info("Request to delete item at index=\(index)")
         guard index < items.count else { return }
@@ -147,6 +166,10 @@ final class CartViewModel: CartViewModelProtocol {
         }
     }
 
+    /// Добавляет элемент в корзину по id.
+    ///
+    /// - Side effect: при успехе инициирует полную перезагрузку (`loadItems()`),
+    ///   чтобы синхронизировать локальное состояние с сервером.
     func addItem(id: String) {
         Self.logger.info("Request to add item id=\(id, privacy: .public)")
         service.addCartItem(id: id) { [weak self] result in
@@ -162,6 +185,8 @@ final class CartViewModel: CartViewModelProtocol {
         }
     }
 
+    /// Сортирует `cartItems` в соответствии с текущим `sortOption`
+    /// и публикует новое состояние с учетом активного поиска.
     func sortItems() {
         Self.logger.debug("Sorting items by option=\(self.sortOption.localizedWord)")
         switch sortOption {
@@ -175,11 +200,17 @@ final class CartViewModel: CartViewModelProtocol {
         applySearchAndEmitState()
     }
 
+    /// Обновляет поисковый запрос и переэмитит состояние.
+    ///
+    /// - Parameter query: Строка поиска; пробелы по краям отбрасываются.
     func updateSearchQuery(_ query: String) {
         searchQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
         applySearchAndEmitState()
     }
 
+    /// Применяет поиск к `cartItems` и публикует новое состояние.
+    ///
+    /// Поиск локальный (без сети) и регистронезависимый.
     private func applySearchAndEmitState() {
         let normalizedQuery = searchQuery.lowercased()
         let filteredItems: [CartItem]
@@ -195,12 +226,18 @@ final class CartViewModel: CartViewModelProtocol {
         emitLoadedOrEmptyState()
     }
 
+    /// Возвращает UI-модель элемента по индексу.
+    ///
+    /// - Returns: `UICartItem` или `nil`, если индекс вне диапазона.
     func getUICartItem(at index: Int) -> UICartItem? {
         Self.logger.debug("getUICartItem called for index=\(index)")
         guard index < items.count else { return nil }
         return items[index]
     }
 
+    /// Проверяет, пуст ли текущий отображаемый список.
+    ///
+    /// - Note: Это проверка именно `items` (с учетом поиска), а не полного `cartItems`.
     func isEmpty() -> Bool {
         Self.logger.debug("isEmpty queried -> \(self.items.isEmpty)")
         return items.isEmpty
