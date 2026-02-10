@@ -158,7 +158,9 @@ private extension CartViewController {
     func renderLoaded(items: [UICartItem], total: Double) {
         UIBlockingProgressHUD.dismiss()
         let isSearchNoResults = items.isEmpty
-        emptyStateLabel.text = isSearchNoResults ? "Ничего не найдено" : Localization.Cart.emptyStateMessage.localized
+        emptyStateLabel.text = isSearchNoResults
+        ? Localization.Cart.searchNoResults.localized
+        : Localization.Cart.emptyStateMessage.localized
         emptyStateLabel.isHidden = !isSearchNoResults
         orderSummaryView.isHidden = false
         setSearchVisible(true)

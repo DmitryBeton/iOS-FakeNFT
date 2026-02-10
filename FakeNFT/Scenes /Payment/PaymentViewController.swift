@@ -189,7 +189,7 @@ final class PaymentViewController: UIViewController {
             case .currencyNotSelected:
                 showRetryAlert(
                     title: Localization.Payment.payErrorTitle.localized,
-                    message: "Select a currency first"
+                    message: Localization.Payment.currencyNotSelected.localized
                 ) { [weak self] in
                     self?.clearSelectionAndDisablePay()
                 }
@@ -211,9 +211,8 @@ final class PaymentViewController: UIViewController {
                 }
 
             case .server(let code):
-                // Пока нет отдельной локализации под код, покажем код в заголовке
                 showRetryAlert(
-                    title: "Server error (\(code))",
+                    title: String(format: Localization.Payment.serverErrorWithCode.localized, code),
                     message: nil
                 ) { [weak self] in
                     self?.startLoadCurrency()

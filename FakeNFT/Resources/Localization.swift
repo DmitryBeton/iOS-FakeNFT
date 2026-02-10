@@ -18,6 +18,13 @@ enum Localization {
         static let close = "Alert.close"
 
         static let payButton = "Button.to_pay"
+        static let searchPlaceholder = "Cart.search.placeholder"
+        static let searchNoResults = "Cart.search.no_results"
+        static let loadError = "Cart.error.load"
+        static let deleteError = "Cart.error.delete"
+        static let addError = "Cart.error.add"
+        static let countFormat = "Cart.count.nft_format"
+        static let priceEthFormat = "Cart.price.eth_format"
 
         static let confirmationOfDeletion = "Delete.Alert.delete.confirmation"
         static let backButton = "Delete.Alert.cancel"
@@ -40,6 +47,8 @@ enum Localization {
 
         static let noInternet = "Payment.error.no_internet"
         static let noInternetMessage = "Payment.error.no_internet.message"
+        static let currencyNotSelected = "Payment.error.currency_not_selected"
+        static let serverErrorWithCode = "Payment.error.server_with_code"
     }
 }
 

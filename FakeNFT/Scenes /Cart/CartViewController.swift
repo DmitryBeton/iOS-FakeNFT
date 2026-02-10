@@ -87,7 +87,7 @@ final class CartViewController: UIViewController {
 
     lazy var searchTextField: UITextField = {
         let textField = UITextField(frame: .zero)
-        textField.placeholder = "Search"
+        textField.placeholder = Localization.Cart.searchPlaceholder.localized
         textField.borderStyle = .none
         textField.backgroundColor = UIColor(resource: .nftLightGray)
         textField.textColor = UIColor(resource: .nftBlack)

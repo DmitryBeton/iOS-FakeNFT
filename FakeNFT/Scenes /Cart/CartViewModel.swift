@@ -99,7 +99,7 @@ final class CartViewModel: CartViewModelProtocol {
                     if case NetworkClientError.urlRequestError = error {
                         self.state = .error(message: Localization.Payment.noInternetMessage.localized)
                     } else {
-                        self.state = .error(message: "Не удалось загрузить корзину")
+                        self.state = .error(message: Localization.Cart.loadError.localized)
                     }
                 } else {
                     // Keep last known content visible if refresh failed.
@@ -125,7 +125,7 @@ final class CartViewModel: CartViewModelProtocol {
                 self.sortItems()
             case .failure(let error):
                 Self.logger.error("Failed to delete cart item id=\(id). error=\(String(describing: error), privacy: .public)")
-                self.state = .error(message: "Не удалось удалить товар из корзины")
+                self.state = .error(message: Localization.Cart.deleteError.localized)
             }
         }
     }
@@ -140,7 +140,7 @@ final class CartViewModel: CartViewModelProtocol {
                 self.loadItems()
             case .failure(let error):
                 Self.logger.error("Failed to add cart item id=\(id, privacy: .public). error=\(String(describing: error), privacy: .public)")
-                self.state = .error(message: "Не удалось добавить товар в корзину")
+                self.state = .error(message: Localization.Cart.addError.localized)
             }
         }
     }
@@ -192,7 +192,7 @@ final class CartViewModel: CartViewModelProtocol {
     // MARK: - Mapping
     private func mapToUI(_ item: CartItem) -> UICartItem {
         let imageURL = item.images.first.flatMap(URL.init(string:))
-        let formattedPrice = String(format: "%.2f ETH", item.price)
+        let formattedPrice = String(format: Localization.Cart.priceEthFormat.localized, item.price)
         return UICartItem(
             id: item.id,
             imageURL: imageURL,

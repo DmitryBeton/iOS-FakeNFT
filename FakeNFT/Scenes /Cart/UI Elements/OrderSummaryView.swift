@@ -49,13 +49,13 @@ final class OrderSummaryView: UIView {
         let label = UILabel()
         label.textColor = UIColor(resource: .nftBlack)
         label.font = UIFont.caption1
-        label.text = "0 NFT"
+        label.text = String(format: Localization.Cart.countFormat.localized, 0)
         return label
     }()
 
     private let totalPriceLabel: UILabel = {
         let label = UILabel()
-        label.text = "0,00"
+        label.text = String(format: Localization.Cart.priceEthFormat.localized, 0)
         label.font = UIFont.bodyBold
         label.textColor = UIColor(resource: .nftGreen)
         return label
@@ -140,11 +140,11 @@ final class OrderSummaryView: UIView {
 
     // MARK: - Private Methods
     private func updateCount() {
-        totalCountLabel.text = "\(count) NFT"
+        totalCountLabel.text = String(format: Localization.Cart.countFormat.localized, count)
     }
 
     private func updateTotalPrice() {
-        totalPriceLabel.text = String(format: "%.2f ETH", totalPrice)
+        totalPriceLabel.text = String(format: Localization.Cart.priceEthFormat.localized, totalPrice)
     }
 
     @objc private func payTapped() {
