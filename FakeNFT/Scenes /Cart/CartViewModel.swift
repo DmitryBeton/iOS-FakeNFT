@@ -8,62 +8,6 @@
 import UIKit
 import OSLog
 
-/// Состояния экрана корзины (FSM)
-enum CartViewState {
-    case idle
-    case loading
-    case loadingPlaceholders(items: [UICartItem])
-    case loaded(items: [UICartItem], total: Double)
-    case empty
-    case error(message: String)
-}
-
-/// Протокол описывает интерфейс для ViewModel корзины, отвечающей за представление и управление товарами в корзине.
-/// Поддерживает обновление элементов, сортировку и удаление товаров.
-protocol CartViewModelProtocol: AnyObject {
-    /// Текущий параметр сортировки.
-    var sortOption: SortOption { get set }
-
-    /// Текущее состояние экрана корзины.
-    var state: CartViewState { get }
-
-    /// Замыкание вызывается при изменении состояния экрана.
-    var onStateChange: ((CartViewState) -> Void)? { get set }
-
-    /// Количество элементов в корзине.
-    var itemsCount: Int { get }
-
-    /// Полное количество элементов в корзине без учета поискового фильтра.
-    var totalItemsCount: Int { get }
-
-    /// Общая стоимость товаров в корзине.
-    var totalPrice: Double { get }
-
-    /// Загружает все элементы корзины.
-    func loadItems()
-
-    /// Удаляет элемент корзины по индексу.
-    /// - Parameter index: Индекс элемента для удаления.
-    func deleteItem(at index: Int)
-
-    /// Добавляет элемент в корзину по id.
-    /// - Parameter id: Идентификатор NFT.
-    func addItem(id: String)
-
-    /// Сортирует элементы корзины согласно выбранному способу сортировки.
-    func sortItems()
-
-    /// Возвращает элемент корзины для UI по индексу.
-    /// - Parameter index: Индекс элемента.
-    func getUICartItem(at index: Int) -> UICartItem?
-
-    /// Возвращает признак, пуста ли корзина.
-    func isEmpty() -> Bool
-
-    /// Обновляет текст локального поиска.
-    func updateSearchQuery(_ query: String)
-}
-
 final class CartViewModel: CartViewModelProtocol {
     private static let logger = Logger(subsystem: "com.fakenft.app", category: "CartViewModel")
 
@@ -310,8 +254,4 @@ final class CartViewModel: CartViewModelProtocol {
             isPlaceholder: true
         )
     }
-}
-
-extension Notification.Name {
-    static let cartDidChange = Notification.Name("cartDidChange")
 }

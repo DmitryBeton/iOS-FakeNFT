@@ -10,17 +10,17 @@ import OSLog
 
 final class PaymentViewController: UIViewController {
 
-    private static let logger = Logger(subsystem: "com.fakenft.app", category: "PaymentViewController")
+    static let logger = Logger(subsystem: "com.fakenft.app", category: "PaymentViewController")
 
     // MARK: - Properties
-    private let viewModel: PaymentViewModelProtocol
+    let viewModel: PaymentViewModelProtocol
     private let checkoutContext: CheckoutAnalyticsContext?
-    private var selectedCurrencyID: String?
+    var selectedCurrencyID: String?
 
     private let connectivity = ConnectivityService()
 
     // MARK: - UI Elements
-    private let collection: UICollectionView = {
+    let collection: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         let collection = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collection.backgroundColor = .clear
@@ -29,7 +29,7 @@ final class PaymentViewController: UIViewController {
         return collection
     }()
 
-    private let paymentFooterView = PaymentFooterView()
+    let paymentFooterView = PaymentFooterView()
 
     // MARK: - Initialization
     init(
@@ -51,7 +51,7 @@ final class PaymentViewController: UIViewController {
         super.viewDidLoad()
         Self.logger.debug("viewDidLoad")
         AnalyticsService.shared.track(.screenOpened(name: "payment"))
-        navigationItem.title = Constants.Text.navTitle
+        navigationItem.title = PaymentViewConstants.Text.navTitle
 
         connectivity.start()
 
@@ -90,7 +90,7 @@ final class PaymentViewController: UIViewController {
             paymentFooterView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             paymentFooterView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             paymentFooterView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-            paymentFooterView.heightAnchor.constraint(equalToConstant: Constants.Layout.footerHeight)
+            paymentFooterView.heightAnchor.constraint(equalToConstant: PaymentViewConstants.Layout.footerHeight)
         ])
     }
 
@@ -102,9 +102,9 @@ final class PaymentViewController: UIViewController {
         }
 
         paymentFooterView.onAgreementTapped = { [weak self] in
-            Self.logger.info("Agreement tapped. Opening: \(Constants.Text.agreementURL)")
+            Self.logger.info("Agreement tapped. Opening: \(PaymentViewConstants.Text.agreementURL)")
             AnalyticsService.shared.track(.buttonTapped(name: "agreement", screen: "payment"))
-            let vc = AgreementWebViewController(urlString: Constants.Text.agreementURL)
+            let vc = AgreementWebViewController(urlString: PaymentViewConstants.Text.agreementURL)
             self?.navigationController?.pushViewController(vc, animated: true)
         }
 
@@ -147,7 +147,7 @@ final class PaymentViewController: UIViewController {
             Self.logger.debug("Collection reloaded with currencies")
             paymentFooterView.isPayEnabled = false
             if items.isEmpty {
-                showRetryAlert(title: Constants.Text.currencyLoadErrorTitle, message: nil) { [weak self] in self?.startLoadCurrency() }
+                showRetryAlert(title: PaymentViewConstants.Text.currencyLoadErrorTitle, message: nil) { [weak self] in self?.startLoadCurrency() }
             }
         case .empty:
             UIBlockingProgressHUD.dismiss()
@@ -273,146 +273,4 @@ final class PaymentViewController: UIViewController {
         viewModel.loadItems()
     }
 
-    // MARK: - Generic alerts
-    private func showRetryAlert(title: String, message: String?, retryAction: @escaping () -> Void) {
-        Self.logger.warning("Showing retry alert. title=\(title)")
-        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-
-        alert.addAction(UIAlertAction(title: Constants.Text.retry, style: .default) { _ in
-            Self.logger.info("Retry tapped on alert")
-            retryAction()
-        })
-        alert.addAction(UIAlertAction(title: Constants.Text.cancel, style: .cancel))
-
-        present(alert, animated: true)
-    }
-
-    private func applyNavigationTitleStyle() {
-        let paragraph = NSMutableParagraphStyle()
-        paragraph.minimumLineHeight = 22
-        paragraph.maximumLineHeight = 22
-        paragraph.alignment = .center
-
-        let attributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont.bodyBold,
-            .paragraphStyle: paragraph,
-            .kern: 0,
-            .foregroundColor: UIColor(resource: .nftBlack)
-        ]
-
-        navigationController?.navigationBar.titleTextAttributes = attributes
-        Self.logger.debug("Applied navigation title style")
-    }
-
-    private func clearSelectionAndDisablePay() {
-        collection.indexPathsForSelectedItems?.forEach { indexPath in
-            collection.deselectItem(at: indexPath, animated: false)
-        }
-        paymentFooterView.isPayEnabled = false
-        Self.logger.debug("Cleared selection and disabled pay")
-    }
-}
-
-extension PaymentViewController: UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        viewModel.itemsCount
-    }
-
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell: UICurrencyCollectionViewCell = collection.dequeueReusableCell(indexPath: indexPath)
-
-        if let uiCurrency = viewModel.getUICurrency(at: indexPath.row) {
-            cell.configure(currency: uiCurrency)
-        }
-
-        return cell
-    }
-}
-
-extension PaymentViewController: UICollectionViewDelegateFlowLayout {
-    func collectionView(_ collectionView: UICollectionView,
-                        layout collectionViewLayout: UICollectionViewLayout,
-                        sizeForItemAt indexPath: IndexPath) -> CGSize {
-
-        let padding = Constants.Layout.collectionHorizontalPadding
-        let spacing = Constants.Layout.minimumInteritemSpacing
-        let itemsPerRow = Constants.Layout.itemsPerRow
-
-        let availableWidth = collectionView.frame.width - padding * 2 - spacing * (itemsPerRow - 1)
-        let widthPerItem = availableWidth / itemsPerRow
-        let height = widthPerItem * Constants.Layout.itemHeightToWidthRatio
-
-        return CGSize(width: widthPerItem, height: height)
-    }
-
-    func collectionView(_ collectionView: UICollectionView,
-                        layout collectionViewLayout: UICollectionViewLayout,
-                        insetForSectionAt section: Int) -> UIEdgeInsets {
-        Constants.Layout.sectionInset
-    }
-
-    func collectionView(_ collectionView: UICollectionView,
-                        layout collectionViewLayout: UICollectionViewLayout,
-                        minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        Constants.Layout.minimumLineSpacing
-    }
-
-    func collectionView(_ collectionView: UICollectionView,
-                        layout collectionViewLayout: UICollectionViewLayout,
-                        minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        Constants.Layout.minimumInteritemSpacing
-    }
-}
-
-// MARK: - Selection handling
-extension PaymentViewController: UICollectionViewDelegate {
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        Self.logger.debug("Currency selected at index=\(indexPath.row)")
-        viewModel.selectCurrency(at: indexPath.row)
-        if let currency = viewModel.getUICurrency(at: indexPath.row) {
-            selectedCurrencyID = currency.id
-            AnalyticsService.shared.track(.currencySelected(id: currency.id, name: currency.name))
-        }
-        paymentFooterView.isPayEnabled = true
-    }
-
-    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        Self.logger.debug("Currency deselected at index=\(indexPath.row)")
-        viewModel.clearSelectedCurrency()
-        let hasSelection = !(collectionView.indexPathsForSelectedItems?.isEmpty ?? true)
-        if hasSelection, let selectedIndex = collectionView.indexPathsForSelectedItems?.first?.row {
-            viewModel.selectCurrency(at: selectedIndex)
-            selectedCurrencyID = viewModel.getUICurrency(at: selectedIndex)?.id
-        }
-        if !hasSelection { selectedCurrencyID = nil }
-        paymentFooterView.isPayEnabled = hasSelection
-    }
-}
-
-struct CheckoutAnalyticsContext {
-    let itemCount: Int
-    let totalPrice: Double
-}
-
-private enum Constants {
-    enum Text {
-        static let navTitle = Localization.Payment.navTitle.localized
-        static let agreementURL = "https://yandex.ru/legal/practicum_termsofuse"
-        static let currencyLoadErrorTitle = Localization.Payment.currencyLoadErrorTitle.localized
-        static let payErrorTitle = Localization.Payment.payErrorTitle.localized
-        static let retry = Localization.Payment.retry.localized
-        static let cancel = Localization.Payment.cancel.localized
-    }
-    enum Layout {
-        // Collection layout
-        static let sectionInset = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
-        static let minimumLineSpacing: CGFloat = 7
-        static let minimumInteritemSpacing: CGFloat = 7
-        static let itemsPerRow: CGFloat = 2
-        static let collectionHorizontalPadding: CGFloat = 16
-        static let itemHeightToWidthRatio: CGFloat = 0.2738
-
-        // Footer
-        static let footerHeight: CGFloat = 186
-    }
 }

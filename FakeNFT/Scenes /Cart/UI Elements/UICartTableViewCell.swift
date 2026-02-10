@@ -9,13 +9,13 @@ import UIKit
 import Kingfisher
 
 final class CartItemViewCell: UITableViewCell, ReuseIdentifying {
-    private static let shimmerLayerName = "cart.shimmer.layer"
-    private static let shimmerAnimationKey = "cart.shimmer.animation"
-
     // MARK: - Properties
     var onDeleteButtonTapped: (() -> Void)?
     var currentImage: UIImage? { nftImageView.image }
     private var isShowingPlaceholder = false
+    private var skeletonViews: [UIView] {
+        [imageSkeletonView, titleSkeletonView, ratingSkeletonView, priceSkeletonView]
+    }
 
     // MARK: - UI Elements
     private lazy var cellContentView = UIView()
@@ -31,14 +31,14 @@ final class CartItemViewCell: UITableViewCell, ReuseIdentifying {
     private lazy var nftImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
-        imageView.layer.cornerRadius = Layout.Style.cornerRadius
+        imageView.layer.cornerRadius = CartItemCellLayout.Style.cornerRadius
         imageView.layer.masksToBounds = true
         return imageView
     }()
 
     private lazy var imageSkeletonView: UIView = {
         let view = UIView()
-        view.layer.cornerRadius = Layout.Style.cornerRadius
+        view.layer.cornerRadius = CartItemCellLayout.Style.cornerRadius
         view.layer.masksToBounds = true
         view.isHidden = true
         return view
@@ -53,7 +53,7 @@ final class CartItemViewCell: UITableViewCell, ReuseIdentifying {
 
     private lazy var titleSkeletonView: UIView = {
         let view = UIView()
-        view.layer.cornerRadius = Layout.Style.textCornerRadius
+        view.layer.cornerRadius = CartItemCellLayout.Style.textCornerRadius
         view.layer.masksToBounds = true
         view.isHidden = true
         return view
@@ -66,7 +66,7 @@ final class CartItemViewCell: UITableViewCell, ReuseIdentifying {
 
     private lazy var ratingSkeletonView: UIView = {
         let view = UIView()
-        view.layer.cornerRadius = Layout.Style.textCornerRadius
+        view.layer.cornerRadius = CartItemCellLayout.Style.textCornerRadius
         view.layer.masksToBounds = true
         view.isHidden = true
         return view
@@ -89,7 +89,7 @@ final class CartItemViewCell: UITableViewCell, ReuseIdentifying {
 
     private lazy var priceSkeletonView: UIView = {
         let view = UIView()
-        view.layer.cornerRadius = Layout.Style.textCornerRadius
+        view.layer.cornerRadius = CartItemCellLayout.Style.textCornerRadius
         view.layer.masksToBounds = true
         view.isHidden = true
         return view
@@ -148,7 +148,7 @@ final class CartItemViewCell: UITableViewCell, ReuseIdentifying {
     override func layoutSubviews() {
         super.layoutSubviews()
         guard isShowingPlaceholder else { return }
-        updateShimmerFrames()
+        CartItemShimmerHelper.updateFrames(in: skeletonViews)
     }
 
     func setCellImage(with url: URL) {
@@ -231,222 +231,45 @@ final class CartItemViewCell: UITableViewCell, ReuseIdentifying {
     }
 
     private func startShimmering() {
-        stopShimmering()
+        CartItemShimmerHelper.stop(in: skeletonViews)
         layoutIfNeeded()
-        addShimmer(to: imageSkeletonView, cornerRadius: Layout.Style.cornerRadius)
-        addShimmer(to: titleSkeletonView, cornerRadius: Layout.Style.textCornerRadius)
-        addShimmer(to: ratingSkeletonView, cornerRadius: Layout.Style.textCornerRadius)
-        addShimmer(to: priceSkeletonView, cornerRadius: Layout.Style.textCornerRadius)
+        CartItemShimmerHelper.start(
+            in: skeletonViews,
+            imageView: imageSkeletonView,
+            imageCornerRadius: CartItemCellLayout.Style.cornerRadius,
+            textCornerRadius: CartItemCellLayout.Style.textCornerRadius
+        )
     }
 
     private func stopShimmering() {
-        [imageSkeletonView, titleSkeletonView, ratingSkeletonView, priceSkeletonView].forEach { view in
-            view.layer.sublayers?
-                .filter { $0.name == Self.shimmerLayerName }
-                .forEach { $0.removeFromSuperlayer() }
-        }
-    }
-
-    private func updateShimmerFrames() {
-        [imageSkeletonView, titleSkeletonView, ratingSkeletonView, priceSkeletonView].forEach { view in
-            view.layer.sublayers?
-                .filter { $0.name == Self.shimmerLayerName }
-                .forEach { $0.frame = view.bounds }
-        }
-    }
-
-    private func addShimmer(to view: UIView, cornerRadius: CGFloat) {
-        guard !view.bounds.isEmpty else { return }
-
-        let baseColor = UIColor(resource: .nftLightGray).cgColor
-        let highlightColor = UIColor(resource: .nftWhite).withAlphaComponent(0.7).cgColor
-
-        let gradient = CAGradientLayer()
-        gradient.name = Self.shimmerLayerName
-        gradient.frame = view.bounds
-        gradient.cornerRadius = cornerRadius
-        gradient.colors = [baseColor, highlightColor, baseColor]
-        gradient.locations = [0.0, 0.5, 1.0]
-        gradient.startPoint = CGPoint(x: 0, y: 0.5)
-        gradient.endPoint = CGPoint(x: 1, y: 0.5)
-
-        let animation = CABasicAnimation(keyPath: "locations")
-        animation.fromValue = [-1.0, -0.5, 0.0]
-        animation.toValue = [1.0, 1.5, 2.0]
-        animation.duration = 1.1
-        animation.repeatCount = .infinity
-        gradient.add(animation, forKey: Self.shimmerAnimationKey)
-
-        view.layer.addSublayer(gradient)
+        CartItemShimmerHelper.stop(in: skeletonViews)
     }
 
     private func setupConstraints() {
-        [cellContentView, fullInfoContainerView, shortInfoContainerView,
-         nameAndRatingContainerView, priceContainerView, nftImageView,
-         imageSkeletonView, nftTitleLabel, titleSkeletonView, priceLabel,
-         nftCurrentPriceLabel, priceSkeletonView, ratingView, ratingSkeletonView, deleteButton].forEach {
-            $0.translatesAutoresizingMaskIntoConstraints = false
-        }
-
-        let cellBottom = cellContentView.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -Layout.Spacing.verticalInset)
-        cellBottom.priority = .defaultHigh
-
-        let imageAspect = nftImageView.heightAnchor.constraint(equalTo: nftImageView.widthAnchor)
-        imageAspect.priority = .defaultHigh
-
-        let shortInfoBottom = shortInfoContainerView.bottomAnchor.constraint(lessThanOrEqualTo: fullInfoContainerView.bottomAnchor, constant: -Layout.Spacing.infoVertical)
-        shortInfoBottom.priority = .defaultHigh
-
-        let titleSkeletonHeight = titleSkeletonView.heightAnchor.constraint(equalToConstant: Layout.Size.titleSkeletonHeight)
-        titleSkeletonHeight.priority = .defaultHigh
-
-        let ratingSkeletonHeight = ratingSkeletonView.heightAnchor.constraint(equalToConstant: Layout.Size.ratingSkeletonHeight)
-        ratingSkeletonHeight.priority = .defaultHigh
-
-        let ratingTop = ratingView.topAnchor.constraint(equalTo: nftTitleLabel.bottomAnchor, constant: Layout.Spacing.nameToRating)
-        ratingTop.priority = .defaultHigh
-
-        let ratingSkeletonTop = ratingSkeletonView.topAnchor.constraint(equalTo: titleSkeletonView.bottomAnchor, constant: Layout.Spacing.nameToRating)
-        ratingSkeletonTop.priority = .defaultHigh
-
-        let priceContainerTop = priceContainerView.topAnchor.constraint(equalTo: nameAndRatingContainerView.bottomAnchor, constant: Layout.Spacing.nameToPrice)
-        priceContainerTop.priority = .defaultHigh
-
-        let priceBottom = priceContainerView.bottomAnchor.constraint(lessThanOrEqualTo: shortInfoContainerView.bottomAnchor)
-        priceBottom.priority = .defaultHigh
-
-        let priceSkeletonHeight = priceSkeletonView.heightAnchor.constraint(equalToConstant: Layout.Size.priceSkeletonHeight)
-        priceSkeletonHeight.priority = .defaultHigh
-
-        NSLayoutConstraint.activate([
-            // cellContentView
-            cellContentView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Layout.Spacing.horizontalInset),
-            cellContentView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Layout.Spacing.horizontalInset),
-            cellContentView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Layout.Spacing.verticalInset),
-            cellBottom,
-
-            // fullInfoContainerView
-            fullInfoContainerView.leadingAnchor.constraint(equalTo: cellContentView.leadingAnchor),
-            fullInfoContainerView.topAnchor.constraint(equalTo: cellContentView.topAnchor),
-            fullInfoContainerView.bottomAnchor.constraint(lessThanOrEqualTo: cellContentView.bottomAnchor),
-            fullInfoContainerView.trailingAnchor.constraint(equalTo: deleteButton.leadingAnchor, constant: -Layout.Spacing.imageToInfo),
-
-            // nftImageView
-            nftImageView.leadingAnchor.constraint(equalTo: fullInfoContainerView.leadingAnchor),
-            nftImageView.topAnchor.constraint(equalTo: fullInfoContainerView.topAnchor),
-            nftImageView.bottomAnchor.constraint(lessThanOrEqualTo: fullInfoContainerView.bottomAnchor),
-            nftImageView.widthAnchor.constraint(equalToConstant: Layout.Image.size),
-            imageAspect,
-
-            // imageSkeletonView
-            imageSkeletonView.leadingAnchor.constraint(equalTo: nftImageView.leadingAnchor),
-            imageSkeletonView.trailingAnchor.constraint(equalTo: nftImageView.trailingAnchor),
-            imageSkeletonView.topAnchor.constraint(equalTo: nftImageView.topAnchor),
-            imageSkeletonView.bottomAnchor.constraint(equalTo: nftImageView.bottomAnchor),
-
-            // shortInfoContainerView
-            shortInfoContainerView.leadingAnchor.constraint(equalTo: nftImageView.trailingAnchor, constant: Layout.Spacing.imageToInfo),
-            shortInfoContainerView.trailingAnchor.constraint(equalTo: fullInfoContainerView.trailingAnchor),
-            shortInfoContainerView.topAnchor.constraint(equalTo: fullInfoContainerView.topAnchor, constant: Layout.Spacing.infoVertical),
-            shortInfoBottom,
-
-            // nameAndRatingContainerView
-            nameAndRatingContainerView.topAnchor.constraint(equalTo: shortInfoContainerView.topAnchor),
-            nameAndRatingContainerView.leadingAnchor.constraint(equalTo: shortInfoContainerView.leadingAnchor),
-            nameAndRatingContainerView.trailingAnchor.constraint(equalTo: shortInfoContainerView.trailingAnchor),
-
-            // nftTitleLabel
-            nftTitleLabel.topAnchor.constraint(equalTo: nameAndRatingContainerView.topAnchor),
-            nftTitleLabel.leadingAnchor.constraint(equalTo: nameAndRatingContainerView.leadingAnchor),
-            nftTitleLabel.trailingAnchor.constraint(lessThanOrEqualTo: nameAndRatingContainerView.trailingAnchor),
-
-            // titleSkeletonView
-            titleSkeletonView.topAnchor.constraint(equalTo: nameAndRatingContainerView.topAnchor),
-            titleSkeletonView.leadingAnchor.constraint(equalTo: nameAndRatingContainerView.leadingAnchor),
-            titleSkeletonHeight,
-            titleSkeletonView.widthAnchor.constraint(equalToConstant: Layout.Size.titleSkeletonWidth),
-
-            // ratingView
-            ratingTop,
-            ratingView.leadingAnchor.constraint(equalTo: nameAndRatingContainerView.leadingAnchor),
-            ratingView.bottomAnchor.constraint(equalTo: nameAndRatingContainerView.bottomAnchor),
-
-            // ratingSkeletonView
-            ratingSkeletonTop,
-            ratingSkeletonView.leadingAnchor.constraint(equalTo: nameAndRatingContainerView.leadingAnchor),
-            ratingSkeletonHeight,
-            ratingSkeletonView.widthAnchor.constraint(equalToConstant: Layout.Size.ratingSkeletonWidth),
-            ratingSkeletonView.bottomAnchor.constraint(equalTo: nameAndRatingContainerView.bottomAnchor),
-
-            // priceContainerView
-            priceContainerTop,
-            priceContainerView.leadingAnchor.constraint(equalTo: shortInfoContainerView.leadingAnchor),
-            priceContainerView.trailingAnchor.constraint(equalTo: shortInfoContainerView.trailingAnchor),
-            priceBottom,
-
-            // priceLabel
-            priceLabel.topAnchor.constraint(equalTo: priceContainerView.topAnchor),
-            priceLabel.leadingAnchor.constraint(equalTo: priceContainerView.leadingAnchor),
-            priceLabel.trailingAnchor.constraint(lessThanOrEqualTo: priceContainerView.trailingAnchor),
-
-            // nftCurrentPriceLabel
-            nftCurrentPriceLabel.topAnchor.constraint(equalTo: priceLabel.bottomAnchor, constant: Layout.Spacing.priceToCurrentPrice),
-            nftCurrentPriceLabel.leadingAnchor.constraint(equalTo: priceContainerView.leadingAnchor),
-            nftCurrentPriceLabel.trailingAnchor.constraint(lessThanOrEqualTo: priceContainerView.trailingAnchor),
-            nftCurrentPriceLabel.bottomAnchor.constraint(lessThanOrEqualTo: priceContainerView.bottomAnchor),
-
-            // priceSkeletonView
-            priceSkeletonView.topAnchor.constraint(equalTo: priceContainerView.topAnchor, constant: Layout.Spacing.priceSkeletonTopInset),
-            priceSkeletonView.leadingAnchor.constraint(equalTo: priceContainerView.leadingAnchor),
-            priceSkeletonHeight,
-            priceSkeletonView.widthAnchor.constraint(equalToConstant: Layout.Size.priceSkeletonWidth),
-
-            // deleteButton
-            deleteButton.trailingAnchor.constraint(equalTo: cellContentView.trailingAnchor),
-            deleteButton.centerYAnchor.constraint(equalTo: cellContentView.centerYAnchor),
-            deleteButton.widthAnchor.constraint(equalToConstant: Layout.Trash.size),
-            deleteButton.heightAnchor.constraint(equalToConstant: Layout.Trash.size)
-        ])
+        CartItemViewCellLayoutConfigurator.setupConstraints(
+            with: .init(
+                contentView: contentView,
+                cellContentView: cellContentView,
+                fullInfoContainerView: fullInfoContainerView,
+                shortInfoContainerView: shortInfoContainerView,
+                nameAndRatingContainerView: nameAndRatingContainerView,
+                priceContainerView: priceContainerView,
+                nftImageView: nftImageView,
+                imageSkeletonView: imageSkeletonView,
+                nftTitleLabel: nftTitleLabel,
+                titleSkeletonView: titleSkeletonView,
+                ratingView: ratingView,
+                ratingSkeletonView: ratingSkeletonView,
+                priceLabel: priceLabel,
+                nftCurrentPriceLabel: nftCurrentPriceLabel,
+                priceSkeletonView: priceSkeletonView,
+                deleteButton: deleteButton
+            )
+        )
     }
 
     // MARK: - Actions
     @objc private func deleteTapped() {
         onDeleteButtonTapped?()
-    }
-}
-
-private enum Layout {
-    enum Size {
-        static let titleSkeletonWidth: CGFloat = 130
-        static let titleSkeletonHeight: CGFloat = 20
-        static let ratingSkeletonWidth: CGFloat = 74
-        static let ratingSkeletonHeight: CGFloat = 12
-        static let priceSkeletonWidth: CGFloat = 84
-        static let priceSkeletonHeight: CGFloat = 20
-    }
-
-    enum Trash {
-        static let size: CGFloat = 40
-    }
-
-    enum Image {
-        static let size: CGFloat = 108
-    }
-
-    enum Spacing {
-        static let horizontalInset: CGFloat = 16
-        static let verticalInset: CGFloat = 16
-        static let imageToInfo: CGFloat = 20
-        static let infoVertical: CGFloat = 8
-        static let nameToPrice: CGFloat = 12
-        static let nameToRating: CGFloat = 4
-        static let priceToCurrentPrice: CGFloat = 2
-        static let priceSkeletonTopInset: CGFloat = 2
-
-    }
-
-    enum Style {
-        static let cornerRadius: CGFloat = 12
-        static let textCornerRadius: CGFloat = 6
     }
 }
