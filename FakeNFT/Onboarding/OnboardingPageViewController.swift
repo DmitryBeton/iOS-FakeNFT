@@ -8,9 +8,9 @@ protocol OnboardingPageViewControllerDelegate: AnyObject {
 final class OnboardingPageViewController: UIViewController {
     
     // MARK: - Properties
-    
+
     private let pageView = OnboardingPageView()
-    private let model: OnboardingPageModel
+    let model: OnboardingPageModel
     weak var delegate: OnboardingPageViewControllerDelegate?
     
     // MARK: - Init

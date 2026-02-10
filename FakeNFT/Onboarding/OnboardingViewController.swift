@@ -87,11 +87,6 @@ extension OnboardingViewController: UIPageViewControllerDataSource {
         _ pageViewController: UIPageViewController,
         viewControllerBefore viewController: UIViewController
     ) -> UIViewController? {
-        guard let currentVC = viewController as? OnboardingPageViewController,
-              let currentIndex = pages.firstIndex(where: { $0.text == currentVC.view.subviews.first }) else {
-            return nil
-        }
-        
         let previousIndex = currentPageIndex - 1
         guard previousIndex >= 0 else { return nil }
         return createPageViewController(at: previousIndex)
@@ -117,13 +112,14 @@ extension OnboardingViewController: UIPageViewControllerDelegate {
         transitionCompleted completed: Bool
     ) {
         guard completed,
-              let currentVC = pageViewController.viewControllers?.first as? OnboardingPageViewController,
-              let index = pages.firstIndex(where: { $0.text == currentVC.view.subviews.first }) else {
+              let currentVC = pageViewController.viewControllers?.first as? OnboardingPageViewController else {
             return
         }
-        
-        currentPageIndex = index
-        pageControl.currentPage = index
+
+        if let index = pages.firstIndex(where: { $0.title == currentVC.model.title }) {
+            currentPageIndex = index
+            pageControl.currentPage = index
+        }
     }
 }
 
