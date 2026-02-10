@@ -11,6 +11,12 @@ final class OnboardingPageView: UIView {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
+
+    private let gradientOverlay: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
     
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -48,22 +54,41 @@ final class OnboardingPageView: UIView {
     }()
     
     // MARK: - Init
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupView()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        setupGradient()
+    }
     
     // MARK: - Setup
-    
+
+    private func setupGradient() {
+        gradientOverlay.layer.sublayers?.removeAll(where: { $0 is CAGradientLayer })
+
+        let gradientLayer = CAGradientLayer()
+        gradientLayer.frame = gradientOverlay.bounds
+        gradientLayer.colors = [
+            UIColor.black.withAlphaComponent(0.0).cgColor,
+            UIColor.black.withAlphaComponent(0.5).cgColor
+        ]
+        gradientLayer.locations = [0.0, 1.0]
+        gradientOverlay.layer.addSublayer(gradientLayer)
+    }
+
     private func setupView() {
         backgroundColor = UIColor(resource: .nftBlackUni)
-        
+
         addSubview(imageView)
+        addSubview(gradientOverlay)
         addSubview(titleLabel)
         addSubview(textLabel)
         addSubview(closeButton)
@@ -74,6 +99,11 @@ final class OnboardingPageView: UIView {
             imageView.leadingAnchor.constraint(equalTo: leadingAnchor),
             imageView.trailingAnchor.constraint(equalTo: trailingAnchor),
             imageView.bottomAnchor.constraint(equalTo: bottomAnchor),
+
+            gradientOverlay.topAnchor.constraint(equalTo: topAnchor),
+            gradientOverlay.leadingAnchor.constraint(equalTo: leadingAnchor),
+            gradientOverlay.trailingAnchor.constraint(equalTo: trailingAnchor),
+            gradientOverlay.bottomAnchor.constraint(equalTo: bottomAnchor),
 
             closeButton.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 16),
             closeButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
@@ -86,7 +116,7 @@ final class OnboardingPageView: UIView {
 
             textLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             textLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            textLabel.bottomAnchor.constraint(equalTo: actionButton.topAnchor, constant: -24),
+            textLabel.bottomAnchor.constraint(equalTo: actionButton.topAnchor, constant: -363),
 
             actionButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             actionButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
