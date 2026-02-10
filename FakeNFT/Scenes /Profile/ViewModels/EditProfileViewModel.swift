@@ -97,10 +97,10 @@ final class EditProfileViewModel: EditProfileViewModelProtocol {
     
     // MARK: - Init
     
-    init(profile: ProfileUI, service: ProfileServiceProtocol) {
-        initialProfile = profile
+    init(profile: ProfileUI, servicesAssembly: ServicesAssembly) {
         self.profile = profile
-        self.service = service
+        initialProfile = profile
+        service = servicesAssembly.profileService
     }
     
     // MARK: - Private Methods

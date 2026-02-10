@@ -32,7 +32,7 @@ final class TabBarController: UITabBarController {
     }
     
     private func buildProfileController() -> UINavigationController {
-        let viewModel = ProfileViewModel(service: servicesAssembly.profileService)
+        let viewModel = ProfileViewModel(servicesAssembly: servicesAssembly)
         let controller = ProfileViewController(viewModel: viewModel)
         let navController = UINavigationController(rootViewController: controller)
         navController.tabBarItem = profileTabBarItem

@@ -8,7 +8,7 @@ final class ProfileViewModel: ProfileViewModelProtocol {
     
     // MARK: - Public Properties
     
-    private(set) var service: ProfileServiceProtocol
+    private(set) var servicesAssembly: ServicesAssembly
     
     // MARK: - Public Methods
     
@@ -55,12 +55,14 @@ final class ProfileViewModel: ProfileViewModelProtocol {
     
     // MARK: - Private Properties
     
+    private let service: ProfileServiceProtocol
     private var profile: Profile?
     
     // MARK: - Init
     
-    init(service: ProfileServiceProtocol) {
-        self.service = service
+    init(servicesAssembly: ServicesAssembly) {
+        self.servicesAssembly = servicesAssembly
+        self.service = servicesAssembly.profileService
     }
     
     // MARK: - Private Methods

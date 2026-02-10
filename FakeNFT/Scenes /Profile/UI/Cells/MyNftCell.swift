@@ -46,6 +46,7 @@ final class MyNftCell: UITableViewCell, ReuseIdentifying {
         imageView.layer.masksToBounds = true
         imageView.layer.cornerRadius = Constants.Radius.imageRadius
         imageView.isUserInteractionEnabled = true
+        imageView.kf.indicatorType = .activity
         imageView.addSubview(likeButton)
         return imageView
     }()

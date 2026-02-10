@@ -207,9 +207,12 @@ final class ProfileViewController: UIViewController, NetworkErrorView {
     
     @objc private func editBarButtonTapped() {
         let initialProfile = viewModel.getProfile()
-        let service = viewModel.service
+        let servicesAssembly = viewModel.servicesAssembly
         
-        let editProfileVM = EditProfileViewModel(profile: initialProfile, service: service)
+        let editProfileVM = EditProfileViewModel(
+            profile: initialProfile,
+            servicesAssembly: servicesAssembly
+        )
         editProfileVM.onChangesSaved = { [weak self] in
             self?.viewModel.loadProfile()
         }
@@ -279,7 +282,7 @@ final class ProfileViewController: UIViewController, NetworkErrorView {
     }
     
     private func pushToMyNftViewController() {
-        let viewModel = MyNftViewModel()
+        let viewModel = MyNftViewModel(servicesAssembly: viewModel.servicesAssembly)
         let myNftVC = MyNftViewController(viewModel: viewModel)
         myNftVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(myNftVC, animated: true)

@@ -3,7 +3,7 @@ import Foundation
 struct LoadNftRequest: NetworkRequest {
     let id: UUID
     var endpoint: URL? {
-        URL(string: "\(RequestConstants.baseURL)/api/v1/nft/\(id.uuidString)")
+        URL(string: "\(RequestConstants.baseURL)/api/v1/nft/\(id.uuidString)".lowercased())
     }
     var httpMethod: HttpMethod { .get }
     var dto: Dto? { nil }

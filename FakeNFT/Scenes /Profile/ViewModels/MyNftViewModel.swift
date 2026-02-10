@@ -18,9 +18,30 @@ final class MyNftViewModel: MyNftViewModelProtocol {
     func loadNfts() {
         state = .loading
         
-        loadMockData()
-        updateSortedNfts()
-        state = .data
+        profileService.loadProfile() { [weak self] result in
+            guard let self else { return }
+            
+            switch result {
+            case .success(let profileResult):
+                let idsToLoad = profileResult.nfts
+                self.nftService.loadNfts(withIds: idsToLoad) { nftResult in
+                    switch nftResult {
+                    case .success(let nftsResult):
+                        self.nfts = nftsResult
+                        self.updateSortedNfts()
+                        self.state = .data
+                        
+                    case .failure(let nftsError):
+                        self.state = .failed
+                        print("❌[ProfileNftByIdService] failed to load data, error: \(nftsError)")
+                    }
+                }
+                
+            case .failure(let profileError):
+                self.state = .failed
+                print("❌[ProfileService] failed to load data, error: \(profileError)")
+            }
+        }
     }
     
     func changeSort(_ sort: SortOption) {
@@ -28,11 +49,18 @@ final class MyNftViewModel: MyNftViewModelProtocol {
     }
     
     func setLike(id: UUID) {
+        //let oldValue = likedNfts
+        
         if likedNfts.contains(id) {
             likedNfts.remove(id)
         } else {
             likedNfts.insert(id)
         }
+        
+        print("Likes: \(likedNfts.count)")
+        
+        updateSortedNfts()
+        onLikesUpdate?()
     }
     
     // MARK: - State
@@ -45,20 +73,18 @@ final class MyNftViewModel: MyNftViewModelProtocol {
     
     // MARK: - Private Properties
     
+    private let profileService: ProfileServiceProtocol
+    private let nftService: ProfileNftByIdServiceProtocol
     private let sortStorage: SortOptionStorageProtocol
+    
     private var nfts: [ProfileNft] = []
+    private var likedNfts: Set<UUID> = []
     
     private var sort: SortOption {
         didSet {
             sortStorage.sortOption = sort
             updateSortedNfts()
             onSortChange?()
-        }
-    }
-    
-    private var likedNfts: Set<UUID> = [] {
-        didSet {
-            updateLikedNfts(likes: likedNfts)
         }
     }
     
@@ -72,12 +98,17 @@ final class MyNftViewModel: MyNftViewModelProtocol {
     
     // MARK: - Init
     
-    convenience init() {
+    convenience init(servicesAssembly: ServicesAssembly) {
         let sortStorage = SortOptionStorage()
-        self .init(sortStorage: sortStorage)
+        self .init(servicesAssembly: servicesAssembly, sortStorage: sortStorage)
     }
     
-    init(sortStorage: SortOptionStorageProtocol) {
+    init(
+        servicesAssembly: ServicesAssembly,
+        sortStorage: SortOptionStorageProtocol
+    ) {
+        self.profileService = servicesAssembly.profileService
+        self.nftService = servicesAssembly.profileNftService
         self.sortStorage = sortStorage
         sort = sortStorage.sortOption
     }
@@ -110,65 +141,6 @@ final class MyNftViewModel: MyNftViewModelProtocol {
         case .rating:
             nfts.sorted { $0.rating > $1.rating }
         }
-    }
-    
-    // TODO: - Should be changed after service implementation
-    private func updateLikedNfts(likes: Set<UUID>) {
-        print("Likes: \(likes.count)")
-        updateSortedNfts()
-        onLikesUpdate?()
-    }
-    
-    // TODO: - Should be deleted after service implementation
-    // NOTE: Force unwrap is used only for test purposes
-    private func loadMockData() {
-        nfts = [
-            ProfileNft(
-                createdAt: Date(),
-                name: "commodo porttitor",
-                images: [
-                    URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Beige/April/1.png")!,
-                    URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Beige/April/2.png")!,
-                    URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Beige/April/3.png")!
-                ],
-                rating: 3,
-                description: "fringilla eam vim sonet faucibus impetus",
-                price: 36.54,
-                author: "Condescending Almeida",
-                website: URL(string: "https://condescending_almeida.fakenfts.org/")!,
-                id: UUID(uuidString: "739e293c-1067-43e5-8f1d-4377e744ddde")!
-            ),
-            ProfileNft(
-                createdAt: Date(),
-                name: "dico eleifend",
-                images: [
-                    URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Yellow/Helga/1.png")!,
-                    URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Yellow/Helga/2.png")!,
-                    URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Yellow/Helga/3.png")!,
-                ],
-                rating: 5,
-                description: "tritani appareat constituam deterruisset justo",
-                price: 8.08,
-                author: "Quizzical Blackwell",
-                website: URL(string: "https://quizzical_blackwell.fakenfts.org/")!,
-                id: UUID(uuidString: "1464520d-1659-4055-8a79-4593b9569e48")!
-            ),
-            ProfileNft(
-                createdAt: Date(),
-                name: "eleifend mutat",
-                images: [
-                    URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Gray/Kaydan/1.png")!,
-                    URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Gray/Kaydan/2.png")!,
-                    URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Gray/Kaydan/3.png")!,
-                ],
-                rating: 2,
-                description: "tacimates docendi efficitur tempus non quod cras pellentesque commune",
-                price: 16.95,
-                author: "Goofy Napier",
-                website: URL(string: "https://goofy_napier.fakenfts.org/")!,
-                id: UUID(uuidString: "5093c01d-e79e-4281-96f1-76db5880ba70")!
-            )
-        ]
     }
     
 }
