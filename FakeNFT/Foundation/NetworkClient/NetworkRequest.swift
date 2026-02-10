@@ -7,6 +7,11 @@ enum HttpMethod: String {
     case delete = "DELETE"
 }
 
+enum RequestCachePolicy {
+    case none
+    case ttl(TimeInterval)
+}
+
 protocol NetworkRequest {
     var endpoint: URL? { get }
     var httpMethod: HttpMethod { get }
@@ -14,6 +19,7 @@ protocol NetworkRequest {
     var headers: [String: String]? { get }
     var body: Data? { get }
     var contentType: String? { get }
+    var cachePolicy: RequestCachePolicy { get }
 }
 
 protocol Dto {
@@ -27,4 +33,5 @@ extension NetworkRequest {
     var headers: [String: String]? { nil }
     var body: Data? { nil }
     var contentType: String? { nil }
+    var cachePolicy: RequestCachePolicy { .none }
 }

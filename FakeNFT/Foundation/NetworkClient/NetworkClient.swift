@@ -80,17 +80,28 @@ extension NetworkClient {
 }
 
 final class DefaultNetworkClient: NetworkClient {
+    private static let defaultURLCache = URLCache(
+        memoryCapacity: 20 * 1024 * 1024,
+        diskCapacity: 100 * 1024 * 1024
+    )
+
     private let session: URLSession
     private let metricsSession: URLSession
     private let metricsCollector: URLSessionMetricsCollector
     private let decoder: JSONDecoder
+    private let cacheStore = ResponseCacheStore()
 
     init(session: URLSession = URLSession.shared,
          decoder: JSONDecoder = JSONDecoder(),
          encoder: JSONEncoder = JSONEncoder()) {
-        self.session = session
-        self.metricsCollector = URLSessionMetricsCollector()
         let configuration = session.configuration
+        if configuration.urlCache == nil {
+            configuration.urlCache = Self.defaultURLCache
+        }
+        configuration.requestCachePolicy = .useProtocolCachePolicy
+
+        self.session = URLSession(configuration: configuration)
+        self.metricsCollector = URLSessionMetricsCollector()
         self.metricsSession = URLSession(
             configuration: configuration,
             delegate: metricsCollector,
@@ -113,6 +124,10 @@ final class DefaultNetworkClient: NetworkClient {
             }
         }
         guard let urlRequest = create(request: request) else { return nil }
+        if let cachedData = cacheStore.cachedData(for: urlRequest, policy: request.cachePolicy) {
+            onResponse(.success(cachedData))
+            return nil
+        }
 
         let targetSession = onTaskMetrics == nil ? session : metricsSession
         let task = targetSession.dataTask(with: urlRequest) { data, response, error in
@@ -127,6 +142,7 @@ final class DefaultNetworkClient: NetworkClient {
             }
 
             if let data = data {
+                self.cacheStore.store(data: data, for: urlRequest, policy: request.cachePolicy)
                 onResponse(.success(data))
                 return
             } else if let error = error {
@@ -215,6 +231,57 @@ final class DefaultNetworkClient: NetworkClient {
         } catch {
             onResponse(.failure(NetworkClientError.parsingError))
         }
+    }
+}
+
+private final class ResponseCacheStore {
+    private struct CacheKey: Hashable {
+        let method: String
+        let url: String
+        let bodyDigest: Int
+    }
+
+    private struct CacheEntry {
+        let data: Data
+        let expiresAt: Date
+    }
+
+    private let lock = NSLock()
+    private var entries: [CacheKey: CacheEntry] = [:]
+
+    func cachedData(for request: URLRequest, policy: RequestCachePolicy) -> Data? {
+        guard case .ttl(let ttl) = policy, ttl > 0 else { return nil }
+        let key = makeKey(for: request)
+        let now = Date()
+
+        lock.lock()
+        defer { lock.unlock() }
+
+        removeExpiredEntries(now: now)
+        guard let entry = entries[key], entry.expiresAt > now else { return nil }
+        return entry.data
+    }
+
+    func store(data: Data, for request: URLRequest, policy: RequestCachePolicy) {
+        guard case .ttl(let ttl) = policy, ttl > 0 else { return }
+        let key = makeKey(for: request)
+        let expiresAt = Date().addingTimeInterval(ttl)
+
+        lock.lock()
+        entries[key] = CacheEntry(data: data, expiresAt: expiresAt)
+        lock.unlock()
+    }
+
+    private func makeKey(for request: URLRequest) -> CacheKey {
+        CacheKey(
+            method: request.httpMethod ?? "GET",
+            url: request.url?.absoluteString ?? "",
+            bodyDigest: request.httpBody?.hashValue ?? 0
+        )
+    }
+
+    private func removeExpiredEntries(now: Date) {
+        entries = entries.filter { $0.value.expiresAt > now }
     }
 }
 

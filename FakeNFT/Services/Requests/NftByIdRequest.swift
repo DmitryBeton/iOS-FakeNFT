@@ -5,6 +5,10 @@ struct NFTRequest: NetworkRequest {
     var endpoint: URL? {
         URL(string: "\(RequestConstants.baseURL)/api/v1/nft/\(id)")
     }
+
+    var cachePolicy: RequestCachePolicy {
+        .ttl(300)
+    }
 }
 
 struct CartOrderRequest: NetworkRequest {
@@ -16,6 +20,10 @@ struct CartOrderRequest: NetworkRequest {
 struct CurrencyRequest: NetworkRequest {
     var endpoint: URL? {
         URL(string: "\(RequestConstants.baseURL)/api/v1/currencies")
+    }
+
+    var cachePolicy: RequestCachePolicy {
+        .ttl(300)
     }
 }
 

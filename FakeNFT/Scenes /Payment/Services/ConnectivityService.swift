@@ -6,16 +6,18 @@
 //
 
 import Network
+import Foundation
 
 final class ConnectivityService {
     private let monitor = NWPathMonitor()
     private let queue = DispatchQueue(label: "ConnectivityMonitor.queue")
+    private let stateLock = NSLock()
 
-    private(set) var isOffline: Bool = false
+    private var isOffline: Bool = false
 
     func start() {
         monitor.pathUpdateHandler = { [weak self] path in
-            self?.isOffline = (path.status != .satisfied)
+            self?.setOffline(path.status != .satisfied)
         }
         monitor.start(queue: queue)
     }
@@ -25,6 +27,14 @@ final class ConnectivityService {
     }
 
     func isOfflineNow() -> Bool {
-        self.isOffline
+        stateLock.lock()
+        defer { stateLock.unlock() }
+        return isOffline
+    }
+
+    private func setOffline(_ value: Bool) {
+        stateLock.lock()
+        isOffline = value
+        stateLock.unlock()
     }
 }
