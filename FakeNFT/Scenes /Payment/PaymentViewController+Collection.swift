@@ -53,7 +53,7 @@ extension PaymentViewController: UICollectionViewDelegateFlowLayout {
 
 extension PaymentViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        Self.logger.debug("Currency selected at index=\(indexPath.row)")
+        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] Currency selected at index=\(indexPath.row)")
         viewModel.selectCurrency(at: indexPath.row)
         if let currency = viewModel.getUICurrency(at: indexPath.row) {
             selectedCurrencyID = currency.id
@@ -63,7 +63,7 @@ extension PaymentViewController: UICollectionViewDelegate {
     }
 
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        Self.logger.debug("Currency deselected at index=\(indexPath.row)")
+        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] Currency deselected at index=\(indexPath.row)")
         viewModel.clearSelectedCurrency()
         let hasSelection = !(collectionView.indexPathsForSelectedItems?.isEmpty ?? true)
         if hasSelection, let selectedIndex = collectionView.indexPathsForSelectedItems?.first?.row {

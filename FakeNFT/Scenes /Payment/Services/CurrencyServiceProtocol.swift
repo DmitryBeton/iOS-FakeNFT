@@ -80,7 +80,7 @@ final class CurrencyService: CurrencyServiceProtocol {
     }
 
     func fetchCurrencies(completion: @escaping (Result<[Currency], Error>) -> Void) {
-        Self.logger.info("Fetching currencies from /api/v1/currencies")
+        Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] Fetching currencies from /api/v1/currencies")
         networkClient.send(
             request: CurrencyRequest(),
             type: [Currency].self,
@@ -88,13 +88,13 @@ final class CurrencyService: CurrencyServiceProtocol {
         ) { result in
             switch result {
             case .success(let currencies):
-                Self.logger.info("Currencies fetched successfully. count=\(currencies.count)")
+                Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] Currencies fetched successfully. count=\(currencies.count)")
                 // Сервис гарантирует UI-безопасную доставку callback-а.
                 DispatchQueue.main.async {
                     completion(.success(currencies))
                 }
             case .failure(let error):
-                Self.logger.error("Failed to fetch currencies: \(String(describing: error), privacy: .public)")
+                Self.logger.error("[\(LogTimestamp.current(), privacy: .public)] Failed to fetch currencies: \(String(describing: error), privacy: .public)")
                 // Сохраняем одинаковый потоковый контракт и для успеха, и для ошибки.
                 DispatchQueue.main.async {
                     completion(.failure(error))

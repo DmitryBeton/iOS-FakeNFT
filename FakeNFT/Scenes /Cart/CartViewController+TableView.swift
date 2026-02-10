@@ -23,14 +23,14 @@ extension CartViewController: UITableViewDataSource, UITableViewDelegate {
         if !cartItem.isPlaceholder {
             configCell(for: cell, with: cartItem)
         }
-        Self.logger.debug("Configured cell for row=\(indexPath.row), id=\(cartItem.id)")
+        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] Configured cell for row=\(indexPath.row), id=\(cartItem.id)")
 
         if cartItem.isPlaceholder {
             cell.onDeleteButtonTapped = nil
         } else {
             cell.onDeleteButtonTapped = { [weak self, weak cell] in
                 guard let self, let cell, let actualIndexPath = self.tableView.indexPath(for: cell) else { return }
-                Self.logger.info("Delete button tapped for row=\(actualIndexPath.row), id=\(cartItem.id)")
+                Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] Delete button tapped for row=\(actualIndexPath.row), id=\(cartItem.id)")
                 self.presentDeleteAlert(for: cartItem, at: actualIndexPath, image: cell.currentImage)
             }
         }
@@ -39,7 +39,7 @@ extension CartViewController: UITableViewDataSource, UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        Self.logger.debug("Configuring trailing swipe actions for row=\(indexPath.row)")
+        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] Configuring trailing swipe actions for row=\(indexPath.row)")
 
         let deleteAction = UIContextualAction(
             style: .destructive,
@@ -50,12 +50,12 @@ extension CartViewController: UITableViewDataSource, UITableViewDelegate {
                 return
             }
 
-            Self.logger.info("Swipe-to-delete initiated for row=\(indexPath.row)")
+            Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] Swipe-to-delete initiated for row=\(indexPath.row)")
             if let item = self.viewModel.getUICartItem(at: indexPath.row) {
                 AnalyticsService.shared.track(.cartItemRemoved(id: item.id, source: .swipe))
             }
             self.viewModel.deleteItem(at: indexPath.row)
-            Self.logger.debug("Requested deletion for cart item at row=\(indexPath.row)")
+            Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] Requested deletion for cart item at row=\(indexPath.row)")
             completion(true)
         }
 

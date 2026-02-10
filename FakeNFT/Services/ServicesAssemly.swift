@@ -124,7 +124,7 @@ final class CartService: CartServiceProtocol {
     ) {
         let requestID = UUID().uuidString
         let startedAt = Date()
-        Self.logger.info("[\(requestID, privacy: .public)] Starting cart order request: /api/v1/orders/1")
+        Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] [\(requestID, privacy: .public)] Starting cart order request: /api/v1/orders/1")
 
         networkClient.send(
             request: CartOrderRequest(),
@@ -138,12 +138,12 @@ final class CartService: CartServiceProtocol {
             switch result {
             case .success(let order):
                 let orderRequestDuration = Date().timeIntervalSince(startedAt)
-                Self.logger.info("[\(requestID, privacy: .public)] Order response received. orderID=\(order.id, privacy: .public), idsCount=\(order.nfts.count), duration=\(orderRequestDuration, format: .fixed(precision: 3))s")
+                Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] [\(requestID, privacy: .public)] Order response received. orderID=\(order.id, privacy: .public), idsCount=\(order.nfts.count), duration=\(orderRequestDuration, format: .fixed(precision: 3))s")
                 let joinedIDs = order.nfts.joined(separator: ",")
-                Self.logger.debug("[\(requestID, privacy: .public)] NFT IDs payload: \(joinedIDs, privacy: .public)")
+                Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] [\(requestID, privacy: .public)] NFT IDs payload: \(joinedIDs, privacy: .public)")
 
                 DispatchQueue.main.async {
-                    Self.logger.debug("[\(requestID, privacy: .public)] Sending placeholders to UI. placeholdersCount=\(order.nfts.count)")
+                    Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] [\(requestID, privacy: .public)] Sending placeholders to UI. placeholdersCount=\(order.nfts.count)")
                     onPlaceholders?(order.nfts)
                 }
                 self.loadNfts(
@@ -155,7 +155,7 @@ final class CartService: CartServiceProtocol {
                 )
             case .failure(let error):
                 let orderRequestDuration = Date().timeIntervalSince(startedAt)
-                Self.logger.error("[\(requestID, privacy: .public)] Failed to load cart order after \(orderRequestDuration, format: .fixed(precision: 3))s. error=\(String(describing: error), privacy: .public)")
+                Self.logger.error("[\(LogTimestamp.current(), privacy: .public)] [\(requestID, privacy: .public)] Failed to load cart order after \(orderRequestDuration, format: .fixed(precision: 3))s. error=\(String(describing: error), privacy: .public)")
                 DispatchQueue.main.async {
                     completion(.failure(error))
                 }
@@ -184,7 +184,7 @@ private extension CartService {
         completion: @escaping CartMutationCompletion
     ) {
         let traceID = UUID().uuidString
-        Self.logger.info("[\(traceID, privacy: .public)] Starting cart mutation. action=\(action.rawValue, privacy: .public), nftID=\(id, privacy: .public)")
+        Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Starting cart mutation. action=\(action.rawValue, privacy: .public), nftID=\(id, privacy: .public)")
 
         networkClient.send(
             request: CartOrderRequest(),
@@ -206,18 +206,18 @@ private extension CartService {
                 }
 
                 if updatedIDs == order.nfts {
-                    Self.logger.info("[\(traceID, privacy: .public)] Cart mutation produced no changes. Returning current IDs.")
+                    Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Cart mutation produced no changes. Returning current IDs.")
                     DispatchQueue.main.async {
                         completion(.success(order.nfts))
                     }
                     return
                 }
 
-                Self.logger.debug("[\(traceID, privacy: .public)] Sending PUT /api/v1/orders/1 with idsCount=\(updatedIDs.count)")
+                Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Sending PUT /api/v1/orders/1 with idsCount=\(updatedIDs.count)")
                 self.sendOrderUpdate(nftIDs: updatedIDs, traceID: traceID, completion: completion)
 
             case .failure(let error):
-                Self.logger.error("[\(traceID, privacy: .public)] Failed to load order before mutation. error=\(String(describing: error), privacy: .public)")
+                Self.logger.error("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Failed to load order before mutation. error=\(String(describing: error), privacy: .public)")
                 DispatchQueue.main.async {
                     completion(.failure(error))
                 }
@@ -239,12 +239,12 @@ private extension CartService {
 
             switch result {
             case .success(let response):
-                Self.logger.info("[\(traceID, privacy: .public)] PUT order succeeded. idsCount=\(response.nfts.count)")
+                Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] PUT order succeeded. idsCount=\(response.nfts.count)")
                 DispatchQueue.main.async {
                     completion(.success(response.nfts))
                 }
             case .failure(let error):
-                Self.logger.error("[\(traceID, privacy: .public)] PUT order failed. error=\(String(describing: error), privacy: .public)")
+                Self.logger.error("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] PUT order failed. error=\(String(describing: error), privacy: .public)")
                 DispatchQueue.main.async {
                     completion(.failure(error))
                 }
@@ -260,14 +260,14 @@ private extension CartService {
         completion: @escaping CartItemsCompletion
     ) {
         guard !ids.isEmpty else {
-            Self.logger.info("[\(traceID, privacy: .public)] Order contains no NFT IDs. Returning empty cart.")
+            Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Order contains no NFT IDs. Returning empty cart.")
             DispatchQueue.main.async {
                 completion(.success([]))
             }
             return
         }
 
-        Self.logger.info("[\(traceID, privacy: .public)] Starting NFT details loading for \(ids.count) IDs. batchSize=\(Self.progressBatchSize)")
+        Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Starting NFT details loading for \(ids.count) IDs. batchSize=\(Self.progressBatchSize)")
 
         // Общее агрегирующее состояние изменяется из нескольких async callback-ов NFT.
         // NSLock защищает словари/счетчики и предотвращает data race.
@@ -280,7 +280,7 @@ private extension CartService {
 
         for id in ids {
             group.enter()
-            Self.logger.debug("[\(traceID, privacy: .public)] Requesting NFT details by ID: \(id, privacy: .public)")
+            Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Requesting NFT details by ID: \(id, privacy: .public)")
             nftService.loadNft(id: id) { result in
                 defer { group.leave() }
                 var partialItems: [CartItem]?
@@ -290,7 +290,7 @@ private extension CartService {
                 case .success(let nft):
                     itemsByID[id] = self.mapNftToCartItem(nft)
                     loadedCount += 1
-                    Self.logger.debug("[\(traceID, privacy: .public)] NFT loaded: id=\(id, privacy: .public), loadedCount=\(loadedCount)/\(ids.count)")
+                    Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] NFT loaded: id=\(id, privacy: .public), loadedCount=\(loadedCount)/\(ids.count)")
 
                     // Намеренно "дросселируем" частичные обновления UI:
                     // первый загруженный элемент + каждый N-й элемент.
@@ -300,20 +300,20 @@ private extension CartService {
                     if shouldEmitProgress {
                         lastEmittedCount = loadedCount
                         partialItems = ids.compactMap { itemsByID[$0] }
-                        Self.logger.debug("[\(traceID, privacy: .public)] Emitting partial update. emittedCount=\(partialItems?.count ?? 0), loadedCount=\(loadedCount)")
+                        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Emitting partial update. emittedCount=\(partialItems?.count ?? 0), loadedCount=\(loadedCount)")
                     }
                 case .failure(let error):
-                    Self.logger.error("[\(traceID, privacy: .public)] Failed to load NFT by ID: \(id, privacy: .public). error=\(String(describing: error), privacy: .public)")
+                    Self.logger.error("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Failed to load NFT by ID: \(id, privacy: .public). error=\(String(describing: error), privacy: .public)")
                     if firstError == nil {
                         firstError = error
-                        Self.logger.error("[\(traceID, privacy: .public)] Captured first error for final completion.")
+                        Self.logger.error("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Captured first error for final completion.")
                     }
                 }
                 lock.unlock()
 
                 if let partialItems {
                     DispatchQueue.main.async {
-                        Self.logger.debug("[\(traceID, privacy: .public)] Delivering partial update to UI. itemsCount=\(partialItems.count)")
+                        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Delivering partial update to UI. itemsCount=\(partialItems.count)")
                         onPartialUpdate?(partialItems)
                     }
                 }
@@ -323,7 +323,7 @@ private extension CartService {
         group.notify(queue: responseQueue) {
             if let firstError {
                 let totalDuration = Date().timeIntervalSince(requestStartedAt)
-                Self.logger.error("[\(traceID, privacy: .public)] Finishing with failure. loaded=\(itemsByID.count)/\(ids.count), duration=\(totalDuration, format: .fixed(precision: 3))s, error=\(String(describing: firstError), privacy: .public)")
+                Self.logger.error("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Finishing with failure. loaded=\(itemsByID.count)/\(ids.count), duration=\(totalDuration, format: .fixed(precision: 3))s, error=\(String(describing: firstError), privacy: .public)")
                 DispatchQueue.main.async {
                     completion(.failure(firstError))
                 }
@@ -333,7 +333,7 @@ private extension CartService {
             // Сохраняем исходный порядок из массива ids, пришедшего с бэкенда.
             let orderedItems = ids.compactMap { itemsByID[$0] }
             let totalDuration = Date().timeIntervalSince(requestStartedAt)
-            Self.logger.info("[\(traceID, privacy: .public)] Completed cart load successfully. orderedItemsCount=\(orderedItems.count), duration=\(totalDuration, format: .fixed(precision: 3))s")
+            Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Completed cart load successfully. orderedItemsCount=\(orderedItems.count), duration=\(totalDuration, format: .fixed(precision: 3))s")
             DispatchQueue.main.async {
                 completion(.success(orderedItems))
             }
@@ -341,7 +341,7 @@ private extension CartService {
     }
 
     func mapNftToCartItem(_ nft: Nft) -> CartItem {
-        Self.logger.debug("Mapping NFT to CartItem. id=\(nft.id, privacy: .public), name=\(nft.name, privacy: .public), rating=\(nft.rating), price=\(nft.price, format: .fixed(precision: 2))")
+        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] Mapping NFT to CartItem. id=\(nft.id, privacy: .public), name=\(nft.name, privacy: .public), rating=\(nft.rating), price=\(nft.price, format: .fixed(precision: 2))")
         return CartItem(
             id: nft.id,
             name: nft.name,

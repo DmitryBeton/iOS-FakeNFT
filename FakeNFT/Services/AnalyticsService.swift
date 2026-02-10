@@ -116,7 +116,7 @@ final class AnalyticsService: AnalyticsReporting {
     func track(_ event: AnalyticsEvent) {
         Self.activate()
         AppMetrica.reportEvent(name: event.name, parameters: event.params) { error in
-            NSLog("Analytics report failed: \(error.localizedDescription)")
+            NSLog("[%@] Analytics report failed: %@", LogTimestamp.current(), error.localizedDescription)
         }
     }
 }

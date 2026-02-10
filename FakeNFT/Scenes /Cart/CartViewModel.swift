@@ -21,7 +21,7 @@ final class CartViewModel: CartViewModelProtocol {
     // MARK: - Backing storage
     private var cartItems: [CartItem] = [] {
         didSet {
-            Self.logger.debug("cartItems didSet. newCount=\(self.cartItems.count)")
+            Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] cartItems didSet. newCount=\(self.cartItems.count)")
             totalPrice = cartItems.reduce(0) { $0 + $1.price }
         }
     }
@@ -34,7 +34,7 @@ final class CartViewModel: CartViewModelProtocol {
 
         self.sortOption = sortStore.load()
         self.state = .idle
-        Self.logger.debug("CartViewModel initialized with sortOption=\(self.sortOption.localizedWord)")
+        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] CartViewModel initialized with sortOption=\(self.sortOption.localizedWord)")
 
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(handleCartDidChange(_:)),
@@ -43,7 +43,7 @@ final class CartViewModel: CartViewModelProtocol {
     }
 
     deinit {
-        Self.logger.debug("CartViewModel deinit")
+        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] CartViewModel deinit")
         activeLoadRequestID = nil
         NotificationCenter.default.removeObserver(self, name: .cartDidChange, object: nil)
     }
@@ -93,40 +93,40 @@ final class CartViewModel: CartViewModelProtocol {
         let requestID = UUID()
         activeLoadRequestID = requestID
         searchQuery = ""
-        Self.logger.info("Loading cart items started. requestID=\(requestID.uuidString, privacy: .public)")
+        Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] Loading cart items started. requestID=\(requestID.uuidString, privacy: .public)")
         state = .loading
         self.service.fetchCartItems(onPlaceholders: { [weak self] ids in
             guard let self else { return }
             guard self.activeLoadRequestID == requestID else {
-                Self.logger.debug("Ignored stale placeholders callback. requestID=\(requestID.uuidString, privacy: .public)")
+                Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] Ignored stale placeholders callback. requestID=\(requestID.uuidString, privacy: .public)")
                 return
             }
-            Self.logger.info("Received placeholders IDs. count=\(ids.count)")
+            Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] Received placeholders IDs. count=\(ids.count)")
             self.applyPlaceholderItems(for: ids)
         }, onPartialUpdate: { [weak self] partialItems in
             guard let self else { return }
             guard self.activeLoadRequestID == requestID else {
-                Self.logger.debug("Ignored stale partial callback. requestID=\(requestID.uuidString, privacy: .public)")
+                Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] Ignored stale partial callback. requestID=\(requestID.uuidString, privacy: .public)")
                 return
             }
-            Self.logger.info("Received partial cart items. count=\(partialItems.count)")
+            Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] Received partial cart items. count=\(partialItems.count)")
             self.applyPartialItems(partialItems)
         }, completion: { [weak self] result in
             guard let self else { return }
             guard self.activeLoadRequestID == requestID else {
-                Self.logger.debug("Ignored stale completion callback. requestID=\(requestID.uuidString, privacy: .public)")
+                Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] Ignored stale completion callback. requestID=\(requestID.uuidString, privacy: .public)")
                 return
             }
             self.activeLoadRequestID = nil
             switch result {
             case .success(let items):
-                Self.logger.info("Cart items loaded successfully. count=\(items.count)")
+                Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] Cart items loaded successfully. count=\(items.count)")
                 self.requestedItemIDs = []
                 // Always finalize into .loaded/.empty after placeholders/partials.
                 // Even if payload is unchanged, UI must leave loadingPlaceholders state.
                 self.applyLoadedItems(items)
             case .failure(let error):
-                Self.logger.error("Failed to load cart items")
+                Self.logger.error("[\(LogTimestamp.current(), privacy: .public)] Failed to load cart items")
                 if self.cartItems.isEmpty {
                     if case NetworkClientError.urlRequestError = error {
                         self.state = .error(error: .networkOffline)
@@ -146,21 +146,21 @@ final class CartViewModel: CartViewModelProtocol {
     /// - Important: Индекс относится к `items` (уже отсортированным/отфильтрованным данным), а не к `cartItems`.
     /// - Side effect: после успешного удаления пересчитываются `totalPrice` и итоговое состояние экрана.
     func deleteItem(at index: Int) {
-        Self.logger.info("Request to delete item at index=\(index)")
+        Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] Request to delete item at index=\(index)")
         guard index < items.count else { return }
         let id = items[index].id
-        Self.logger.debug("Deleting item id=\(id)")
+        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] Deleting item id=\(id)")
 
         service.removeCartItem(id: id) { [weak self] result in
             guard let self else { return }
             switch result {
             case .success:
-                Self.logger.info("Cart item deleted successfully. id=\(id)")
+                Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] Cart item deleted successfully. id=\(id)")
                 self.cartItems.removeAll { $0.id == id }
                 self.requestedItemIDs.removeAll { $0 == id }
                 self.sortItems()
             case .failure(let error):
-                Self.logger.error("Failed to delete cart item id=\(id). error=\(String(describing: error), privacy: .public)")
+                Self.logger.error("[\(LogTimestamp.current(), privacy: .public)] Failed to delete cart item id=\(id). error=\(String(describing: error), privacy: .public)")
                 self.state = .error(error: .cartDeleteFailed)
             }
         }
@@ -171,15 +171,15 @@ final class CartViewModel: CartViewModelProtocol {
     /// - Side effect: при успехе инициирует полную перезагрузку (`loadItems()`),
     ///   чтобы синхронизировать локальное состояние с сервером.
     func addItem(id: String) {
-        Self.logger.info("Request to add item id=\(id, privacy: .public)")
+        Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] Request to add item id=\(id, privacy: .public)")
         service.addCartItem(id: id) { [weak self] result in
             guard let self else { return }
             switch result {
             case .success:
-                Self.logger.info("Cart item added successfully. id=\(id, privacy: .public)")
+                Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] Cart item added successfully. id=\(id, privacy: .public)")
                 self.loadItems()
             case .failure(let error):
-                Self.logger.error("Failed to add cart item id=\(id, privacy: .public). error=\(String(describing: error), privacy: .public)")
+                Self.logger.error("[\(LogTimestamp.current(), privacy: .public)] Failed to add cart item id=\(id, privacy: .public). error=\(String(describing: error), privacy: .public)")
                 self.state = .error(error: .cartAddFailed)
             }
         }
@@ -188,7 +188,7 @@ final class CartViewModel: CartViewModelProtocol {
     /// Сортирует `cartItems` в соответствии с текущим `sortOption`
     /// и публикует новое состояние с учетом активного поиска.
     func sortItems() {
-        Self.logger.debug("Sorting items by option=\(self.sortOption.localizedWord)")
+        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] Sorting items by option=\(self.sortOption.localizedWord)")
         switch sortOption {
         case .name:
             cartItems.sort { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
@@ -222,7 +222,7 @@ final class CartViewModel: CartViewModelProtocol {
             }
         }
         items = filteredItems.map { self.mapToUI($0) }
-        Self.logger.debug("Visible items after local search. count=\(self.items.count), query=\(self.searchQuery, privacy: .public)")
+        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] Visible items after local search. count=\(self.items.count), query=\(self.searchQuery, privacy: .public)")
         emitLoadedOrEmptyState()
     }
 
@@ -230,7 +230,7 @@ final class CartViewModel: CartViewModelProtocol {
     ///
     /// - Returns: `UICartItem` или `nil`, если индекс вне диапазона.
     func getUICartItem(at index: Int) -> UICartItem? {
-        Self.logger.debug("getUICartItem called for index=\(index)")
+        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] getUICartItem called for index=\(index)")
         guard index < items.count else { return nil }
         return items[index]
     }
@@ -239,7 +239,7 @@ final class CartViewModel: CartViewModelProtocol {
     ///
     /// - Note: Это проверка именно `items` (с учетом поиска), а не полного `cartItems`.
     func isEmpty() -> Bool {
-        Self.logger.debug("isEmpty queried -> \(self.items.isEmpty)")
+        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] isEmpty queried -> \(self.items.isEmpty)")
         return items.isEmpty
     }
 
@@ -259,7 +259,7 @@ final class CartViewModel: CartViewModelProtocol {
 
     // MARK: - Notifications
     @objc private func handleCartDidChange(_ notification: Notification) {
-        Self.logger.info("Notification received: cartDidChange. Reloading items")
+        Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] Notification received: cartDidChange. Reloading items")
         loadItems()
     }
 

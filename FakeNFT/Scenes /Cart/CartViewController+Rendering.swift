@@ -21,7 +21,7 @@ extension CartViewController {
     ///   заведомо неуспешные запросы.
     func loadItemsOrShowOfflineAlert() {
         guard !connectivity.isOfflineNow() else {
-            Self.logger.warning("Cart load blocked: no internet connection")
+            Self.logger.warning("[\(LogTimestamp.current(), privacy: .public)] Cart load blocked: no internet connection")
             showNoInternetAlert()
             finishRefreshingIfNeeded()
             return
@@ -33,7 +33,7 @@ extension CartViewController {
     ///
     /// - Side effect: сбрасывает визуальное empty-состояние до получения нового state из VM.
     @objc func refreshPulled() {
-        Self.logger.info("Pull-to-refresh triggered")
+        Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] Pull-to-refresh triggered")
         AnalyticsService.shared.track(.buttonTapped(button: .pullToRefresh, screen: .cart))
         emptyStateLabel.isHidden = true
         loadItemsOrShowOfflineAlert()
@@ -157,7 +157,7 @@ private extension CartViewController {
         emptyStateLabel.isHidden = true
         orderSummaryView.isHidden = true
         setSearchVisible(false)
-        Self.logger.debug("Rendering placeholders: \(items.count)")
+        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] Rendering placeholders: \(items.count)")
         applyTableUpdates(with: items, animated: true)
     }
 
@@ -204,7 +204,7 @@ private extension CartViewController {
 
     func updateCartState() {
         let isEmpty = viewModel.isEmpty()
-        Self.logger.debug("updateCartState. isEmpty=\(isEmpty)")
+        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] updateCartState. isEmpty=\(isEmpty)")
 
         emptyStateLabel.text = Localization.Cart.emptyStateMessage.localized
         emptyStateLabel.isHidden = !isEmpty
@@ -216,7 +216,7 @@ private extension CartViewController {
 // MARK: - Actions
 private extension CartViewController {
     func showSortOptionsMenu() {
-        Self.logger.debug("Showing sort options menu")
+        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] Showing sort options menu")
         let alert = UIAlertController(
             title: Localization.Cart.sort.localized,
             message: nil,
@@ -225,7 +225,7 @@ private extension CartViewController {
 
         for option in SortOption.allCases {
             let action = UIAlertAction(title: option.localizedWord, style: .default) { [weak self] _ in
-                Self.logger.info("Sort option selected: \(option.localizedWord)")
+                Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] Sort option selected: \(option.localizedWord)")
                 AnalyticsService.shared.track(.buttonTapped(button: .sortOption(name: option.localizedWord), screen: .cart))
                 self?.viewModel.sortOption = option
             }
@@ -241,7 +241,7 @@ private extension CartViewController {
 
         isNavigatingToPayment = true
         orderSummaryView.isUserInteractionEnabled = false
-        Self.logger.info("Pay tapped from cart. Navigating to PaymentViewController")
+        Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] Pay tapped from cart. Navigating to PaymentViewController")
         AnalyticsService.shared.track(.buttonTapped(button: .pay, screen: .cart))
         AnalyticsService.shared.track(.checkoutStarted(itemCount: viewModel.totalItemsCount, totalPrice: viewModel.totalPrice))
 
@@ -341,17 +341,17 @@ private extension CartViewController {
     func logStateChange(_ state: CartViewState) {
         switch state {
         case .idle:
-            Self.logger.debug("State changed -> idle")
+            Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] State changed -> idle")
         case .loading:
-            Self.logger.debug("State changed -> loading")
+            Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] State changed -> loading")
         case .loadingPlaceholders(let items):
-            Self.logger.debug("State changed -> loading placeholders. items=\(items.count)")
+            Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] State changed -> loading placeholders. items=\(items.count)")
         case .loaded(let items, let total):
-            Self.logger.info("State changed -> loaded. items=\(items.count), total=\(total, format: .fixed(precision: 2))")
+            Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] State changed -> loaded. items=\(items.count), total=\(total, format: .fixed(precision: 2))")
         case .empty:
-            Self.logger.info("State changed -> empty")
+            Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] State changed -> empty")
         case .error(let error):
-            Self.logger.error("State changed -> error: \(String(describing: error), privacy: .public)")
+            Self.logger.error("[\(LogTimestamp.current(), privacy: .public)] State changed -> error: \(String(describing: error), privacy: .public)")
         }
     }
 

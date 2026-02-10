@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 
 enum NetworkClientError: Error {
     case httpStatusCode(Int)
@@ -111,6 +112,7 @@ extension NetworkClient {
 }
 
 final class DefaultNetworkClient: NetworkClient {
+    private static let logger = Logger(subsystem: "com.fakenft.app", category: "NetworkClient")
     private static let defaultURLCache = URLCache(
         memoryCapacity: 20 * 1024 * 1024,
         diskCapacity: 100 * 1024 * 1024
@@ -156,9 +158,18 @@ final class DefaultNetworkClient: NetworkClient {
                 onResponse(result)
             }
         }
-        guard let urlRequest = create(request: request) else { return nil }
+        guard let urlRequest = create(request: request) else {
+            Self.logger.error("[\(LogTimestamp.current(), privacy: .public)] Failed to build URLRequest. endpoint is empty.")
+            return nil
+        }
+
+        let method = urlRequest.httpMethod ?? "UNKNOWN"
+        let path = urlRequest.url?.path ?? "-"
+        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] Send request started. method=\(method, privacy: .public), path=\(path, privacy: .public)")
+
         if let cachedData = cacheStore.cachedData(for: urlRequest, policy: request.cachePolicy) {
             // При cache hit результат возвращаем сразу и намеренно не создаем URLSessionTask.
+            Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] Response returned from in-memory cache. method=\(method, privacy: .public), path=\(path, privacy: .public), bytes=\(cachedData.count)")
             onResponse(.success(cachedData))
             return nil
         }
@@ -168,23 +179,28 @@ final class DefaultNetworkClient: NetworkClient {
         let targetSession = onTaskMetrics == nil ? session : metricsSession
         let task = targetSession.dataTask(with: urlRequest) { data, response, error in
             guard let response = response as? HTTPURLResponse else {
+                Self.logger.error("[\(LogTimestamp.current(), privacy: .public)] Invalid URLSession response (not HTTPURLResponse). method=\(method, privacy: .public), path=\(path, privacy: .public)")
                 onResponse(.failure(NetworkClientError.urlSessionError))
                 return
             }
 
             guard 200 ..< 300 ~= response.statusCode else {
+                Self.logger.error("[\(LogTimestamp.current(), privacy: .public)] HTTP request failed. method=\(method, privacy: .public), path=\(path, privacy: .public), status=\(response.statusCode)")
                 onResponse(.failure(NetworkClientError.httpStatusCode(response.statusCode)))
                 return
             }
 
             if let data = data {
+                Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] HTTP request succeeded. method=\(method, privacy: .public), path=\(path, privacy: .public), status=\(response.statusCode), bytes=\(data.count)")
                 self.cacheStore.store(data: data, for: urlRequest, policy: request.cachePolicy)
                 onResponse(.success(data))
                 return
             } else if let error = error {
+                Self.logger.error("[\(LogTimestamp.current(), privacy: .public)] URLSession request error. method=\(method, privacy: .public), path=\(path, privacy: .public), error=\(String(describing: error), privacy: .public)")
                 onResponse(.failure(NetworkClientError.urlRequestError(error)))
                 return
             } else {
+                Self.logger.fault("[\(LogTimestamp.current(), privacy: .public)] Unexpected URLSession result without data and error. method=\(method, privacy: .public), path=\(path, privacy: .public)")
                 assertionFailure("Unexpected condition!")
                 return
             }
@@ -268,12 +284,15 @@ final class DefaultNetworkClient: NetworkClient {
             let response = try decoder.decode(T.self, from: data)
             onResponse(.success(response))
         } catch {
+            Self.logger.error("[\(LogTimestamp.current(), privacy: .public)] Decoding failed in NetworkClient. bytes=\(data.count), error=\(String(describing: error), privacy: .public)")
             onResponse(.failure(NetworkClientError.parsingError))
         }
     }
 }
 
 private final class ResponseCacheStore {
+    private static let logger = Logger(subsystem: "com.fakenft.app", category: "NetworkCache")
+
     private struct CacheKey: Hashable {
         let method: String
         let url: String
@@ -298,6 +317,7 @@ private final class ResponseCacheStore {
 
         removeExpiredEntries(now: now)
         guard let entry = entries[key], entry.expiresAt > now else { return nil }
+        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] Cache hit. method=\(key.method, privacy: .public), url=\(key.url, privacy: .public), bytes=\(entry.data.count)")
         return entry.data
     }
 
@@ -310,6 +330,7 @@ private final class ResponseCacheStore {
         lock.lock()
         entries[key] = CacheEntry(data: data, expiresAt: expiresAt)
         lock.unlock()
+        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] Cache store. method=\(key.method, privacy: .public), url=\(key.url, privacy: .public), ttl=\(ttl, format: .fixed(precision: 0))s, bytes=\(data.count)")
     }
 
     private func makeKey(for request: URLRequest) -> CacheKey {

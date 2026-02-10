@@ -157,9 +157,9 @@ final class PaymentViewModel: PaymentViewModelProtocol {
     // MARK: - Backing storage
     private var currencyItems: [Currency] = [] {
         didSet {
-            Self.logger.debug("currencyItems didSet. newCount=\(self.currencyItems.count)")
+            Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] currencyItems didSet. newCount=\(self.currencyItems.count)")
             items = currencyItems.map { self.mapToUI($0) }
-            Self.logger.debug("Mapped currencies to UI items. count=\(self.items.count)")
+            Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] Mapped currencies to UI items. count=\(self.items.count)")
             if items.isEmpty {
                 state = .empty
             } else {
@@ -207,16 +207,16 @@ final class PaymentViewModel: PaymentViewModelProtocol {
     }
 
     func loadItems() {
-        Self.logger.info("Loading currencies started")
+        Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] Loading currencies started")
         state = .loadingCurrencies
         loadCurrenciesUseCase.execute { [weak self] result in
             guard let self else { return }
             switch result {
             case .success(let currencies):
-                Self.logger.info("Currencies loaded successfully. count=\(currencies.count)")
+                Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] Currencies loaded successfully. count=\(currencies.count)")
                 self.currencyItems = currencies
             case .failure(let error):
-                Self.logger.error("Failed to load currencies: \(error.localizedDescription)")
+                Self.logger.error("[\(LogTimestamp.current(), privacy: .public)] Failed to load currencies: \(error.localizedDescription)")
                 self.currencyItems = []
                 let paymentError = self.errorMapper.map(error, context: .currencyLoad)
                 self.state = .error(
@@ -230,30 +230,30 @@ final class PaymentViewModel: PaymentViewModelProtocol {
     // MARK: - Public Methods
 
     func getUICurrency(at index: Int) -> UICurrency? {
-        Self.logger.debug("getUICurrency called for index=\(index)")
+        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] getUICurrency called for index=\(index)")
         guard index < items.count else { return nil }
         return items[index]
     }
 
     func pay(completion: @escaping (Result<Void, Error>) -> Void) {
         guard let selectedCurrencyID else {
-            Self.logger.error("Pay requested without selected currency")
+            Self.logger.error("[\(LogTimestamp.current(), privacy: .public)] Pay requested without selected currency")
             state = .error(error: .currencyNotSelected, recovery: .clearSelection)
             completion(.failure(PaymentError.currencyNotSelected))
             return
         }
 
-        Self.logger.info("Pay flow started")
+        Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] Pay flow started")
         state = .paying
         payOrderUseCase.execute(currencyID: selectedCurrencyID) { [weak self] result in
             guard let self else { return }
             switch result {
             case .success:
-                Self.logger.info("Payment service returned success")
+                Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] Payment service returned success")
                 self.state = .paid
                 completion(.success(()))
             case .failure(let error):
-                Self.logger.error("Payment service returned failure: \(error.localizedDescription)")
+                Self.logger.error("[\(LogTimestamp.current(), privacy: .public)] Payment service returned failure: \(error.localizedDescription)")
                 let paymentError = self.errorMapper.map(error, context: .payment)
                 self.state = .error(
                     error: self.mapToAppError(paymentError),
@@ -271,12 +271,12 @@ final class PaymentViewModel: PaymentViewModelProtocol {
         }
         selectedCurrencyID = items[index].id
         let selectedID = selectedCurrencyID ?? ""
-        Self.logger.info("Selected currency id=\(selectedID, privacy: .public)")
+        Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] Selected currency id=\(selectedID, privacy: .public)")
     }
 
     func clearSelectedCurrency() {
         selectedCurrencyID = nil
-        Self.logger.debug("Cleared selected currency")
+        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] Cleared selected currency")
     }
 
     // MARK: - Mapping

@@ -55,7 +55,7 @@ final class OrderSummaryView: UIView {
 
     private let totalPriceLabel: UILabel = {
         let label = UILabel()
-        label.text = String(format: Localization.Cart.priceEthFormat.localized, 0)
+        label.text = String(format: Localization.Cart.priceEthFormat.localized, 0.0)
         label.font = UIFont.bodyBold
         label.textColor = UIColor(resource: .nftGreen)
         return label

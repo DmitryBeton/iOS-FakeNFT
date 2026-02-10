@@ -73,7 +73,7 @@ final class PaymentService: PaymentServiceProtocol {
 
     func pay(currencyID: String, completion: @escaping (Result<Void, Error>) -> Void) {
         let traceID = UUID().uuidString
-        Self.logger.info("[\(traceID, privacy: .public)] Start payment flow. currencyID=\(currencyID, privacy: .public)")
+        Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Start payment flow. currencyID=\(currencyID, privacy: .public)")
 
         // Бэкенд требует двухфазный сценарий оплаты:
         // 1) привязать выбранную валюту, 2) оплатить заказ текущим списком nft ids.
@@ -93,7 +93,7 @@ final class PaymentService: PaymentServiceProtocol {
 
 private extension PaymentService {
     func bindCurrency(currencyID: String, traceID: String, completion: @escaping (Result<Void, Error>) -> Void) {
-        Self.logger.debug("[\(traceID, privacy: .public)] Binding currency to order")
+        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Binding currency to order")
         networkClient.send(
             request: SetOrderPaymentCurrencyRequest(currencyID: currencyID),
             type: PaymentCurrencyBindResponse.self,
@@ -101,7 +101,7 @@ private extension PaymentService {
         ) { result in
             switch result {
             case .success(let response):
-                Self.logger.info("[\(traceID, privacy: .public)] Currency bind response. success=\(response.success), orderID=\(response.orderId, privacy: .public), id=\(response.id, privacy: .public)")
+                Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Currency bind response. success=\(response.success), orderID=\(response.orderId, privacy: .public), id=\(response.id, privacy: .public)")
                 if response.success {
                     completion(.success(()))
                 } else {
@@ -109,14 +109,14 @@ private extension PaymentService {
                     completion(.failure(PaymentServiceError.paymentNotAllowed))
                 }
             case .failure(let error):
-                Self.logger.error("[\(traceID, privacy: .public)] Currency bind failed: \(String(describing: error), privacy: .public)")
+                Self.logger.error("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Currency bind failed: \(String(describing: error), privacy: .public)")
                 completion(.failure(error))
             }
         }
     }
 
     func completeOrder(traceID: String, completion: @escaping (Result<Void, Error>) -> Void) {
-        Self.logger.debug("[\(traceID, privacy: .public)] Loading order IDs before final payment request")
+        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Loading order IDs before final payment request")
         networkClient.send(
             request: CartOrderRequest(),
             type: CartOrderResponse.self,
@@ -126,11 +126,11 @@ private extension PaymentService {
 
             switch result {
             case .success(let order):
-                Self.logger.info("[\(traceID, privacy: .public)] Order fetched. nftsCount=\(order.nfts.count), orderID=\(order.id, privacy: .public)")
+                Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Order fetched. nftsCount=\(order.nfts.count), orderID=\(order.id, privacy: .public)")
                 // Payment endpoint ожидает полный список nft в form body.
                 self.sendCompleteOrderRequest(nftIDs: order.nfts, traceID: traceID, completion: completion)
             case .failure(let error):
-                Self.logger.error("[\(traceID, privacy: .public)] Failed to load order before payment: \(String(describing: error), privacy: .public)")
+                Self.logger.error("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Failed to load order before payment: \(String(describing: error), privacy: .public)")
                 DispatchQueue.main.async {
                     completion(.failure(error))
                 }
@@ -139,7 +139,7 @@ private extension PaymentService {
     }
 
     func sendCompleteOrderRequest(nftIDs: [String], traceID: String, completion: @escaping (Result<Void, Error>) -> Void) {
-        Self.logger.debug("[\(traceID, privacy: .public)] Sending final payment request with repeated nfts fields. idsCount=\(nftIDs.count)")
+        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Sending final payment request with repeated nfts fields. idsCount=\(nftIDs.count)")
         networkClient.send(
             request: CompleteOrderRequest(nftIDs: nftIDs),
             type: CartOrderResponse.self,
@@ -149,10 +149,10 @@ private extension PaymentService {
 
             switch result {
             case .success(let response):
-                Self.logger.info("[\(traceID, privacy: .public)] Final payment request succeeded. responseOrderID=\(response.id, privacy: .public)")
+                Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Final payment request succeeded. responseOrderID=\(response.id, privacy: .public)")
                 self.clearOrderAfterPayment(traceID: traceID, completion: completion)
             case .failure(let error):
-                Self.logger.error("[\(traceID, privacy: .public)] Final payment request failed: \(String(describing: error), privacy: .public)")
+                Self.logger.error("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Final payment request failed: \(String(describing: error), privacy: .public)")
                 DispatchQueue.main.async {
                     completion(.failure(error))
                 }
@@ -161,7 +161,7 @@ private extension PaymentService {
     }
 
     func clearOrderAfterPayment(traceID: String, completion: @escaping (Result<Void, Error>) -> Void) {
-        Self.logger.debug("[\(traceID, privacy: .public)] Clearing order after successful payment")
+        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Clearing order after successful payment")
         networkClient.send(
             request: UpdateCartOrderRequest(nftIDs: []),
             type: CartOrderResponse.self,
@@ -169,14 +169,14 @@ private extension PaymentService {
         ) { result in
             switch result {
             case .success:
-                Self.logger.info("[\(traceID, privacy: .public)] Order cleared successfully after payment")
+                Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Order cleared successfully after payment")
                 DispatchQueue.main.async {
                     // Side effect: уведомляем экран корзины о необходимости обновления.
                     NotificationCenter.default.post(name: .cartDidChange, object: nil)
                     completion(.success(()))
                 }
             case .failure(let error):
-                Self.logger.error("[\(traceID, privacy: .public)] Order clear failed: \(String(describing: error), privacy: .public)")
+                Self.logger.error("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Order clear failed: \(String(describing: error), privacy: .public)")
                 DispatchQueue.main.async {
                     completion(.failure(error))
                 }

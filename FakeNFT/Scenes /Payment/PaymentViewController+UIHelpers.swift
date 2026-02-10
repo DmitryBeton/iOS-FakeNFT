@@ -151,9 +151,9 @@ private extension ErrorPresenter {
 
 extension PaymentViewController {
     func showRetryAlert(title: String, message: String?, retryAction: @escaping () -> Void) {
-        Self.logger.warning("Showing retry alert. title=\(title)")
+        Self.logger.warning("[\(LogTimestamp.current(), privacy: .public)] Showing retry alert. title=\(title)")
         errorPresenter.presentRetry(title: title, message: message) {
-            Self.logger.info("Retry tapped on alert")
+            Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] Retry tapped on alert")
             retryAction()
         }
     }
@@ -172,7 +172,7 @@ extension PaymentViewController {
         ]
 
         navigationController?.navigationBar.titleTextAttributes = attributes
-        Self.logger.debug("Applied navigation title style")
+        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] Applied navigation title style")
     }
 
     func clearSelectionAndDisablePay() {
@@ -180,6 +180,6 @@ extension PaymentViewController {
             collection.deselectItem(at: indexPath, animated: false)
         }
         paymentFooterView.isPayEnabled = false
-        Self.logger.debug("Cleared selection and disabled pay")
+        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] Cleared selection and disabled pay")
     }
 }

@@ -78,6 +78,7 @@
 		A1B2C3D62F42000200AA0001 /* CartItemShimmerHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D52F42000200AA0001 /* CartItemShimmerHelper.swift */; };
 		A1B2C3D82F42000300AA0001 /* PaymentViewController+Collection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D72F42000300AA0001 /* PaymentViewController+Collection.swift */; };
 		A1B2C3DA2F42000400AA0001 /* PaymentViewController+Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D92F42000400AA0001 /* PaymentViewController+Constants.swift */; };
+		B1C2D3E52F50011100A1B2C3 /* LogTimestamp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C2D3E42F50011100A1B2C3 /* LogTimestamp.swift */; };
 		A1B2C3E02F42000700AA0001 /* PaymentViewController+UIHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3DF2F42000700AA0001 /* PaymentViewController+UIHelpers.swift */; };
 		A1B2C3DC2F42000500AA0001 /* CartViewModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3DB2F42000500AA0001 /* CartViewModelProtocol.swift */; };
 		A1B2C3DE2F42000600AA0001 /* Notification+Cart.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3DD2F42000600AA0001 /* Notification+Cart.swift */; };
@@ -177,6 +178,7 @@
 		A1B2C3DF2F42000700AA0001 /* PaymentViewController+UIHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PaymentViewController+UIHelpers.swift"; sourceTree = "<group>"; };
 		A1B2C3DB2F42000500AA0001 /* CartViewModelProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CartViewModelProtocol.swift; sourceTree = "<group>"; };
 		A1B2C3DD2F42000600AA0001 /* Notification+Cart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Notification+Cart.swift"; sourceTree = "<group>"; };
+		B1C2D3E42F50011100A1B2C3 /* LogTimestamp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogTimestamp.swift; sourceTree = "<group>"; };
 		9D00C62A2F23D062000528BC /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
 		E19CD5AA2A98B56600CA39A5 /* NftImageCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftImageCollectionViewCell.swift; sourceTree = "<group>"; };
 		E1A1B9D92AA01CE400C3AFBC /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
@@ -273,6 +275,14 @@
 				0CFCB74D2A7817DC0009A829 /* NftStorage.swift */,
 			);
 			path = MemoryStorage;
+			sourceTree = "<group>";
+		};
+		B1C2D3E62F50011100A1B2C3 /* Logging */ = {
+			isa = PBXGroup;
+			children = (
+				B1C2D3E42F50011100A1B2C3 /* LogTimestamp.swift */,
+			);
+			path = Logging;
 			sourceTree = "<group>";
 		};
 		3F478ECD29DB473000F6D39E /* DesignSystem */ = {
@@ -385,6 +395,7 @@
 			isa = PBXGroup;
 			children = (
 				0CFCB74C2A7817C30009A829 /* MemoryStorage */,
+				B1C2D3E62F50011100A1B2C3 /* Logging */,
 				3F6806CF29CBBDB100B4F915 /* NetworkClient */,
 				3F6806D629CBC50A00B4F915 /* CellsReusingUtils.swift */,
 				3FC8C39229D246BA0081F015 /* DateFormatters+Presets.swift */,
@@ -745,12 +756,13 @@
 				8C5EE85F2F333CD400128266 /* CartItem.swift in Sources */,
 				8C5EE8612F333CD400128266 /* RatingView.swift in Sources */,
 				8C5EE8622F333CD400128266 /* Currency.swift in Sources */,
-				8C5EE8632F333CD400128266 /* UICartTableViewCell.swift in Sources */,
-				A1B2C3D42F42000100AA0001 /* CartItemViewCellLayoutConfigurator.swift in Sources */,
-				A1B2C3D62F42000200AA0001 /* CartItemShimmerHelper.swift in Sources */,
-				8C5EE8642F333CD400128266 /* PaymentServiceProtocol.swift in Sources */,
-				8C5EE8652F333CD400128266 /* DeleteConfirmationAlertViewController.swift in Sources */,
-				8C5EE8662F333CD400128266 /* UICartItem.swift in Sources */,
+					8C5EE8632F333CD400128266 /* UICartTableViewCell.swift in Sources */,
+					A1B2C3D42F42000100AA0001 /* CartItemViewCellLayoutConfigurator.swift in Sources */,
+					A1B2C3D62F42000200AA0001 /* CartItemShimmerHelper.swift in Sources */,
+					B1C2D3E52F50011100A1B2C3 /* LogTimestamp.swift in Sources */,
+					8C5EE8642F333CD400128266 /* PaymentServiceProtocol.swift in Sources */,
+					8C5EE8652F333CD400128266 /* DeleteConfirmationAlertViewController.swift in Sources */,
+					8C5EE8662F333CD400128266 /* UICartItem.swift in Sources */,
 				8C5EE8682F333CD400128266 /* PaymentFooterView.swift in Sources */,
 				8C5EE8692F333CD400128266 /* PaymentViewModel.swift in Sources */,
 				0C79EE612A76DCD600EE90EA /* NftByIdRequest.swift in Sources */,

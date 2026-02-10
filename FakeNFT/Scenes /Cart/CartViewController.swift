@@ -209,7 +209,7 @@ final class CartViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        Self.logger.debug("viewDidLoad")
+        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] viewDidLoad")
         AnalyticsService.shared.track(.screenOpened(screen: .cart))
         connectivity.start()
 
