@@ -19,14 +19,13 @@ final class OnboardingViewController: UIViewController {
         return pageVC
     }()
     
-    private let pageControl: UIPageControl = {
-        let control = UIPageControl()
-        control.currentPageIndicatorTintColor = UIColor(resource: .nftWhiteUni)
-        control.pageIndicatorTintColor = UIColor(resource: .nftWhiteUni).withAlphaComponent(0.3)
-        control.translatesAutoresizingMaskIntoConstraints = false
-        control.preferredIndicatorImage = UIImage(resource: .paginator)
-        control.transform = CGAffineTransform(scaleX: 0.7, y: 0.7)
-        return control
+    private lazy var pageControl: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .horizontal
+        stack.spacing = 8
+        stack.distribution = .fillEqually
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        return stack
     }()
     
     // MARK: - Lifecycle
@@ -51,14 +50,28 @@ final class OnboardingViewController: UIViewController {
         view.addSubview(pageControl)
         
         NSLayoutConstraint.activate([
-            pageControl.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 56),
-            pageControl.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+            pageControl.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12),
+            pageControl.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            pageControl.heightAnchor.constraint(equalToConstant: 4)
         ])
     }
     
     private func setupPageControl() {
-        pageControl.numberOfPages = pages.count
-        pageControl.currentPage = 0
+        pageControl.arrangedSubviews.forEach { $0.removeFromSuperview() }
+
+        for index in 0..<pages.count {
+            let indicator = UIView()
+            indicator.backgroundColor = index == 0 ? UIColor(resource: .nftWhiteUni) : UIColor(resource: .nftWhiteUni).withAlphaComponent(0.3)
+            indicator.layer.cornerRadius = 2
+            indicator.translatesAutoresizingMaskIntoConstraints = false
+
+            pageControl.addArrangedSubview(indicator)
+
+            NSLayoutConstraint.activate([
+                indicator.widthAnchor.constraint(equalToConstant: 109),
+                indicator.heightAnchor.constraint(equalToConstant: 4)
+            ])
+        }
     }
     
     private func showFirstPage() {
@@ -76,6 +89,12 @@ final class OnboardingViewController: UIViewController {
         return pageVC
     }
     
+    private func updatePageControl(currentPage: Int) {
+        pageControl.arrangedSubviews.enumerated().forEach { index, view in
+            view.backgroundColor = index == currentPage ? UIColor(resource: .nftWhiteUni) : UIColor(resource: .nftWhiteUni).withAlphaComponent(0.3)
+        }
+    }
+
     private func completeOnboarding() {
         onComplete?()
     }
@@ -119,7 +138,7 @@ extension OnboardingViewController: UIPageViewControllerDelegate {
 
         if let index = pages.firstIndex(where: { $0.title == currentVC.model.title }) {
             currentPageIndex = index
-            pageControl.currentPage = index
+            updatePageControl(currentPage: index)
         }
     }
 }
