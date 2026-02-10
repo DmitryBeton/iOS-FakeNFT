@@ -11,30 +11,37 @@ final class OnboardingPageView: UIView {
         return imageView
     }()
     
+    private let titleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 32, weight: .bold)
+        label.textColor = UIColor(resource: .nftWhiteUni)
+        label.numberOfLines = 1
+        label.textAlignment = .left
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
     private let textLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 17, weight: .regular)
-        label.textColor = UIColor(resource: .nftBlack)
-        label.numberOfLines = 0
-        label.textAlignment = .center
+        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.textColor = UIColor(resource: .nftWhiteUni)
+        label.numberOfLines = 2
+        label.textAlignment = .left
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     let closeButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setImage(UIImage(systemName: "xmark"), for: .normal)
-        button.tintColor = UIColor(resource: .nftBlack)
+        let button = UIButton(type: .custom)
+        button.setImage(UIImage(resource: .close), for: .normal)
+        button.tintColor = UIColor(resource: .nftWhiteUni)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
     let actionButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.backgroundColor = UIColor(resource: .nftBlack)
-        button.setTitleColor(UIColor(resource: .nftWhite), for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
-        button.layer.cornerRadius = 16
+        let button = UIButton(type: .custom)
+        button.setImage(UIImage(resource: .onboardingButton), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -53,9 +60,10 @@ final class OnboardingPageView: UIView {
     // MARK: - Setup
     
     private func setupView() {
-        backgroundColor = UIColor(resource: .nftWhite)
+        backgroundColor = UIColor(resource: .nftBlackUni)
         
         addSubview(imageView)
+        addSubview(titleLabel)
         addSubview(textLabel)
         addSubview(closeButton)
         addSubview(actionButton)
@@ -66,10 +74,6 @@ final class OnboardingPageView: UIView {
             closeButton.widthAnchor.constraint(equalToConstant: 44),
             closeButton.heightAnchor.constraint(equalToConstant: 44),
             
-            imageView.centerXAnchor.constraint(equalTo: centerXAnchor),
-            imageView.centerYAnchor.constraint(equalTo: centerYAnchor, constant: -50),
-            imageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            imageView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
             
             textLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 24),
             textLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
@@ -86,12 +90,9 @@ final class OnboardingPageView: UIView {
     
     func configure(with model: OnboardingPageModel) {
         imageView.image = model.image
+        titleLabel.text = model.title
         textLabel.text = model.text
         closeButton.isHidden = !model.showCloseButton
         actionButton.isHidden = !model.showActionButton
-        
-        if let title = model.actionButtonTitle {
-            actionButton.setTitle(title, for: .normal)
-        }
     }
 }

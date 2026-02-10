@@ -21,14 +21,10 @@ final class OnboardingViewController: UIViewController {
     
     private let pageControl: UIPageControl = {
         let control = UIPageControl()
-        control.currentPageIndicatorTintColor = UIColor(resource: .nftBlack)
+        control.currentPageIndicatorTintColor = UIColor(resource: .nftWhiteUni)
         control.pageIndicatorTintColor = UIColor(resource: .nftBlack).withAlphaComponent(0.3)
         control.translatesAutoresizingMaskIntoConstraints = false
-        // Используем прямоугольные индикаторы (полоски)
-        control.preferredIndicatorImage = UIImage(
-            systemName: "minus",
-            withConfiguration: UIImage.SymbolConfiguration(pointSize: 6, weight: .bold)
-        )
+        control.preferredIndicatorImage = UIImage( resource: .paginator)
         return control
     }()
     
@@ -44,7 +40,7 @@ final class OnboardingViewController: UIViewController {
     // MARK: - Setup
     
     private func setupView() {
-        view.backgroundColor = UIColor(resource: .nftWhite)
+        view.backgroundColor = UIColor(resource: .nftBlackUni)
         
         addChild(pageViewController)
         view.addSubview(pageViewController.view)

@@ -13,7 +13,6 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         let window = UIWindow(windowScene: windowScene)
         
-        // Проверяем, нужно ли показать онбординг
         let hasSeenOnboarding = UserDefaults.standard.bool(forKey: "hasSeenOnboarding")
         
         if hasSeenOnboarding {
