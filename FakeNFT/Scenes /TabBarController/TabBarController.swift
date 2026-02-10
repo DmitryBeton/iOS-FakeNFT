@@ -4,7 +4,7 @@ final class TabBarController: UITabBarController {
     
     //MARK: - Properties
 
-    var servicesAssembly: ServicesAssembly!
+    private let servicesAssembly: ServicesAssembly
 
     private let catalogTabBarItem = UITabBarItem(
         title: Localization.Catalog.catalog.localized,
@@ -12,7 +12,18 @@ final class TabBarController: UITabBarController {
         tag: 0
     )
     
-    //MARK: - Lifeycle
+    //MARK: - Init
+    
+    init(servicesAssembly: ServicesAssembly) {
+        self.servicesAssembly = servicesAssembly
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    //MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,5 +44,4 @@ final class TabBarController: UITabBarController {
         view.backgroundColor = .systemBackground
         tabBar.unselectedItemTintColor = UIColor(resource: .nftBlack)
     }
-    
 }
