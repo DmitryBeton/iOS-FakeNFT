@@ -13,11 +13,30 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         let window = UIWindow(windowScene: windowScene)
         
-        let tabBarController = TabBarController(servicesAssembly: servicesAssembly)
+        // Проверяем, нужно ли показать онбординг
+        let hasSeenOnboarding = UserDefaults.standard.bool(forKey: "hasSeenOnboarding")
         
-        window.rootViewController = tabBarController
+        if hasSeenOnboarding {
+            showMainScreen(in: window)
+        } else {
+            showOnboarding(in: window)
+        }
+        
         window.makeKeyAndVisible()
-        
         self.window = window
+    }
+    
+    private func showOnboarding(in window: UIWindow) {
+        let onboardingVC = OnboardingViewController()
+        onboardingVC.onComplete = { [weak self] in
+            UserDefaults.standard.set(true, forKey: "hasSeenOnboarding")
+            self?.showMainScreen(in: window)
+        }
+        window.rootViewController = onboardingVC
+    }
+    
+    private func showMainScreen(in window: UIWindow) {
+        let tabBarController = TabBarController(servicesAssembly: servicesAssembly)
+        window.rootViewController = tabBarController
     }
 }
