@@ -86,10 +86,7 @@ extension CartViewController: UIGestureRecognizerDelegate {
 
 private extension CartViewController {
     func showNoInternetAlert() {
-        errorPresenter.presentRetry(
-            title: Localization.Payment.noInternet.localized,
-            message: Localization.Payment.noInternetMessage.localized
-        ) { [weak self] in
+        errorPresenter.present(error: .networkOffline) { [weak self] in
             self?.loadItemsOrShowOfflineAlert()
         }
     }
@@ -126,8 +123,8 @@ private extension CartViewController {
             renderLoaded(items: items, total: total)
         case .empty:
             renderEmpty()
-        case .error(let message):
-            renderError(message: message)
+        case .error(let error):
+            renderError(error: error)
         }
     }
 
@@ -174,7 +171,7 @@ private extension CartViewController {
         tableView.reloadData()
     }
 
-    func renderError(message: String) {
+    func renderError(error: AppError) {
         UIBlockingProgressHUD.dismiss()
         emptyStateLabel.text = Localization.Cart.emptyStateMessage.localized
         emptyStateLabel.isHidden = false
@@ -182,11 +179,14 @@ private extension CartViewController {
         setSearchVisible(false)
         renderedItemsSnapshot = []
         tableView.reloadData()
-
-        errorPresenter.presentInfo(
-            title: Localization.Cart.emptyStateMessage.localized,
-            message: message
-        )
+        let retryAction: (() -> Void)?
+        switch error {
+        case .networkOffline, .cartLoadFailed:
+            retryAction = { [weak self] in self?.loadItemsOrShowOfflineAlert() }
+        default:
+            retryAction = nil
+        }
+        errorPresenter.present(error: error, retryAction: retryAction)
     }
 
     func updateCartState() {
@@ -328,8 +328,8 @@ private extension CartViewController {
             Self.logger.info("State changed -> loaded. items=\(items.count), total=\(total, format: .fixed(precision: 2))")
         case .empty:
             Self.logger.info("State changed -> empty")
-        case .error(let message):
-            Self.logger.error("State changed -> error: \(message)")
+        case .error(let error):
+            Self.logger.error("State changed -> error: \(String(describing: error), privacy: .public)")
         }
     }
 

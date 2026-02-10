@@ -114,9 +114,9 @@ final class CartViewModel: CartViewModelProtocol {
                 Self.logger.error("Failed to load cart items")
                 if self.cartItems.isEmpty {
                     if case NetworkClientError.urlRequestError = error {
-                        self.state = .error(message: Localization.Payment.noInternetMessage.localized)
+                        self.state = .error(error: .networkOffline)
                     } else {
-                        self.state = .error(message: Localization.Cart.loadError.localized)
+                        self.state = .error(error: .cartLoadFailed)
                     }
                 } else {
                     // Keep last known content visible if refresh failed.
@@ -142,7 +142,7 @@ final class CartViewModel: CartViewModelProtocol {
                 self.sortItems()
             case .failure(let error):
                 Self.logger.error("Failed to delete cart item id=\(id). error=\(String(describing: error), privacy: .public)")
-                self.state = .error(message: Localization.Cart.deleteError.localized)
+                self.state = .error(error: .cartDeleteFailed)
             }
         }
     }
@@ -157,7 +157,7 @@ final class CartViewModel: CartViewModelProtocol {
                 self.loadItems()
             case .failure(let error):
                 Self.logger.error("Failed to add cart item id=\(id, privacy: .public). error=\(String(describing: error), privacy: .public)")
-                self.state = .error(message: Localization.Cart.addError.localized)
+                self.state = .error(error: .cartAddFailed)
             }
         }
     }

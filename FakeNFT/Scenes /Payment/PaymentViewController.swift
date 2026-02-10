@@ -148,7 +148,9 @@ final class PaymentViewController: UIViewController {
             Self.logger.debug("Collection reloaded with currencies")
             paymentFooterView.isPayEnabled = false
             if items.isEmpty {
-                showRetryAlert(title: PaymentViewConstants.Text.currencyLoadErrorTitle, message: nil) { [weak self] in self?.startLoadCurrency() }
+                errorPresenter.present(error: .currenciesLoadFailed) { [weak self] in
+                    self?.startLoadCurrency()
+                }
             }
         case .empty:
             UIBlockingProgressHUD.dismiss()
@@ -177,66 +179,14 @@ final class PaymentViewController: UIViewController {
             Self.logger.error("Render error state with message: \(error.localizedDescription)")
             UIBlockingProgressHUD.dismiss()
             AnalyticsService.shared.track(.purchaseFailed(reason: String(describing: error), screen: .payment))
-
-            switch error {
-            case .networkOffline:
-                showRetryAlert(
-                    title: Localization.Payment.noInternet.localized,
-                    message: Localization.Payment.noInternetMessage.localized
-                ) { [weak self] in
-                    self?.startLoadCurrency()
-                }
-
-            case .currencyNotSelected:
-                showRetryAlert(
-                    title: Localization.Payment.payErrorTitle.localized,
-                    message: Localization.Payment.currencyNotSelected.localized
-                ) { [weak self] in
-                    self?.clearSelectionAndDisablePay()
-                }
-
-            case .paymentFailed:
-                showRetryAlert(
-                    title: Localization.Payment.payErrorTitle.localized,
-                    message: nil
-                ) { [weak self] in
-                    self?.startPayment()
-                }
-
-            case .currenciesLoadFailed:
-                showRetryAlert(
-                    title: Localization.Payment.currencyLoadErrorTitle.localized,
-                    message: nil
-                ) { [weak self] in
-                    self?.startLoadCurrency()
-                }
-
-            case .server(let code):
-                showRetryAlert(
-                    title: String(format: Localization.Payment.serverErrorWithCode.localized, code),
-                    message: nil
-                ) { [weak self] in
-                    self?.startLoadCurrency()
-                }
-
-            case .unknown(let underlying):
-                showRetryAlert(
-                    title: underlying.localizedDescription,
-                    message: nil
-                ) { [weak self] in
-                    self?.startLoadCurrency()
-                }
-            }
+            presentPaymentError(error)
         }
     }
 
     private func startPayment() {
         guard !connectivity.isOfflineNow() else {
             Self.logger.warning("Payment blocked: no internet connection")
-            showRetryAlert(
-                title: Localization.Payment.noInternet.localized,
-                message: Localization.Payment.noInternetMessage.localized
-            ) { [weak self] in
+            errorPresenter.present(error: .networkOffline) { [weak self] in
                 self?.startPayment()
             }
             return
@@ -259,10 +209,7 @@ final class PaymentViewController: UIViewController {
     private func startLoadCurrency() {
         guard !connectivity.isOfflineNow() else {
             Self.logger.warning("Currency load blocked: no internet connection")
-            showRetryAlert(
-                title: Localization.Payment.noInternet.localized,
-                message: Localization.Payment.noInternetMessage.localized
-            ) { [weak self] in
+            errorPresenter.present(error: .networkOffline) { [weak self] in
                 self?.startLoadCurrency()
             }
             return
@@ -273,4 +220,39 @@ final class PaymentViewController: UIViewController {
         viewModel.loadItems()
     }
 
+}
+
+private extension PaymentViewController {
+    func presentPaymentError(_ error: PaymentError) {
+        let appError = mapToAppError(error)
+        let retryAction: (() -> Void)?
+
+        switch error {
+        case .currencyNotSelected:
+            retryAction = { [weak self] in self?.clearSelectionAndDisablePay() }
+        case .paymentFailed:
+            retryAction = { [weak self] in self?.startPayment() }
+        case .networkOffline, .currenciesLoadFailed, .server, .unknown:
+            retryAction = { [weak self] in self?.startLoadCurrency() }
+        }
+
+        errorPresenter.present(error: appError, retryAction: retryAction)
+    }
+
+    func mapToAppError(_ error: PaymentError) -> AppError {
+        switch error {
+        case .networkOffline:
+            return .networkOffline
+        case .paymentFailed:
+            return .paymentFailed
+        case .currencyNotSelected:
+            return .currencyNotSelected
+        case .currenciesLoadFailed:
+            return .currenciesLoadFailed
+        case .server(let code):
+            return .server(code: code)
+        case .unknown(let underlying):
+            return .unknown(message: underlying.localizedDescription)
+        }
+    }
 }

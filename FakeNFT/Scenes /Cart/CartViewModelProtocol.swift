@@ -6,7 +6,7 @@ enum CartViewState {
     case loadingPlaceholders(items: [UICartItem])
     case loaded(items: [UICartItem], total: Double)
     case empty
-    case error(message: String)
+    case error(error: AppError)
 }
 
 protocol CartViewModelProtocol: AnyObject {
