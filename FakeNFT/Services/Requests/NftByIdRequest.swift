@@ -5,23 +5,18 @@ struct NFTRequest: NetworkRequest {
     var endpoint: URL? {
         URL(string: "\(RequestConstants.baseURL)/api/v1/nft/\(id)")
     }
-    var dto: Dto?
 }
 
 struct CartOrderRequest: NetworkRequest {
     var endpoint: URL? {
         URL(string: "\(RequestConstants.baseURL)/api/v1/orders/1")
     }
-
-    var dto: Dto?
 }
 
 struct CurrencyRequest: NetworkRequest {
     var endpoint: URL? {
         URL(string: "\(RequestConstants.baseURL)/api/v1/currencies")
     }
-
-    var dto: Dto?
 }
 
 struct SetOrderPaymentCurrencyRequest: NetworkRequest {
@@ -30,22 +25,40 @@ struct SetOrderPaymentCurrencyRequest: NetworkRequest {
     var endpoint: URL? {
         URL(string: "\(RequestConstants.baseURL)/api/v1/orders/1/payment/\(currencyID)")
     }
-
-    var dto: Dto?
 }
 
 struct CompleteOrderRequest: NetworkRequest {
+    let nftIDs: [String]
     var httpMethod: HttpMethod { .post }
     var endpoint: URL? {
         URL(string: "\(RequestConstants.baseURL)/api/v1/orders/1")
     }
-    let dto: Dto?
+
+    var contentType: String? { "application/x-www-form-urlencoded" }
+
+    var body: Data? {
+        formBody(for: nftIDs)
+    }
 }
 
-struct CompleteOrderDto: Dto {
-    let nftsCSV: String
+struct UpdateCartOrderRequest: NetworkRequest {
+    let nftIDs: [String]
 
-    func asDictionary() -> [String: String] {
-        ["nfts": nftsCSV]
+    var httpMethod: HttpMethod { .put }
+    var endpoint: URL? {
+        URL(string: "\(RequestConstants.baseURL)/api/v1/orders/1")
     }
+
+    var contentType: String? { "application/x-www-form-urlencoded" }
+
+    var body: Data? {
+        formBody(for: nftIDs)
+    }
+}
+
+private func formBody(for nftIDs: [String]) -> Data {
+    let bodyString = nftIDs
+        .map { "nfts=\($0.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? $0)" }
+        .joined(separator: "&")
+    return Data(bodyString.utf8)
 }

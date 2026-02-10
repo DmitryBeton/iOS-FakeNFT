@@ -130,118 +130,47 @@ private extension PaymentService {
     }
 
     func sendCompleteOrderRequest(nftIDs: [String], traceID: String, completion: @escaping (Result<Void, Error>) -> Void) {
-        guard let url = URL(string: "\(RequestConstants.baseURL)/api/v1/orders/1") else {
-            DispatchQueue.main.async {
-                completion(.failure(NetworkClientError.urlSessionError))
-            }
-            return
-        }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = HttpMethod.post.rawValue
-        request.setValue("application/json", forHTTPHeaderField: "Accept")
-        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-        request.setValue(RequestConstants.token, forHTTPHeaderField: "X-Practicum-Mobile-Token")
-
-        // API expects repeated form fields: nfts=id1&nfts=id2
-        let bodyString = nftIDs
-            .map { "nfts=\($0.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? $0)" }
-            .joined(separator: "&")
-        request.httpBody = bodyString.data(using: .utf8)
-
         Self.logger.debug("[\(traceID, privacy: .public)] Sending final payment request with repeated nfts fields. idsCount=\(nftIDs.count)")
+        networkClient.send(
+            request: CompleteOrderRequest(nftIDs: nftIDs),
+            type: CartOrderResponse.self,
+            completionQueue: callbackQueue
+        ) { [weak self] result in
+            guard let self else { return }
 
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error {
-                Self.logger.error("[\(traceID, privacy: .public)] Final payment request failed with transport error: \(error.localizedDescription, privacy: .public)")
+            switch result {
+            case .success(let response):
+                Self.logger.info("[\(traceID, privacy: .public)] Final payment request succeeded. responseOrderID=\(response.id, privacy: .public)")
+                self.clearOrderAfterPayment(traceID: traceID, completion: completion)
+            case .failure(let error):
+                Self.logger.error("[\(traceID, privacy: .public)] Final payment request failed: \(String(describing: error), privacy: .public)")
                 DispatchQueue.main.async {
-                    completion(.failure(NetworkClientError.urlRequestError(error)))
-                }
-                return
-            }
-
-            guard let http = response as? HTTPURLResponse else {
-                DispatchQueue.main.async {
-                    completion(.failure(NetworkClientError.urlSessionError))
-                }
-                return
-            }
-
-            guard 200 ..< 300 ~= http.statusCode else {
-                let body = data.flatMap { String(data: $0, encoding: .utf8) } ?? "no-body"
-                Self.logger.error("[\(traceID, privacy: .public)] Final payment request returned status=\(http.statusCode), body=\(body, privacy: .public)")
-                DispatchQueue.main.async {
-                    completion(.failure(NetworkClientError.httpStatusCode(http.statusCode)))
-                }
-                return
-            }
-
-            if let data {
-                do {
-                    let response = try JSONDecoder().decode(CartOrderResponse.self, from: data)
-                    Self.logger.info("[\(traceID, privacy: .public)] Final payment request succeeded. responseOrderID=\(response.id, privacy: .public)")
-                    self.clearOrderAfterPayment(traceID: traceID, completion: completion)
-                } catch {
-                    Self.logger.error("[\(traceID, privacy: .public)] Final payment response parse failed: \(error.localizedDescription, privacy: .public)")
-                    DispatchQueue.main.async {
-                        completion(.failure(NetworkClientError.parsingError))
-                    }
-                }
-            } else {
-                DispatchQueue.main.async {
-                    completion(.failure(NetworkClientError.urlSessionError))
+                    completion(.failure(error))
                 }
             }
-        }.resume()
+        }
     }
 
     func clearOrderAfterPayment(traceID: String, completion: @escaping (Result<Void, Error>) -> Void) {
-        guard let url = URL(string: "\(RequestConstants.baseURL)/api/v1/orders/1") else {
-            DispatchQueue.main.async {
-                completion(.failure(NetworkClientError.urlSessionError))
-            }
-            return
-        }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = HttpMethod.put.rawValue
-        request.setValue("application/json", forHTTPHeaderField: "Accept")
-        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-        request.setValue(RequestConstants.token, forHTTPHeaderField: "X-Practicum-Mobile-Token")
-        request.httpBody = Data()
-
         Self.logger.debug("[\(traceID, privacy: .public)] Clearing order after successful payment")
-
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error {
-                Self.logger.error("[\(traceID, privacy: .public)] Order clear failed with transport error: \(error.localizedDescription, privacy: .public)")
+        networkClient.send(
+            request: UpdateCartOrderRequest(nftIDs: []),
+            type: CartOrderResponse.self,
+            completionQueue: callbackQueue
+        ) { result in
+            switch result {
+            case .success:
+                Self.logger.info("[\(traceID, privacy: .public)] Order cleared successfully after payment")
                 DispatchQueue.main.async {
-                    completion(.failure(NetworkClientError.urlRequestError(error)))
+                    NotificationCenter.default.post(name: .cartDidChange, object: nil)
+                    completion(.success(()))
                 }
-                return
-            }
-
-            guard let http = response as? HTTPURLResponse else {
+            case .failure(let error):
+                Self.logger.error("[\(traceID, privacy: .public)] Order clear failed: \(String(describing: error), privacy: .public)")
                 DispatchQueue.main.async {
-                    completion(.failure(NetworkClientError.urlSessionError))
+                    completion(.failure(error))
                 }
-                return
             }
-
-            guard 200 ..< 300 ~= http.statusCode else {
-                let body = data.flatMap { String(data: $0, encoding: .utf8) } ?? "no-body"
-                Self.logger.error("[\(traceID, privacy: .public)] Order clear failed. status=\(http.statusCode), body=\(body, privacy: .public)")
-                DispatchQueue.main.async {
-                    completion(.failure(NetworkClientError.httpStatusCode(http.statusCode)))
-                }
-                return
-            }
-
-            Self.logger.info("[\(traceID, privacy: .public)] Order cleared successfully after payment")
-            DispatchQueue.main.async {
-                NotificationCenter.default.post(name: .cartDidChange, object: nil)
-                completion(.success(()))
-            }
-        }.resume()
+        }
     }
 }

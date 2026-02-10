@@ -179,7 +179,15 @@ final class DefaultNetworkClient: NetworkClient {
         urlRequest.setValue("application/json", forHTTPHeaderField: "Accept")
         urlRequest.addValue(RequestConstants.token, forHTTPHeaderField: "X-Practicum-Mobile-Token")
 
-        if let dtoDictionary = request.dto?.asDictionary() {
+        if let headers = request.headers {
+            for (key, value) in headers {
+                urlRequest.setValue(value, forHTTPHeaderField: key)
+            }
+        }
+
+        if let body = request.body {
+            urlRequest.httpBody = body
+        } else if let dtoDictionary = request.dto?.asDictionary() {
             var urlComponents = URLComponents()
             let queryItems = dtoDictionary.map { field in
                 URLQueryItem(
@@ -189,10 +197,13 @@ final class DefaultNetworkClient: NetworkClient {
             }
             urlComponents.queryItems = queryItems
             urlRequest.httpBody = urlComponents.query?.data(using: .utf8)
-            urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
         }
 
-        urlRequest.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+        if let contentType = request.contentType {
+            urlRequest.setValue(contentType, forHTTPHeaderField: "Content-Type")
+        } else if request.body != nil || request.dto != nil {
+            urlRequest.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+        }
 
         return urlRequest
     }

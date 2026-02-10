@@ -218,70 +218,27 @@ private extension CartService {
         traceID: String,
         completion: @escaping CartMutationCompletion
     ) {
-        guard let url = URL(string: "\(RequestConstants.baseURL)/api/v1/orders/1") else {
-            DispatchQueue.main.async {
-                completion(.failure(NetworkClientError.urlSessionError))
-            }
-            return
-        }
+        networkClient.send(
+            request: UpdateCartOrderRequest(nftIDs: nftIDs),
+            type: CartOrderResponse.self,
+            completionQueue: responseQueue
+        ) { [weak self] result in
+            guard let self else { return }
 
-        var request = URLRequest(url: url)
-        request.httpMethod = HttpMethod.put.rawValue
-        request.setValue("application/json", forHTTPHeaderField: "Accept")
-        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-        request.setValue(RequestConstants.token, forHTTPHeaderField: "X-Practicum-Mobile-Token")
-
-        let body = nftIDs
-            .map { "nfts=\($0.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? $0)" }
-            .joined(separator: "&")
-        request.httpBody = body.data(using: .utf8)
-
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error {
-                Self.logger.error("[\(traceID, privacy: .public)] PUT order failed with transport error: \(error.localizedDescription, privacy: .public)")
-                DispatchQueue.main.async {
-                    completion(.failure(NetworkClientError.urlRequestError(error)))
-                }
-                return
-            }
-
-            guard let http = response as? HTTPURLResponse else {
-                DispatchQueue.main.async {
-                    completion(.failure(NetworkClientError.urlSessionError))
-                }
-                return
-            }
-
-            guard 200 ..< 300 ~= http.statusCode else {
-                let body = data.flatMap { String(data: $0, encoding: .utf8) } ?? "no-body"
-                Self.logger.error("[\(traceID, privacy: .public)] PUT order failed. status=\(http.statusCode), body=\(body, privacy: .public)")
-                DispatchQueue.main.async {
-                    completion(.failure(NetworkClientError.httpStatusCode(http.statusCode)))
-                }
-                return
-            }
-
-            guard let data else {
-                DispatchQueue.main.async {
-                    completion(.failure(NetworkClientError.urlSessionError))
-                }
-                return
-            }
-
-            do {
-                let response = try JSONDecoder().decode(CartOrderResponse.self, from: data)
+            switch result {
+            case .success(let response):
                 self.storeOrderInCache(response)
                 Self.logger.info("[\(traceID, privacy: .public)] PUT order succeeded. idsCount=\(response.nfts.count)")
                 DispatchQueue.main.async {
                     completion(.success(response.nfts))
                 }
-            } catch {
-                Self.logger.error("[\(traceID, privacy: .public)] PUT order response parsing failed: \(error.localizedDescription, privacy: .public)")
+            case .failure(let error):
+                Self.logger.error("[\(traceID, privacy: .public)] PUT order failed. error=\(String(describing: error), privacy: .public)")
                 DispatchQueue.main.async {
-                    completion(.failure(NetworkClientError.parsingError))
+                    completion(.failure(error))
                 }
             }
-        }.resume()
+        }
     }
 
     func loadNfts(
