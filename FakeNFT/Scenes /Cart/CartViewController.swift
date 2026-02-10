@@ -62,6 +62,14 @@ final class CartViewController: UIViewController {
         return sortButton
     }()
 
+    lazy var searchController: UISearchController = {
+        let searchController = UISearchController(searchResultsController: nil)
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchResultsUpdater = self
+        searchController.searchBar.placeholder = "Search"
+        return searchController
+    }()
+
     // MARK: - Initialization
     init(servicesAssembly: ServicesAssembly) {
         self.servicesAssembly = servicesAssembly
@@ -107,6 +115,7 @@ private extension CartViewController {
     func setupUI() {
         view.backgroundColor = UIColor(resource: .nftWhite)
         configureTableView()
+        configureSearch()
 
         [tableView, orderSummaryView, emptyStateLabel].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
@@ -136,5 +145,11 @@ private extension CartViewController {
         tableView.accessibilityIdentifier = "cart_table"
         refreshControl.addTarget(self, action: #selector(refreshPulled), for: .valueChanged)
         tableView.refreshControl = refreshControl
+    }
+
+    func configureSearch() {
+        navigationItem.hidesSearchBarWhenScrolling = false
+        definesPresentationContext = true
+        setSearchVisible(false)
     }
 }

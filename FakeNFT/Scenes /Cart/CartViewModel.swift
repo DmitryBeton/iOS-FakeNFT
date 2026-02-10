@@ -33,6 +33,9 @@ protocol CartViewModelProtocol: AnyObject {
     /// Количество элементов в корзине.
     var itemsCount: Int { get }
 
+    /// Полное количество элементов в корзине без учета поискового фильтра.
+    var totalItemsCount: Int { get }
+
     /// Общая стоимость товаров в корзине.
     var totalPrice: Double { get }
 
@@ -56,6 +59,9 @@ protocol CartViewModelProtocol: AnyObject {
 
     /// Возвращает признак, пуста ли корзина.
     func isEmpty() -> Bool
+
+    /// Обновляет текст локального поиска.
+    func updateSearchQuery(_ query: String)
 }
 
 final class CartViewModel: CartViewModelProtocol {
@@ -65,6 +71,7 @@ final class CartViewModel: CartViewModelProtocol {
     private let service: CartServiceProtocol
     private let sortStore: SortOptionStore
     private var requestedItemIDs: [String] = []
+    private var searchQuery: String = ""
 
     // MARK: - Backing storage
     private var cartItems: [CartItem] = [] {
@@ -105,6 +112,7 @@ final class CartViewModel: CartViewModelProtocol {
     var items: [UICartItem] = []
 
     var itemsCount: Int { items.count }
+    var totalItemsCount: Int { cartItems.count }
 
     var totalPrice: Double = 0
 
@@ -121,6 +129,7 @@ final class CartViewModel: CartViewModelProtocol {
 
     // MARK: - Public Methods
     func loadItems() {
+        searchQuery = ""
         Self.logger.info("Loading cart items started")
         state = .loading
         self.service.fetchCartItems(onPlaceholders: { [weak self] ids in
@@ -202,8 +211,26 @@ final class CartViewModel: CartViewModelProtocol {
         case .price:
             cartItems.sort { $0.price < $1.price }
         }
-        items = cartItems.map { self.mapToUI($0) }
-        Self.logger.debug("Sorted items ready. count=\(self.items.count)")
+        applySearchAndEmitState()
+    }
+
+    func updateSearchQuery(_ query: String) {
+        searchQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        applySearchAndEmitState()
+    }
+
+    private func applySearchAndEmitState() {
+        let normalizedQuery = searchQuery.lowercased()
+        let filteredItems: [CartItem]
+        if normalizedQuery.isEmpty {
+            filteredItems = cartItems
+        } else {
+            filteredItems = cartItems.filter {
+                $0.name.lowercased().contains(normalizedQuery)
+            }
+        }
+        items = filteredItems.map { self.mapToUI($0) }
+        Self.logger.debug("Visible items after local search. count=\(self.items.count), query=\(self.searchQuery, privacy: .public)")
         emitLoadedOrEmptyState()
     }
 
@@ -244,7 +271,7 @@ final class CartViewModel: CartViewModelProtocol {
     }
 
     private func emitLoadedOrEmptyState() {
-        if items.isEmpty {
+        if cartItems.isEmpty {
             state = .empty
         } else {
             state = .loaded(items: items, total: totalPrice)

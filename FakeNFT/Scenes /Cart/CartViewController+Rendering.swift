@@ -35,6 +35,25 @@ extension CartViewController {
         AnalyticsService.shared.track(.buttonTapped(name: "sort", screen: "cart"))
         showSortOptionsMenu()
     }
+
+    func setSearchVisible(_ isVisible: Bool) {
+        if !isVisible {
+            if searchController.isActive {
+                searchController.isActive = false
+            }
+            if let text = searchController.searchBar.text, !text.isEmpty {
+                searchController.searchBar.text = ""
+                viewModel.updateSearchQuery("")
+            }
+        }
+        navigationItem.searchController = isVisible ? searchController : nil
+    }
+}
+
+extension CartViewController: UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+        viewModel.updateSearchQuery(searchController.searchBar.text ?? "")
+    }
 }
 
 private extension CartViewController {
@@ -97,6 +116,7 @@ private extension CartViewController {
         emptyStateLabel.isHidden = true
         orderSummaryView.isHidden = true
         navigationItem.rightBarButtonItem = nil
+        setSearchVisible(false)
     }
 
     func renderLoadingPlaceholders(items: [UICartItem]) {
@@ -104,32 +124,40 @@ private extension CartViewController {
         emptyStateLabel.isHidden = true
         orderSummaryView.isHidden = true
         navigationItem.rightBarButtonItem = nil
+        setSearchVisible(false)
         Self.logger.debug("Rendering placeholders: \(items.count)")
         tableView.reloadData()
     }
 
     func renderLoaded(items: [UICartItem], total: Double) {
         UIBlockingProgressHUD.dismiss()
-        emptyStateLabel.isHidden = true
+        let isSearchNoResults = items.isEmpty
+        emptyStateLabel.text = isSearchNoResults ? "Ничего не найдено" : Localization.Cart.emptyStateMessage.localized
+        emptyStateLabel.isHidden = !isSearchNoResults
         orderSummaryView.isHidden = false
         navigationItem.rightBarButtonItem = sortButton
-        orderSummaryView.updateOrderSummary(count: items.count, price: total)
+        setSearchVisible(true)
+        orderSummaryView.updateOrderSummary(count: viewModel.totalItemsCount, price: total)
         tableView.reloadData()
     }
 
     func renderEmpty() {
         UIBlockingProgressHUD.dismiss()
+        emptyStateLabel.text = Localization.Cart.emptyStateMessage.localized
         emptyStateLabel.isHidden = false
         orderSummaryView.isHidden = true
         navigationItem.rightBarButtonItem = nil
+        setSearchVisible(false)
         tableView.reloadData()
     }
 
     func renderError(message: String) {
         UIBlockingProgressHUD.dismiss()
+        emptyStateLabel.text = Localization.Cart.emptyStateMessage.localized
         emptyStateLabel.isHidden = false
         orderSummaryView.isHidden = true
         navigationItem.rightBarButtonItem = nil
+        setSearchVisible(false)
         tableView.reloadData()
 
         let alert = UIAlertController(
@@ -145,9 +173,11 @@ private extension CartViewController {
         let isEmpty = viewModel.isEmpty()
         Self.logger.debug("updateCartState. isEmpty=\(isEmpty)")
 
+        emptyStateLabel.text = Localization.Cart.emptyStateMessage.localized
         emptyStateLabel.isHidden = !isEmpty
         orderSummaryView.isHidden = isEmpty
         navigationItem.rightBarButtonItem = isEmpty ? nil : sortButton
+        setSearchVisible(!isEmpty)
     }
 }
 
@@ -181,10 +211,10 @@ private extension CartViewController {
         orderSummaryView.isUserInteractionEnabled = false
         Self.logger.info("Pay tapped from cart. Navigating to PaymentViewController")
         AnalyticsService.shared.track(.buttonTapped(name: "pay", screen: "cart"))
-        AnalyticsService.shared.track(.checkoutStarted(itemCount: viewModel.itemsCount, totalPrice: viewModel.totalPrice))
+        AnalyticsService.shared.track(.checkoutStarted(itemCount: viewModel.totalItemsCount, totalPrice: viewModel.totalPrice))
 
         let paymentViewController = PaymentViewController(
-            checkoutContext: .init(itemCount: viewModel.itemsCount, totalPrice: viewModel.totalPrice)
+            checkoutContext: .init(itemCount: viewModel.totalItemsCount, totalPrice: viewModel.totalPrice)
         )
         paymentViewController.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(paymentViewController, animated: true)
@@ -215,4 +245,5 @@ private extension CartViewController {
             Self.logger.error("State changed -> error: \(message)")
         }
     }
+
 }
