@@ -16,6 +16,7 @@ final class CartViewModel: CartViewModelProtocol {
     private let sortStore: SortOptionStore
     private var requestedItemIDs: [String] = []
     private var searchQuery: String = ""
+    private var activeLoadRequestID: UUID?
 
     // MARK: - Backing storage
     private var cartItems: [CartItem] = [] {
@@ -43,6 +44,7 @@ final class CartViewModel: CartViewModelProtocol {
 
     deinit {
         Self.logger.debug("CartViewModel deinit")
+        activeLoadRequestID = nil
         NotificationCenter.default.removeObserver(self, name: .cartDidChange, object: nil)
     }
 
@@ -73,19 +75,34 @@ final class CartViewModel: CartViewModelProtocol {
 
     // MARK: - Public Methods
     func loadItems() {
+        let requestID = UUID()
+        activeLoadRequestID = requestID
         searchQuery = ""
-        Self.logger.info("Loading cart items started")
+        Self.logger.info("Loading cart items started. requestID=\(requestID.uuidString, privacy: .public)")
         state = .loading
         self.service.fetchCartItems(onPlaceholders: { [weak self] ids in
             guard let self else { return }
+            guard self.activeLoadRequestID == requestID else {
+                Self.logger.debug("Ignored stale placeholders callback. requestID=\(requestID.uuidString, privacy: .public)")
+                return
+            }
             Self.logger.info("Received placeholders IDs. count=\(ids.count)")
             self.applyPlaceholderItems(for: ids)
         }, onPartialUpdate: { [weak self] partialItems in
             guard let self else { return }
+            guard self.activeLoadRequestID == requestID else {
+                Self.logger.debug("Ignored stale partial callback. requestID=\(requestID.uuidString, privacy: .public)")
+                return
+            }
             Self.logger.info("Received partial cart items. count=\(partialItems.count)")
             self.applyPartialItems(partialItems)
         }, completion: { [weak self] result in
             guard let self else { return }
+            guard self.activeLoadRequestID == requestID else {
+                Self.logger.debug("Ignored stale completion callback. requestID=\(requestID.uuidString, privacy: .public)")
+                return
+            }
+            self.activeLoadRequestID = nil
             switch result {
             case .success(let items):
                 Self.logger.info("Cart items loaded successfully. count=\(items.count)")

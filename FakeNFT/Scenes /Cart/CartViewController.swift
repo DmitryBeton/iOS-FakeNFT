@@ -71,6 +71,7 @@ final class CartViewController: UIViewController {
     var isNavigatingToPayment = false
     let connectivity = ConnectivityService()
     lazy var errorPresenter: ErrorPresenting = ErrorPresenter(viewController: self)
+    var renderedItemsSnapshot: [RenderedCartItem] = []
 
     // MARK: - UI Elements
     let refreshControl: UIRefreshControl = {
@@ -231,6 +232,22 @@ final class CartViewController: UIViewController {
 extension CartViewController {
     func routeToPayment(checkoutContext: CheckoutAnalyticsContext) {
         router.routeToPayment(from: self, checkoutContext: checkoutContext)
+    }
+}
+
+struct RenderedCartItem: Equatable {
+    let id: String
+    let title: String
+    let price: String
+    let rating: Int
+    let isPlaceholder: Bool
+
+    init(uiItem: UICartItem) {
+        id = uiItem.id
+        title = uiItem.title
+        price = uiItem.price
+        rating = uiItem.rating
+        isPlaceholder = uiItem.isPlaceholder
     }
 }
 

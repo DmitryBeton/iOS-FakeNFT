@@ -148,7 +148,7 @@ private extension CartViewController {
         orderSummaryView.isHidden = true
         setSearchVisible(false)
         Self.logger.debug("Rendering placeholders: \(items.count)")
-        tableView.reloadData()
+        applyTableUpdates(with: items, animated: true)
     }
 
     func renderLoaded(items: [UICartItem], total: Double) {
@@ -161,7 +161,7 @@ private extension CartViewController {
         orderSummaryView.isHidden = false
         setSearchVisible(true)
         orderSummaryView.updateOrderSummary(count: viewModel.totalItemsCount, price: total)
-        tableView.reloadData()
+        applyTableUpdates(with: items, animated: true)
     }
 
     func renderEmpty() {
@@ -170,6 +170,7 @@ private extension CartViewController {
         emptyStateLabel.isHidden = false
         orderSummaryView.isHidden = true
         setSearchVisible(false)
+        renderedItemsSnapshot = []
         tableView.reloadData()
     }
 
@@ -179,6 +180,7 @@ private extension CartViewController {
         emptyStateLabel.isHidden = false
         orderSummaryView.isHidden = true
         setSearchVisible(false)
+        renderedItemsSnapshot = []
         tableView.reloadData()
 
         errorPresenter.presentInfo(
@@ -236,6 +238,78 @@ private extension CartViewController {
 
 // MARK: - Helpers
 private extension CartViewController {
+    func applyTableUpdates(with items: [UICartItem], animated: Bool) {
+        let newSnapshot = items.map(RenderedCartItem.init)
+        let oldSnapshot = renderedItemsSnapshot
+        renderedItemsSnapshot = newSnapshot
+
+        guard animated else {
+            tableView.reloadData()
+            return
+        }
+
+        if oldSnapshot.isEmpty {
+            tableView.reloadData()
+            return
+        }
+
+        // Empty transitions are the most fragile for UITableView batch math.
+        if newSnapshot.isEmpty {
+            tableView.reloadData()
+            return
+        }
+
+        let oldIndexByID = Dictionary(uniqueKeysWithValues: oldSnapshot.enumerated().map { ($0.element.id, $0.offset) })
+        let newIndexByID = Dictionary(uniqueKeysWithValues: newSnapshot.enumerated().map { ($0.element.id, $0.offset) })
+
+        let deletedRows = oldIndexByID
+            .compactMap { id, oldIndex in newIndexByID[id] == nil ? IndexPath(row: oldIndex, section: 0) : nil }
+            .sorted { $0.row > $1.row }
+
+        let insertedRows = newIndexByID
+            .compactMap { id, newIndex in oldIndexByID[id] == nil ? IndexPath(row: newIndex, section: 0) : nil }
+            .sorted { $0.row < $1.row }
+
+        let movedPairs: [(from: IndexPath, to: IndexPath)] = oldIndexByID.compactMap { id, oldIndex in
+            guard let newIndex = newIndexByID[id], oldIndex != newIndex else { return nil }
+            return (from: IndexPath(row: oldIndex, section: 0), to: IndexPath(row: newIndex, section: 0))
+        }
+
+        let changedRows = newSnapshot.enumerated().compactMap { index, item -> IndexPath? in
+            guard let oldIndex = oldIndexByID[item.id] else { return nil }
+            return oldSnapshot[oldIndex] == item ? nil : IndexPath(row: index, section: 0)
+        }
+
+        if deletedRows.isEmpty, insertedRows.isEmpty, movedPairs.isEmpty, changedRows.isEmpty {
+            return
+        }
+
+        let expectedCount = oldSnapshot.count - deletedRows.count + insertedRows.count
+        guard expectedCount == newSnapshot.count else {
+            tableView.reloadData()
+            return
+        }
+
+        tableView.performBatchUpdates {
+            if !deletedRows.isEmpty {
+                tableView.deleteRows(at: deletedRows, with: .fade)
+            }
+
+            if !insertedRows.isEmpty {
+                tableView.insertRows(at: insertedRows, with: .fade)
+            }
+
+            for pair in movedPairs {
+                tableView.moveRow(at: pair.from, to: pair.to)
+            }
+        } completion: { [weak self] _ in
+            guard let self else { return }
+            if !changedRows.isEmpty {
+                self.tableView.reloadRows(at: changedRows, with: .none)
+            }
+        }
+    }
+
     func finishRefreshingIfNeeded() {
         if refreshControl.isRefreshing {
             refreshControl.endRefreshing()
