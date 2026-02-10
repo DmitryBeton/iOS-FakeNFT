@@ -14,7 +14,6 @@ final class MyNftViewModel: MyNftViewModelProtocol {
     
     // MARK: - Public Methods
     
-    // TODO: - Should be changed after service implementation
     func loadNfts() {
         state = .loading
         
@@ -23,6 +22,8 @@ final class MyNftViewModel: MyNftViewModelProtocol {
             
             switch result {
             case .success(let profileResult):
+                likedNfts = Set(profileResult.likes)
+                
                 let idsToLoad = profileResult.nfts
                 self.nftService.loadNfts(withIds: idsToLoad) { nftResult in
                     switch nftResult {
@@ -49,7 +50,7 @@ final class MyNftViewModel: MyNftViewModelProtocol {
     }
     
     func setLike(id: UUID) {
-        //let oldValue = likedNfts
+        let oldValue = likedNfts
         
         if likedNfts.contains(id) {
             likedNfts.remove(id)
@@ -57,7 +58,16 @@ final class MyNftViewModel: MyNftViewModelProtocol {
             likedNfts.insert(id)
         }
         
-        print("Likes: \(likedNfts.count)")
+        let likesDto = ProfileLikesDto(likes: Array(likedNfts))
+        profileService.updateProfileLikes(with: likesDto) { [weak self] result in
+            switch result {
+            case .success(let profile):
+                self?.likedNfts = Set(profile.likes)
+            case .failure(let error):
+                self?.likedNfts = oldValue
+                print("❌[ProfileService] failed to update likes, error: \(error)")
+            }
+        }
         
         updateSortedNfts()
         onLikesUpdate?()

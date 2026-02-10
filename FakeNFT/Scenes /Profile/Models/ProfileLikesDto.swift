@@ -13,7 +13,7 @@ struct ProfileLikesDto: Dto {
         guard !likes.isEmpty else {
             return [Keys.likes.rawValue: emptyValue]
         }
-        let idsString = likes.map { $0.uuidString }.joined(separator: ", ")
+        let idsString = likes.map { $0.uuidString.lowercased() }.joined(separator: ", ")
         return [Keys.likes.rawValue: idsString]
     }
 }
