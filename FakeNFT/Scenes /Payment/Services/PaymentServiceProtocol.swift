@@ -27,7 +27,8 @@ protocol PaymentServiceProtocol {
     ///
     /// - Important: Если реализация не гарантирует главный поток, вызывающая сторона
     /// должна самостоятельно переключаться на нужный поток.
-    /// - Important: Успех означает, что валюта привязана, заказ оплачен и очищен после оплаты.
+    /// - Important: Успех означает, что валюта привязана и заказ оплачен.
+    ///   Очистка заказа после оплаты выполняется отдельно в best-effort режиме.
     func pay(currencyID: String, completion: @escaping (Result<Void, Error>) -> Void)
 }
 
@@ -61,6 +62,8 @@ enum PaymentServiceError: Error {
 
 final class PaymentService: PaymentServiceProtocol {
     private static let logger = Logger(subsystem: "com.fakenft.app", category: "PaymentService")
+    private static let clearOrderMaxAttempts = 3
+    private static let clearOrderRetryDelay: TimeInterval = 1.0
 
     private let networkClient: NetworkClient
     /// Все callback-и от `NetworkClient` приходят в эту очередь и только после этого
@@ -150,7 +153,10 @@ private extension PaymentService {
             switch result {
             case .success(let response):
                 Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Final payment request succeeded. responseOrderID=\(response.id, privacy: .public)")
-                self.clearOrderAfterPayment(traceID: traceID, completion: completion)
+                DispatchQueue.main.async {
+                    completion(.success(()))
+                }
+                self.clearOrderAfterPayment(traceID: traceID, attempt: 1)
             case .failure(let error):
                 Self.logger.error("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Final payment request failed: \(String(describing: error), privacy: .public)")
                 DispatchQueue.main.async {
@@ -160,8 +166,8 @@ private extension PaymentService {
         }
     }
 
-    func clearOrderAfterPayment(traceID: String, completion: @escaping (Result<Void, Error>) -> Void) {
-        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Clearing order after successful payment")
+    func clearOrderAfterPayment(traceID: String, attempt: Int) {
+        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Clearing order after successful payment. attempt=\(attempt)")
         networkClient.send(
             request: UpdateCartOrderRequest(nftIDs: []),
             type: CartOrderResponse.self,
@@ -173,12 +179,19 @@ private extension PaymentService {
                 DispatchQueue.main.async {
                     // Side effect: уведомляем экран корзины о необходимости обновления.
                     NotificationCenter.default.post(name: .cartDidChange, object: nil)
-                    completion(.success(()))
                 }
             case .failure(let error):
-                Self.logger.error("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Order clear failed: \(String(describing: error), privacy: .public)")
-                DispatchQueue.main.async {
-                    completion(.failure(error))
+                if attempt < Self.clearOrderMaxAttempts {
+                    Self.logger.error("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Order clear failed on attempt \(attempt). Scheduling retry. error=\(String(describing: error), privacy: .public)")
+                    self.callbackQueue.asyncAfter(deadline: .now() + Self.clearOrderRetryDelay) { [weak self] in
+                        self?.clearOrderAfterPayment(traceID: traceID, attempt: attempt + 1)
+                    }
+                } else {
+                    Self.logger.error("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Order clear failed after max attempts. error=\(String(describing: error), privacy: .public)")
+                    DispatchQueue.main.async {
+                        // Платеж уже успешен: отправляем warning-сигнал, но не переводим flow в failure.
+                        NotificationCenter.default.post(name: .cartCleanupAfterPaymentFailed, object: nil)
+                    }
                 }
             }
         }
