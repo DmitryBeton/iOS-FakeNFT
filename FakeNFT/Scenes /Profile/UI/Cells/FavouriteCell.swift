@@ -14,7 +14,7 @@ final class FavouriteCell: UICollectionViewCell, ReuseIdentifying {
         nftImageView.kf.setImage(with: nft.image)
         ratingView.rating = nft.rating
         priceLabel.text = "\(nft.price) ETH"
-        isLiked = nft.isLiked
+        isLiked = true
     }
     
     // MARK: - Private Types

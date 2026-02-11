@@ -6,5 +6,4 @@ struct FavouriteNftUI: Identifiable, Hashable {
     let rating: Int
     let price: String
     let id: UUID
-    let isLiked: Bool
 }

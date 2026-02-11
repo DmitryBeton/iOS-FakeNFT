@@ -1,15 +1,5 @@
 import Foundation
 
-protocol FavouritesViewModelProtocol: AnyObject {
-    var onStateChange: ((FavouritesState) -> Void)? { get set }
-    var onLikesUpdate: (() -> Void)? { get set }
-    
-    var nftsUI: [FavouriteNftUI] { get }
-    
-    func loadNfts()
-    func setLike(id: UUID)
-}
-
 final class FavouritesViewModel: FavouritesViewModelProtocol {
     
     // MARK: - Bindings
@@ -29,11 +19,11 @@ final class FavouritesViewModel: FavouritesViewModelProtocol {
     }
     
     func setLike(id: UUID) {
-        let oldIds = idsToLoad
+        let oldIds = likedIds
         let oldNfts = favouriteNfts
         
-        let isRemoving = idsToLoad.contains(id)
-        idsToLoad.formSymmetricDifference([id])
+        let isRemoving = likedIds.contains(id)
+        likedIds.formSymmetricDifference([id])
         
         if isRemoving {
             favouriteNfts.removeAll { $0.id == id }
@@ -42,7 +32,7 @@ final class FavouritesViewModel: FavouritesViewModelProtocol {
         updateNftsUI()
         onLikesUpdate?()
         
-        let likesDto = ProfileLikesDto(likes: Array(idsToLoad))
+        let likesDto = ProfileLikesDto(likes: Array(likedIds))
         updateLikes(
             dto: likesDto,
             oldIds: oldIds,
@@ -64,7 +54,7 @@ final class FavouritesViewModel: FavouritesViewModelProtocol {
     private let nftService: ProfileNftByIdServiceProtocol
     
     private var favouriteNfts: [ProfileNft] = []
-    private var idsToLoad: Set<UUID> = []
+    private var likedIds: Set<UUID> = []
     
     private lazy var priceFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
@@ -89,8 +79,7 @@ final class FavouritesViewModel: FavouritesViewModelProtocol {
             image: nft.images[safe: 0],
             rating: nft.rating,
             price: priceFormatter.string(from: nft.price as NSDecimalNumber) ?? "",
-            id: nft.id,
-            isLiked: idsToLoad.contains(nft.id)
+            id: nft.id
         )
     }
     
@@ -103,7 +92,7 @@ final class FavouritesViewModel: FavouritesViewModelProtocol {
         profileService.loadProfile() { [weak self] result in
             switch result {
             case .success(let profile):
-                self?.idsToLoad = Set(profile.likes)
+                self?.likedIds = Set(profile.likes)
                 self?.loadLikedNfts()
                 
             case .failure(let error):
@@ -114,7 +103,7 @@ final class FavouritesViewModel: FavouritesViewModelProtocol {
     }
     
     private func loadLikedNfts() {
-        nftService.loadNfts(withIds: Array(idsToLoad)) { [weak self] result in
+        nftService.loadNfts(withIds: Array(likedIds)) { [weak self] result in
             switch result {
             case .success(let nfts):
                 self?.favouriteNfts = nfts
@@ -137,13 +126,13 @@ final class FavouritesViewModel: FavouritesViewModelProtocol {
             switch result {
             case .success(let profile):
                 let serverLikes = Set(profile.likes)
-                if serverLikes != self?.idsToLoad {
-                    self?.idsToLoad = serverLikes
+                if serverLikes != self?.likedIds {
+                    self?.likedIds = serverLikes
                     self?.reloadOnLikesUpdate()
                 }
                 
             case .failure(let error):
-                self?.idsToLoad = oldIds
+                self?.likedIds = oldIds
                 self?.favouriteNfts = oldNfts
                 self?.updateNftsUI()
                 self?.onLikesUpdate?()
@@ -153,7 +142,7 @@ final class FavouritesViewModel: FavouritesViewModelProtocol {
     }
     
     private func reloadOnLikesUpdate() {
-        nftService.loadNfts(withIds: Array(idsToLoad)) { [weak self] result in
+        nftService.loadNfts(withIds: Array(likedIds)) { [weak self] result in
             switch result {
             case .success(let nfts):
                 self?.favouriteNfts = nfts

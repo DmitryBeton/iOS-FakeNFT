@@ -16,31 +16,7 @@ final class MyNftViewModel: MyNftViewModelProtocol {
     
     func loadNfts() {
         state = .loading
-        
-        profileService.loadProfile() { [weak self] result in
-            switch result {
-            case .success(let profileResult):
-                self?.likedNfts = Set(profileResult.likes)
-                
-                let idsToLoad = profileResult.nfts
-                self?.nftService.loadNfts(withIds: idsToLoad) { nftResult in
-                    switch nftResult {
-                    case .success(let nftsResult):
-                        self?.nfts = nftsResult
-                        self?.updateSortedNfts()
-                        self?.state = .data
-                        
-                    case .failure(let nftsError):
-                        self?.state = .failed
-                        print("❌[ProfileNftByIdService] failed to load data, error: \(nftsError)")
-                    }
-                }
-                
-            case .failure(let profileError):
-                self?.state = .failed
-                print("❌[ProfileService] failed to load data, error: \(profileError)")
-            }
-        }
+        loadProfileData()
     }
     
     func changeSort(_ sort: SortOption) {
@@ -55,22 +31,7 @@ final class MyNftViewModel: MyNftViewModelProtocol {
         onLikesUpdate?()
         
         let likesDto = ProfileLikesDto(likes: Array(likedNfts))
-        profileService.updateProfileLikes(with: likesDto) { [weak self] result in
-            switch result {
-            case .success(let profile):
-                let serverLikes = Set(profile.likes)
-                guard serverLikes != self?.likedNfts else { return }
-                self?.likedNfts = Set(profile.likes)
-                self?.updateSortedNfts()
-                self?.onLikesUpdate?()
-                
-            case .failure(let error):
-                self?.likedNfts = oldValue
-                self?.updateSortedNfts()
-                self?.onLikesUpdate?()
-                print("❌[ProfileService] failed to update likes, error: \(error)")
-            }
-        }
+        updateLikes(dto: likesDto, oldValue: oldValue)
     }
     
     // MARK: - State
@@ -161,6 +122,53 @@ final class MyNftViewModel: MyNftViewModelProtocol {
             }
             
             return lhs.createdAt > rhs.createdAt
+        }
+    }
+    
+    private func loadProfileData() {
+        profileService.loadProfile() { [weak self] result in
+            switch result {
+            case .success(let profileResult):
+                self?.likedNfts = Set(profileResult.likes)
+                let idsToLoad = profileResult.nfts
+                self?.fetchProfileNfts(ids: idsToLoad)
+                
+            case .failure(let profileError):
+                self?.state = .failed
+                print("❌[ProfileService] failed to load data, error: \(profileError)")
+            }
+        }
+    }
+    
+    private func fetchProfileNfts(ids: [UUID]) {
+        nftService.loadNfts(withIds: ids) { [weak self] result in
+            switch result {
+            case .success(let nfts):
+                self?.nfts = nfts
+                self?.updateSortedNfts()
+                self?.state = .data
+                
+            case .failure(let error):
+                self?.state = .failed
+                print("❌[ProfileNftByIdService] failed to load data, error: \(error)")
+            }
+        }
+    }
+    
+    private func updateLikes(dto: ProfileLikesDto, oldValue: Set<UUID>) {
+        profileService.updateProfileLikes(with: dto) { [weak self] result in
+            switch result {
+            case .success(let profile):
+                let serverLikes = Set(profile.likes)
+                guard serverLikes != self?.likedNfts else { return }
+                self?.likedNfts = Set(profile.likes)
+                
+            case .failure(let error):
+                self?.likedNfts = oldValue
+                print("❌[ProfileService] failed to update likes, error: \(error)")
+            }
+            self?.updateSortedNfts()
+            self?.onLikesUpdate?()
         }
     }
     
