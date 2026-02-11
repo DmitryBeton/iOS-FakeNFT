@@ -33,6 +33,9 @@ final class FavouritesViewController: UIViewController, NetworkErrorView {
         ) { [weak self] collectionView, indexPath, nft in
             let cell: FavouriteCell = collectionView.dequeueReusableCell(indexPath: indexPath)
             cell.configure(nft: nft)
+            cell.onLikeTap = {
+                self?.viewModel.setLike(id: nft.id)
+            }
             return cell
         }
         return dataSource
@@ -135,6 +138,14 @@ final class FavouritesViewController: UIViewController, NetworkErrorView {
                         self.viewModel.loadNfts()
                     }
                 }
+            }
+        }
+        viewModel.onLikesUpdate = { [weak self] in
+            guard let self else { return }
+            
+            DispatchQueue.main.async {
+                let nftsUI = self.viewModel.nftsUI
+                self.applySnapshot(nfts: nftsUI, animating: true)
             }
         }
     }
