@@ -137,6 +137,7 @@ final class FavouriteCell: UICollectionViewCell, ReuseIdentifying {
         NSLayoutConstraint.activate([
             infoStackView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             infoStackView.leadingAnchor.constraint(equalTo: nftImageView.trailingAnchor, constant: 12),
+            infoStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor)
         ])
     }
     

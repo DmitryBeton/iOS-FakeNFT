@@ -41,6 +41,14 @@ final class FavouritesViewController: UIViewController, NetworkErrorView {
     
     // MARK: - Private Properties
     
+    private let layoutParams = FavouritesLayoutParams(
+        cellCount: 2,
+        cellHeight: 80,
+        insets: UIEdgeInsets(top: 20, left: 16, bottom: 0, right: 16),
+        cellSpacing: 7,
+        lineSpacing: 20
+    )
+    
     private let mockNfts: [FavouriteNftUI] = [
         FavouriteNftUI(
             name: "commodo porttitor",
@@ -83,6 +91,7 @@ final class FavouritesViewController: UIViewController, NetworkErrorView {
         setupViews()
         setupNavigationBar()
         setupConstraints()
+        setupDelegates()
         applySnapshot(nfts: mockNfts, animating: false)
     }
     
@@ -115,11 +124,53 @@ final class FavouritesViewController: UIViewController, NetworkErrorView {
     
     // MARK: - Private Methods
     
+    private func setupDelegates() {
+        favouritesCollectionView.delegate = self
+    }
+    
     private func applySnapshot(nfts: [FavouriteNftUI], animating: Bool) {
         var snapshot = NSDiffableDataSourceSnapshot<Section, FavouriteNftUI>()
         snapshot.appendSections([.main])
         snapshot.appendItems(nfts, toSection: .main)
         dataSource.apply(snapshot, animatingDifferences: animating)
+    }
+    
+}
+
+extension FavouritesViewController: UICollectionViewDelegateFlowLayout {
+    
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        sizeForItemAt indexPath: IndexPath
+    ) -> CGSize {
+        let availableWidth = collectionView.frame.width - layoutParams.paddingWidth
+        let cellWidth = floor(availableWidth / CGFloat(layoutParams.cellCount))
+        return CGSize(width: cellWidth, height: layoutParams.cellHeight)
+    }
+    
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        insetForSectionAt section: Int
+    ) -> UIEdgeInsets {
+        layoutParams.insets
+    }
+    
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        minimumInteritemSpacingForSectionAt section: Int
+    ) -> CGFloat {
+        layoutParams.cellSpacing
+    }
+    
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        minimumLineSpacingForSectionAt section: Int
+    ) -> CGFloat {
+        layoutParams.lineSpacing
     }
     
 }
