@@ -14,7 +14,7 @@ final class FavouritesViewController: UIViewController, NetworkErrorView {
         let label = UILabel()
         label.font = .bodyBold
         label.textColor = UIColor(resource: .nftBlack)
-        label.text = "У Вас ещё нет избранных NFT"
+        label.text = Localization.Favourites.empty
         label.isHidden = true
         return label
     }()
@@ -23,13 +23,36 @@ final class FavouritesViewController: UIViewController, NetworkErrorView {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        setupViews()
+        setupNavigationBar()
+        setupConstraints()
     }
     
     // MARK: - UI Methods
     
     private func setupViews() {
+        view.backgroundColor = UIColor(resource: .nftWhite)
+        view.addSubviews([
+            favouritesCollectionView,
+            emptyLabel
+        ])
+    }
+    
+    private func setupNavigationBar() {
+        navigationItem.title = Localization.Favourites.title
+    }
+    
+    private func setupConstraints() {
+        [favouritesCollectionView].disableAutoresizingMasks()
         
+        NSLayoutConstraint.activate([
+            favouritesCollectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            favouritesCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            favouritesCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            favouritesCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+        
+        emptyLabel.constraintCenters(to: view)
     }
     
 }
