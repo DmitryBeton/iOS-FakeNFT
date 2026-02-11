@@ -4,6 +4,7 @@ final class UserCardViewController: UIViewController {
 
     // MARK: - Dependencies
     private let viewModel: UserCardViewModelProtocol
+    private let servicesAssembly: ServicesAssembly
 
     // MARK: - UI
     private let scrollView = UIScrollView()
@@ -26,8 +27,9 @@ final class UserCardViewController: UIViewController {
     private let loader = UIActivityIndicatorView(style: .medium)
 
     // MARK: - Init
-    init(viewModel: UserCardViewModelProtocol) {
+    init(viewModel: UserCardViewModelProtocol, servicesAssembly: ServicesAssembly) {
         self.viewModel = viewModel
+        self.servicesAssembly = servicesAssembly
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -77,7 +79,6 @@ final class UserCardViewController: UIViewController {
         avatarImageView.clipsToBounds = true
         avatarImageView.layer.cornerRadius = 35
         avatarImageView.image = UIImage(resource: .statisticAvatarTable)
-        avatarImageView.backgroundColor = .clear
 
         NSLayoutConstraint.activate([
             avatarImageView.widthAnchor.constraint(equalToConstant: 70),
@@ -89,13 +90,7 @@ final class UserCardViewController: UIViewController {
         nameLabel.font = .systemFont(ofSize: 22, weight: .semibold)
         nameLabel.textColor = .label
         nameLabel.numberOfLines = 1
-        nameLabel.textAlignment = .left
         nameLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-
-        NSLayoutConstraint.activate([
-            nameLabel.heightAnchor.constraint(equalToConstant: 28),
-            nameLabel.widthAnchor.constraint(lessThanOrEqualToConstant: 275)
-        ])
 
         headerStack.addArrangedSubview(avatarImageView)
         headerStack.addArrangedSubview(nameLabel)
@@ -103,34 +98,26 @@ final class UserCardViewController: UIViewController {
 
         // Description
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
-        descriptionLabel.font = .systemFont(ofSize: 15, weight: .regular)
-        descriptionLabel.textColor = UIColor(named: "nftBlack") //исправила
+        descriptionLabel.font = .systemFont(ofSize: 15)
+        descriptionLabel.textColor = UIColor(named: "nftBlack")
         descriptionLabel.numberOfLines = 0
-        descriptionLabel.textAlignment = .left
 
         // Site button
         siteButton.translatesAutoresizingMaskIntoConstraints = false
         siteButton.setTitle("Перейти на сайт пользователя", for: .normal)
         siteButton.setTitleColor(.label, for: .normal)
         siteButton.titleLabel?.font = .systemFont(ofSize: 15, weight: .medium)
-
         siteButton.layer.cornerRadius = 20
         siteButton.layer.borderWidth = 1
         siteButton.layer.borderColor = UIColor(named: "nftBlack")?.cgColor
-        siteButton.backgroundColor = .clear
+        siteButton.addTarget(self, action: #selector(siteTapped), for: .touchUpInside)
 
         NSLayoutConstraint.activate([
             siteButton.heightAnchor.constraint(equalToConstant: 40)
         ])
 
-        siteButton.addTarget(self, action: #selector(siteTapped), for: .touchUpInside)
-
         // Collection row
         collectionRow.translatesAutoresizingMaskIntoConstraints = false
-        collectionRow.setTitle("", for: .normal)
-        collectionRow.contentHorizontalAlignment = .fill
-        collectionRow.contentVerticalAlignment = .fill
-        collectionRow.backgroundColor = .clear
         collectionRow.addTarget(self, action: #selector(collectionTapped), for: .touchUpInside)
 
         NSLayoutConstraint.activate([
@@ -143,14 +130,9 @@ final class UserCardViewController: UIViewController {
         collectionStack.alignment = .center
         collectionStack.spacing = 8
         collectionStack.isUserInteractionEnabled = false
-        
-        collectionLabel.translatesAutoresizingMaskIntoConstraints = false
-        collectionLabel.font = .systemFont(ofSize: 17, weight: .semibold)
-        collectionLabel.textColor = .label
 
-        collectionChevron.translatesAutoresizingMaskIntoConstraints = false
+        collectionLabel.font = .systemFont(ofSize: 17, weight: .semibold)
         collectionChevron.tintColor = .tertiaryLabel
-        collectionChevron.isUserInteractionEnabled = false
 
         collectionStack.addArrangedSubview(collectionLabel)
         collectionStack.addArrangedSubview(UIView())
@@ -226,9 +208,14 @@ final class UserCardViewController: UIViewController {
             }
         }
 
-        viewModel.onOpenCollection = { [weak self] userId, count in
+        viewModel.onOpenCollection = { [weak self] userId, _ in
             guard let self else { return }
-            let vc = UserCollectionModule.make(userId: userId, nftCount: count)
+
+            let vc = UserCollectionModule.make(
+                userId: userId,
+                servicesAssembly: self.servicesAssembly
+            )
+
             self.navigationController?.pushViewController(vc, animated: true)
         }
 
@@ -266,3 +253,4 @@ final class UserCardViewController: UIViewController {
         viewModel.collectionTapped()
     }
 }
+

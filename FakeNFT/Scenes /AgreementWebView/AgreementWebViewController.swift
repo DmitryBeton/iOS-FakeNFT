@@ -1,10 +1,3 @@
-//
-//  AgreementWebViewController.swift
-//  FakeNFT
-//
-//  Created by Дмитрий Чалов on 03.02.2026.
-//
-
 import UIKit
 import WebKit
 
