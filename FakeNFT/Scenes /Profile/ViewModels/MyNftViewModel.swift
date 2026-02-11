@@ -18,28 +18,26 @@ final class MyNftViewModel: MyNftViewModelProtocol {
         state = .loading
         
         profileService.loadProfile() { [weak self] result in
-            guard let self else { return }
-            
             switch result {
             case .success(let profileResult):
-                likedNfts = Set(profileResult.likes)
+                self?.likedNfts = Set(profileResult.likes)
                 
                 let idsToLoad = profileResult.nfts
-                self.nftService.loadNfts(withIds: idsToLoad) { nftResult in
+                self?.nftService.loadNfts(withIds: idsToLoad) { nftResult in
                     switch nftResult {
                     case .success(let nftsResult):
-                        self.nfts = nftsResult
-                        self.updateSortedNfts()
-                        self.state = .data
+                        self?.nfts = nftsResult
+                        self?.updateSortedNfts()
+                        self?.state = .data
                         
                     case .failure(let nftsError):
-                        self.state = .failed
+                        self?.state = .failed
                         print("❌[ProfileNftByIdService] failed to load data, error: \(nftsError)")
                     }
                 }
                 
             case .failure(let profileError):
-                self.state = .failed
+                self?.state = .failed
                 print("❌[ProfileService] failed to load data, error: \(profileError)")
             }
         }
@@ -51,26 +49,28 @@ final class MyNftViewModel: MyNftViewModelProtocol {
     
     func setLike(id: UUID) {
         let oldValue = likedNfts
+        likedNfts.formSymmetricDifference([id])
         
-        if likedNfts.contains(id) {
-            likedNfts.remove(id)
-        } else {
-            likedNfts.insert(id)
-        }
+        updateSortedNfts()
+        onLikesUpdate?()
         
         let likesDto = ProfileLikesDto(likes: Array(likedNfts))
         profileService.updateProfileLikes(with: likesDto) { [weak self] result in
             switch result {
             case .success(let profile):
+                let serverLikes = Set(profile.likes)
+                guard serverLikes != self?.likedNfts else { return }
                 self?.likedNfts = Set(profile.likes)
+                self?.updateSortedNfts()
+                self?.onLikesUpdate?()
+                
             case .failure(let error):
                 self?.likedNfts = oldValue
+                self?.updateSortedNfts()
+                self?.onLikesUpdate?()
                 print("❌[ProfileService] failed to update likes, error: \(error)")
             }
         }
-        
-        updateSortedNfts()
-        onLikesUpdate?()
     }
     
     // MARK: - State
@@ -143,13 +143,24 @@ final class MyNftViewModel: MyNftViewModelProtocol {
     }
     
     private func sortNfts(_ nfts: [ProfileNft], by sort: SortOption) -> [ProfileNft] {
-        switch sort {
-        case .name:
-            nfts.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
-        case .price:
-            nfts.sorted { $0.price < $1.price }
-        case .rating:
-            nfts.sorted { $0.rating > $1.rating }
+        nfts.sorted { lhs, rhs in
+            switch sort {
+            case .name:
+                let comparison = lhs.name.localizedCaseInsensitiveCompare(rhs.name)
+                if comparison != .orderedSame {
+                    return comparison == .orderedAscending
+                }
+            case .price:
+                if lhs.price != rhs.price {
+                    return lhs.price < rhs.price
+                }
+            case .rating:
+                if lhs.rating != rhs.rating {
+                    return lhs.rating > rhs.rating
+                }
+            }
+            
+            return lhs.createdAt > rhs.createdAt
         }
     }
     
