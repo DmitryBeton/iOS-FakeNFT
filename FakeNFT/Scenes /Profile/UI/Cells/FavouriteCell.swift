@@ -21,10 +21,14 @@ final class FavouriteCell: UICollectionViewCell, ReuseIdentifying {
     
     private enum Constants {
         enum Layout {
-            
+            static let imageTrailingSpacing: CGFloat = 12
         }
         enum Spacing {
-            
+            static let infoStackSpacing: CGFloat = 8
+            static let infoStackCustomSpacing: CGFloat = 4
+        }
+        enum Radius {
+            static let imageRadius: CGFloat = 12
         }
     }
     
@@ -33,7 +37,7 @@ final class FavouriteCell: UICollectionViewCell, ReuseIdentifying {
     private lazy var nftImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.layer.masksToBounds = true
-        imageView.layer.cornerRadius = 12
+        imageView.layer.cornerRadius = Constants.Radius.imageRadius
         imageView.isUserInteractionEnabled = true
         imageView.kf.indicatorType = .activity
         imageView.addSubview(likeButton)
@@ -69,9 +73,9 @@ final class FavouriteCell: UICollectionViewCell, ReuseIdentifying {
             priceLabel
         ])
         stackView.axis = .vertical
-        stackView.spacing = 8
+        stackView.spacing = Constants.Spacing.infoStackSpacing
         stackView.alignment = .leading
-        stackView.setCustomSpacing(4, after: nameLabel)
+        stackView.setCustomSpacing(Constants.Spacing.infoStackCustomSpacing, after: nameLabel)
         return stackView
     }()
     
@@ -136,7 +140,7 @@ final class FavouriteCell: UICollectionViewCell, ReuseIdentifying {
         
         NSLayoutConstraint.activate([
             infoStackView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            infoStackView.leadingAnchor.constraint(equalTo: nftImageView.trailingAnchor, constant: 12),
+            infoStackView.leadingAnchor.constraint(equalTo: nftImageView.trailingAnchor, constant: Constants.Layout.imageTrailingSpacing),
             infoStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor)
         ])
     }
