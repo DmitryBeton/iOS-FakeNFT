@@ -14,11 +14,47 @@ final class ProfileNftByIdService: ProfileNftByIdServiceProtocol {
         }
         
         let storedNfts = storage.getNfts()
-        if !storedNfts.isEmpty {
+        let storedIds = Set(storedNfts.map { $0.id })
+        let requestedIds = Set(ids)
+        
+        if storedIds == requestedIds {
             completion(.success(storedNfts))
             return
         }
         
+        fetchFromNetwork(ids: ids, completion: completion)
+    }
+    
+    // MARK: - Private Properties
+    
+    private let networkClient: NetworkClient
+    private let storage: ProfileNftStorageProtocol
+    
+    // MARK: - Init
+    
+    init(networkClient: NetworkClient, storage: ProfileNftStorageProtocol) {
+        self.networkClient = networkClient
+        self.storage = storage
+    }
+    
+    // MARK: - Private Methods
+    
+    private func loadNft(withId id: UUID, completion: @escaping ProfileNftCompletion) {
+        let request = LoadNftRequest(id: id)
+        networkClient.send(
+            request: request,
+            type: ProfileNft.self
+        ) { result in
+            switch result {
+            case .success(let nft):
+                completion(.success(nft))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+    
+    private func fetchFromNetwork(ids: [UUID], completion: @escaping ProfileNftsCompletion) {
         let group = DispatchGroup()
         let queue = DispatchQueue(label: "profile-nfts-result-queue")
         
@@ -48,35 +84,6 @@ final class ProfileNftByIdService: ProfileNftByIdServiceProtocol {
             } else {
                 storage?.saveNfts(nfts)
                 completion(.success(nfts))
-            }
-        }
-    }
-    
-    // MARK: - Private Properties
-    
-    private let networkClient: NetworkClient
-    private let storage: ProfileNftStorageProtocol
-    
-    // MARK: - Init
-    
-    init(networkClient: NetworkClient, storage: ProfileNftStorageProtocol) {
-        self.networkClient = networkClient
-        self.storage = storage
-    }
-    
-    // MARK: - Private Methods
-    
-    private func loadNft(withId id: UUID, completion: @escaping ProfileNftCompletion) {
-        let request = LoadNftRequest(id: id)
-        networkClient.send(
-            request: request,
-            type: ProfileNft.self
-        ) { result in
-            switch result {
-            case .success(let nft):
-                completion(.success(nft))
-            case .failure(let error):
-                completion(.failure(error))
             }
         }
     }

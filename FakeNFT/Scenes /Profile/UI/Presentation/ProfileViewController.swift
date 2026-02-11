@@ -289,7 +289,8 @@ final class ProfileViewController: UIViewController, NetworkErrorView {
     }
     
     private func pushToFavouritesViewController() {
-        let favouritesVC = FavouritesViewController()
+        let viewModel = FavouritesViewModel(servicesAssembly: viewModel.servicesAssembly)
+        let favouritesVC = FavouritesViewController(viewModel: viewModel)
         favouritesVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(favouritesVC, animated: true)
     }

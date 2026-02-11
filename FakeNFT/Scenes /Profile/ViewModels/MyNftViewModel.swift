@@ -118,7 +118,7 @@ final class MyNftViewModel: MyNftViewModelProtocol {
         sortStorage: SortOptionStorageProtocol
     ) {
         self.profileService = servicesAssembly.profileService
-        self.nftService = servicesAssembly.profileNftService
+        self.nftService = servicesAssembly.myNftService
         self.sortStorage = sortStorage
         sort = sortStorage.sortOption
     }

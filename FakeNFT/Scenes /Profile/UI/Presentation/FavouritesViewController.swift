@@ -40,6 +40,8 @@ final class FavouritesViewController: UIViewController, NetworkErrorView {
     
     // MARK: - Private Properties
     
+    private let viewModel: FavouritesViewModelProtocol
+    
     private let layout = GridFlowLayout(
         columns: 2,
         cellSpacing: 7,
@@ -48,40 +50,18 @@ final class FavouritesViewController: UIViewController, NetworkErrorView {
         height: 80
     )
     
-    private let mockNfts: [FavouriteNftUI] = [
-        FavouriteNftUI(
-            name: "commodo porttitor",
-            image: URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Beige/April/1.png"),
-            rating: 3,
-            price: "36.54",
-            id: UUID(),
-            isLiked: true
-        ),
-        FavouriteNftUI(
-            name: "commodo porttitor",
-            image: URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Beige/April/1.png"),
-            rating: 3,
-            price: "36.54",
-            id: UUID(),
-            isLiked: true
-        ),
-        FavouriteNftUI(
-            name: "commodo porttitor",
-            image: URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Beige/April/1.png"),
-            rating: 3,
-            price: "36.54",
-            id: UUID(),
-            isLiked: false
-        ),
-        FavouriteNftUI(
-            name: "commodo porttitor",
-            image: URL(string: "https://code.s3.yandex.net/Mobile/iOS/NFT/Beige/April/1.png"),
-            rating: 3,
-            price: "36.54",
-            id: UUID(),
-            isLiked: false
-        ),
-    ]
+    // MARK: - Init
+    
+    init(viewModel: FavouritesViewModelProtocol) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        assertionFailure("init(coder:) has not been implemented")
+        return nil
+    }
     
     // MARK: - Life Cycle
     
@@ -90,7 +70,9 @@ final class FavouritesViewController: UIViewController, NetworkErrorView {
         setupViews()
         setupNavigationBar()
         setupConstraints()
-        applySnapshot(nfts: mockNfts, animating: false)
+        applySnapshot(nfts: [], animating: false)
+        bind()
+        viewModel.loadNfts()
     }
     
     // MARK: - UI Methods
@@ -127,6 +109,34 @@ final class FavouritesViewController: UIViewController, NetworkErrorView {
         snapshot.appendSections([.main])
         snapshot.appendItems(nfts, toSection: .main)
         dataSource.apply(snapshot, animatingDifferences: animating)
+    }
+    
+    private func bind() {
+        viewModel.onStateChange = { [weak self] state in
+            guard let self else { return }
+            
+            DispatchQueue.main.async {
+                switch state {
+                case .initial:
+                    UIBlockingProgressHUD.dismiss()
+                    assertionFailure("can't move to initial state")
+                    
+                case .loading:
+                    UIBlockingProgressHUD.show()
+                    
+                case .data:
+                    UIBlockingProgressHUD.dismiss()
+                    let nfts = self.viewModel.nftsUI
+                    self.applySnapshot(nfts: nfts, animating: true)
+                    
+                case .failed:
+                    UIBlockingProgressHUD.dismiss()
+                    self.showNetworkError() {
+                        self.viewModel.loadNfts()
+                    }
+                }
+            }
+        }
     }
     
 }
