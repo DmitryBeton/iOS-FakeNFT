@@ -6,7 +6,6 @@ final class EditProfileViewModel: EditProfileViewModelProtocol {
     
     var onStateChange: ((EditProfileState) -> Void)?
     var onAvatarChange: (() -> Void)?
-    var onChangesSaved: (() -> Void)?
     
     // MARK: - Public Properties
     
@@ -74,7 +73,6 @@ final class EditProfileViewModel: EditProfileViewModelProtocol {
             switch result {
             case .success(_):
                 state = .saved
-                onChangesSaved?()
             case .failure(let error):
                 state = .failed
                 print("❌[ProfileService] failed to update data, error: \(error)")

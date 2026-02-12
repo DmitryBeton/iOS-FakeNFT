@@ -213,9 +213,6 @@ final class ProfileViewController: UIViewController, NetworkErrorView {
             profile: initialProfile,
             servicesAssembly: servicesAssembly
         )
-        editProfileVM.onChangesSaved = { [weak self] in
-            self?.viewModel.loadProfile()
-        }
         let editProfileVC = EditProfileViewController(viewModel: editProfileVM)
         editProfileVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(editProfileVC, animated: true)

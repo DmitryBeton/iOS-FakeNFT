@@ -7,6 +7,11 @@ final class ProfileStorage: ProfileStorageProtocol {
     func saveProfile(_ profile: Profile) {
         concurrentQueue.async(flags: .barrier) {
             self.storage = profile
+            
+            NotificationCenter.default.post(
+                name: .profileDidChange,
+                object: profile
+            )
         }
     }
     

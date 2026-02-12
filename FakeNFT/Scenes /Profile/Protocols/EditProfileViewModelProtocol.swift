@@ -10,10 +10,6 @@ protocol EditProfileViewModelProtocol: AnyObject {
     /// - Note: Используется для обновления картинки аватара, данные могут браться из `profile` вьюмодели
     var onAvatarChange: (() -> Void)? { get set }
     
-    /// Вызывается при успешном ответе на `PUT` запрос на обновление данных профиля
-    /// - Note: Передается в ProfileViewModel для вызова перезагрузки эрана
-    var onChangesSaved: (() -> Void)? { get set }
-    
     /// Текущие данные профиля
     var profile: ProfileUI { get }
     
