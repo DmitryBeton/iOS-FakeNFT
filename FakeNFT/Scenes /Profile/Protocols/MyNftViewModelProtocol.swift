@@ -15,10 +15,11 @@ protocol MyNftViewModelProtocol: AnyObject {
     /// - Note: Используется для обновления отображения лайков
     var onLikesUpdate: (() -> Void)? { get set }
     
-    /// Сортированные UI данные NFT
+    /// Отсортированный массив UI-моделей NFT для отображения в интерфейсе
     var sortedNfts: [MyNftUI] { get }
     
-    /// Начать загрузку NFT с сервера
+    /// Загрузить список NFT профиял
+    /// После успешной загрузки обновляет `sortedNfts` и состояние вьюмодели
     func loadNfts()
     
     /// Изменить текущую сортировку во ViewModel
@@ -26,9 +27,9 @@ protocol MyNftViewModelProtocol: AnyObject {
     /// - Note: После пересортировки NFT уведомляет об изменениях через замыкание
     func changeSort(_ sort: SortOption)
     
-    /// Переключить лайк для NFT с заданным id.
-    /// Если id уже есть в множестве лайков, он удаляется, иначе – добавляется
-    /// - Parameter id: Идентификатор NFT
+    /// Добавить или удалить лайк для NFT с заданным id.
+    /// После обновления лайков вызывается замыкание `onLikesUpdate` и обновляется `sortedNfts`.
+    /// - Parameter id: Идентификатор NFT для переключения лайка
     func setLike(id: UUID)
     
 }

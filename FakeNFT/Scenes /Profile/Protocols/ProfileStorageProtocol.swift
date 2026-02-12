@@ -1,7 +1,9 @@
 /// Интерфейс хранения данных профиля
 protocol ProfileStorageProtocol: AnyObject {
     
-    /// Сохранить профиль
+    /// Сохранить профиль.
+    /// При измении профиля отправляет нотификацию `profileDidChange`,
+    /// в которой передает обновленный объект.
     /// - Parameter profile: Объект профиля для сохранения
     func saveProfile(_ profile: Profile)
     
