@@ -1,6 +1,5 @@
 import UIKit
 import Kingfisher
-import ProgressHUD
 
 final class ProfileViewController: UIViewController, NetworkErrorView {
     
@@ -66,8 +65,10 @@ final class ProfileViewController: UIViewController, NetworkErrorView {
     }()
     
     private lazy var linkButton: UIButton = {
+        let color = UIColor(resource: .nftBlue)
         let button = UIButton()
-        button.setTitleColor(UIColor(resource: .nftBlue), for: .normal)
+        button.setTitleColor(color, for: .normal)
+        button.setTitleColor(color.withAlphaComponent(0.65), for: .highlighted)
         button.titleLabel?.font = .caption1
         return button
     }()

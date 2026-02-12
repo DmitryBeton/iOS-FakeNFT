@@ -78,10 +78,12 @@ final class EditProfileViewController: UIViewController, NetworkErrorView {
     }()
     
     private lazy var saveButton: UIButton = {
+        let titleColor = UIColor(resource: .nftWhite)
         let button = UIButton()
         button.setTitle(Localization.Profile.saveEdit, for: .normal)
         button.titleLabel?.font = .bodyBold
-        button.setTitleColor(UIColor(resource: .nftWhite), for: .normal)
+        button.setTitleColor(titleColor, for: .normal)
+        button.setTitleColor(titleColor.withAlphaComponent(0.65), for: .highlighted)
         button.backgroundColor = UIColor(resource: .nftBlack)
         button.layer.masksToBounds = true
         button.layer.cornerRadius = Constants.Radius.buttonRadius
@@ -278,7 +280,21 @@ final class EditProfileViewController: UIViewController, NetworkErrorView {
     }
     
     private func updateSaveButtonState() {
-        saveButton.isHidden = !viewModel.hasChanges
+        let shouldShow = viewModel.hasChanges
+        
+        if shouldShow && saveButton.isHidden {
+            saveButton.alpha = 0
+            saveButton.isHidden = false
+            UIView.animate(withDuration: 0.25) {
+                self.saveButton.alpha = 1
+            }
+        } else if !shouldShow && !saveButton.isHidden {
+            UIView.animate(withDuration: 0.25, animations: {
+                self.saveButton.alpha = 0
+            }) { _ in
+                self.saveButton.isHidden = true
+            }
+        }
     }
     
     private func bindInputViews() {

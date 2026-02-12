@@ -131,6 +131,7 @@ final class FavouritesViewController: UIViewController, NetworkErrorView {
                     UIBlockingProgressHUD.dismiss()
                     let nfts = self.viewModel.nftsUI
                     self.applySnapshot(nfts: nfts, animating: true)
+                    self.updateEmptyState()
                     
                 case .failed:
                     UIBlockingProgressHUD.dismiss()
@@ -146,8 +147,15 @@ final class FavouritesViewController: UIViewController, NetworkErrorView {
             DispatchQueue.main.async {
                 let nftsUI = self.viewModel.nftsUI
                 self.applySnapshot(nfts: nftsUI, animating: true)
+                self.updateEmptyState()
             }
         }
+    }
+    
+    private func updateEmptyState() {
+        let isEmpty = viewModel.nftsUI.isEmpty
+        favouritesCollectionView.isHidden = isEmpty
+        emptyLabel.isHidden = !isEmpty
     }
     
 }
