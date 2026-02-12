@@ -69,17 +69,25 @@ final class MyNftViewModel: MyNftViewModelProtocol {
     
     // MARK: - Init
     
-    convenience init(servicesAssembly: ServicesAssembly) {
+    convenience init(
+        profileService: ProfileServiceProtocol,
+        myNftService: ProfileNftByIdServiceProtocol
+    ) {
         let sortStorage = SortOptionStorage()
-        self .init(servicesAssembly: servicesAssembly, sortStorage: sortStorage)
+        self .init(
+            profileService: profileService,
+            myNftService: myNftService,
+            sortStorage: sortStorage
+        )
     }
     
     init(
-        servicesAssembly: ServicesAssembly,
+        profileService: ProfileServiceProtocol,
+        myNftService: ProfileNftByIdServiceProtocol,
         sortStorage: SortOptionStorageProtocol
     ) {
-        self.profileService = servicesAssembly.profileService
-        self.nftService = servicesAssembly.myNftService
+        self.profileService = profileService
+        self.nftService = myNftService
         self.sortStorage = sortStorage
         sort = sortStorage.sortOption
     }

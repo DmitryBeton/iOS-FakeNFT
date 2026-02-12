@@ -117,12 +117,14 @@ final class ProfileViewController: UIViewController, NetworkErrorView {
     // MARK: - Private Properties
     
     private let viewModel: ProfileViewModelProtocol
+    private let servicesAssembly: ServicesAssembly
     private let menu: [Menu] = [.myNft, .favourites]
     
     // MARK: - Init
     
-    init(viewModel: ProfileViewModelProtocol) {
+    init(viewModel: ProfileViewModelProtocol, servicesAssembly: ServicesAssembly) {
         self.viewModel = viewModel
+        self.servicesAssembly = servicesAssembly
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -207,11 +209,10 @@ final class ProfileViewController: UIViewController, NetworkErrorView {
     
     @objc private func editBarButtonTapped() {
         let initialProfile = viewModel.getProfile()
-        let servicesAssembly = viewModel.servicesAssembly
         
         let editProfileVM = EditProfileViewModel(
             profile: initialProfile,
-            servicesAssembly: servicesAssembly
+            profileService: servicesAssembly.profileService
         )
         let editProfileVC = EditProfileViewController(viewModel: editProfileVM)
         editProfileVC.hidesBottomBarWhenPushed = true
@@ -279,14 +280,20 @@ final class ProfileViewController: UIViewController, NetworkErrorView {
     }
     
     private func pushToMyNftViewController() {
-        let viewModel = MyNftViewModel(servicesAssembly: viewModel.servicesAssembly)
+        let viewModel = MyNftViewModel(
+            profileService: servicesAssembly.profileService,
+            myNftService: servicesAssembly.myNftService
+        )
         let myNftVC = MyNftViewController(viewModel: viewModel)
         myNftVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(myNftVC, animated: true)
     }
     
     private func pushToFavouritesViewController() {
-        let viewModel = FavouritesViewModel(servicesAssembly: viewModel.servicesAssembly)
+        let viewModel = FavouritesViewModel(
+            profileService: servicesAssembly.profileService,
+            favouritesService: servicesAssembly.favouritesService
+        )
         let favouritesVC = FavouritesViewController(viewModel: viewModel)
         favouritesVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(favouritesVC, animated: true)

@@ -64,11 +64,14 @@ final class FavouritesViewModel: FavouritesViewModelProtocol {
         return formatter
     }()
     
+    // MARK: - Init
+    
     init(
-        servicesAssembly: ServicesAssembly,
+        profileService: ProfileServiceProtocol,
+        favouritesService: ProfileNftByIdServiceProtocol
     ) {
-        self.profileService = servicesAssembly.profileService
-        self.nftService = servicesAssembly.favouritesService
+        self.profileService = profileService
+        self.nftService = favouritesService
     }
     
     // MARK: - Private Methods

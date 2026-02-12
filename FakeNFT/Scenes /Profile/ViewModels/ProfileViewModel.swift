@@ -6,10 +6,6 @@ final class ProfileViewModel: ProfileViewModelProtocol {
     
     var onStateChange: ((ProfileState) -> Void)?
     
-    // MARK: - Public Properties
-    
-    private(set) var servicesAssembly: ServicesAssembly
-    
     // MARK: - Public Methods
     
     func loadProfile() {
@@ -55,10 +51,8 @@ final class ProfileViewModel: ProfileViewModelProtocol {
     
     // MARK: - Init
     
-    init(servicesAssembly: ServicesAssembly) {
-        self.servicesAssembly = servicesAssembly
-        self.service = servicesAssembly.profileService
-        
+    init(profileService: ProfileServiceProtocol) {
+        self.service = profileService
         observeProfileChanges()
     }
     
