@@ -21,7 +21,6 @@ enum Localization {
         static let stay = "ProfileAlert.stay".localized
         static let exit = "ProfileAlert.exit".localized
         static let loadError = "ProfileAlert.loadError".localized
-        static let updateError = "ProfileAlert.updateError".localized
         static let retry = "ProfileAlert.retry".localized
     }
     enum MyNft {
@@ -40,6 +39,10 @@ enum Localization {
                 author
             )
         }
+    }
+    enum Favourites {
+        static let title = "Favourites.title".localized
+        static let empty = "Favourites.empty".localized
     }
 }
 

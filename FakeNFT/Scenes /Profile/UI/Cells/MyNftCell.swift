@@ -1,4 +1,5 @@
 import UIKit
+import Kingfisher
 
 final class MyNftCell: UITableViewCell, ReuseIdentifying {
     
@@ -14,8 +15,7 @@ final class MyNftCell: UITableViewCell, ReuseIdentifying {
         ratingView.rating = nft.rating
         priceLabel.text = "\(nft.price) ETH"
         authorLabel.text = Localization.MyNft.fromAuthor(nft.author)
-        let image = nft.isLiked ? likeImage : likeImageEmpty
-        likeButton.setImage(image, for: .normal)
+        isLiked = nft.isLiked
     }
     
     // MARK: - Private Types
@@ -46,6 +46,7 @@ final class MyNftCell: UITableViewCell, ReuseIdentifying {
         imageView.layer.masksToBounds = true
         imageView.layer.cornerRadius = Constants.Radius.imageRadius
         imageView.isUserInteractionEnabled = true
+        imageView.kf.indicatorType = .activity
         imageView.addSubview(likeButton)
         return imageView
     }()
@@ -126,6 +127,11 @@ final class MyNftCell: UITableViewCell, ReuseIdentifying {
     
     private let likeImage = UIImage(resource: .prLike)
     private let likeImageEmpty = UIImage(resource: .prLikeEmpty)
+    private var isLiked: Bool = false {
+        didSet {
+            updateLikeButton()
+        }
+    }
     
     // MARK: - Init
     
@@ -140,6 +146,15 @@ final class MyNftCell: UITableViewCell, ReuseIdentifying {
     required init?(coder: NSCoder) {
         assertionFailure("init(coder:) has not been implemented")
         return nil
+    }
+    
+    // MARK: - Overrides
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        nftImageView.image = nil
+        isLiked = false
+        likeButton.isEnabled = true
     }
     
     // MARK: - UI Methods
@@ -180,7 +195,16 @@ final class MyNftCell: UITableViewCell, ReuseIdentifying {
     // MARK: - Actions
     
     @objc private func likeButtonTapped() {
+        isLiked.toggle()
+        likeButton.isEnabled = false
         onLikeTap?()
+    }
+    
+    // MARK: - Private Methods
+    
+    private func updateLikeButton() {
+        let image = isLiked ? likeImage : likeImageEmpty
+        likeButton.setImage(image, for: .normal)
     }
     
 }

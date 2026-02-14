@@ -8,10 +8,6 @@ protocol ProfileViewModelProtocol: AnyObject {
     /// - Note: Используется для обновления UI при смене состояния
     var onStateChange: ((ProfileState) -> Void)? { get set }
     
-    /// Сервис для работы с данными профиля
-    /// - Note: Используется для загрузки, обновления и сохранения данных
-    var service: ProfileServiceProtocol { get }
-    
     /// Начать загрузку профиля с сервера
     func loadProfile()
     

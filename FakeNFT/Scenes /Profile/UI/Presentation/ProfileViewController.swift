@@ -1,8 +1,7 @@
 import UIKit
 import Kingfisher
-import ProgressHUD
 
-final class ProfileViewController: UIViewController {
+final class ProfileViewController: UIViewController, NetworkErrorView {
     
     // MARK: - Private Types
     
@@ -66,8 +65,10 @@ final class ProfileViewController: UIViewController {
     }()
     
     private lazy var linkButton: UIButton = {
+        let color = UIColor(resource: .nftBlue)
         let button = UIButton()
-        button.setTitleColor(UIColor(resource: .nftBlue), for: .normal)
+        button.setTitleColor(color, for: .normal)
+        button.setTitleColor(color.withAlphaComponent(0.65), for: .highlighted)
         button.titleLabel?.font = .caption1
         return button
     }()
@@ -117,12 +118,14 @@ final class ProfileViewController: UIViewController {
     // MARK: - Private Properties
     
     private let viewModel: ProfileViewModelProtocol
+    private let servicesAssembly: ServicesAssembly
     private let menu: [Menu] = [.myNft, .favourites]
     
     // MARK: - Init
     
-    init(viewModel: ProfileViewModelProtocol) {
+    init(viewModel: ProfileViewModelProtocol, servicesAssembly: ServicesAssembly) {
         self.viewModel = viewModel
+        self.servicesAssembly = servicesAssembly
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -207,12 +210,11 @@ final class ProfileViewController: UIViewController {
     
     @objc private func editBarButtonTapped() {
         let initialProfile = viewModel.getProfile()
-        let service = viewModel.service
         
-        let editProfileVM = EditProfileViewModel(profile: initialProfile, service: service)
-        editProfileVM.onChangesSaved = { [weak self] in
-            self?.viewModel.loadProfile()
-        }
+        let editProfileVM = EditProfileViewModel(
+            profile: initialProfile,
+            profileService: servicesAssembly.profileService
+        )
         let editProfileVC = EditProfileViewController(viewModel: editProfileVM)
         editProfileVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(editProfileVC, animated: true)
@@ -245,7 +247,9 @@ final class ProfileViewController: UIViewController {
                     
                 case .failed:
                     UIBlockingProgressHUD.dismiss()
-                    self?.showErrorAlert()
+                    self?.showNetworkError() {
+                        self?.viewModel.loadProfile()
+                    }
                 }
             }
         }
@@ -277,33 +281,23 @@ final class ProfileViewController: UIViewController {
     }
     
     private func pushToMyNftViewController() {
-        let viewModel = MyNftViewModel()
+        let viewModel = MyNftViewModel(
+            profileService: servicesAssembly.profileService,
+            myNftService: servicesAssembly.myNftService
+        )
         let myNftVC = MyNftViewController(viewModel: viewModel)
         myNftVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(myNftVC, animated: true)
     }
     
     private func pushToFavouritesViewController() {
-        let favouritesVC = FavouritesViewController()
+        let viewModel = FavouritesViewModel(
+            profileService: servicesAssembly.profileService,
+            favouritesService: servicesAssembly.favouritesService
+        )
+        let favouritesVC = FavouritesViewController(viewModel: viewModel)
         favouritesVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(favouritesVC, animated: true)
-    }
-    
-    private func showErrorAlert() {
-        let alert = UIAlertController(
-            title: Localization.ProfileAlert.loadError,
-            message: nil,
-            preferredStyle: .alert
-        )
-        let cancelAction = UIAlertAction(title: Localization.ProfileAlert.cancel, style: .cancel)
-        let retryAction = UIAlertAction(title: Localization.ProfileAlert.retry, style: .default) { [weak self] _ in
-            self?.viewModel.loadProfile()
-        }
-        
-        alert.addAction(cancelAction)
-        alert.addAction(retryAction)
-        
-        present(alert, animated: true)
     }
     
 }

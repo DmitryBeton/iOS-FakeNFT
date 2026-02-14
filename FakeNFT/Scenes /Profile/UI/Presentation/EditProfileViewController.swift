@@ -1,7 +1,7 @@
 import UIKit
 import Kingfisher
 
-final class EditProfileViewController: UIViewController {
+final class EditProfileViewController: UIViewController, NetworkErrorView {
     
     // MARK: - Private Types
     
@@ -78,10 +78,12 @@ final class EditProfileViewController: UIViewController {
     }()
     
     private lazy var saveButton: UIButton = {
+        let titleColor = UIColor(resource: .nftWhite)
         let button = UIButton()
         button.setTitle(Localization.Profile.saveEdit, for: .normal)
         button.titleLabel?.font = .bodyBold
-        button.setTitleColor(UIColor(resource: .nftWhite), for: .normal)
+        button.setTitleColor(titleColor, for: .normal)
+        button.setTitleColor(titleColor.withAlphaComponent(0.65), for: .highlighted)
         button.backgroundColor = UIColor(resource: .nftBlack)
         button.layer.masksToBounds = true
         button.layer.cornerRadius = Constants.Radius.buttonRadius
@@ -242,7 +244,9 @@ final class EditProfileViewController: UIViewController {
                     
                 case .failed:
                     UIBlockingProgressHUD.dismiss()
-                    self?.showErrorAlert()
+                    self?.showNetworkError() {
+                        self?.viewModel.saveChanges()
+                    }
                 }
             }
         }
@@ -276,7 +280,21 @@ final class EditProfileViewController: UIViewController {
     }
     
     private func updateSaveButtonState() {
-        saveButton.isHidden = !viewModel.hasChanges
+        let shouldShow = viewModel.hasChanges
+        
+        if shouldShow && saveButton.isHidden {
+            saveButton.alpha = 0
+            saveButton.isHidden = false
+            UIView.animate(withDuration: 0.25) {
+                self.saveButton.alpha = 1
+            }
+        } else if !shouldShow && !saveButton.isHidden {
+            UIView.animate(withDuration: 0.25, animations: {
+                self.saveButton.alpha = 0
+            }) { _ in
+                self.saveButton.isHidden = true
+            }
+        }
     }
     
     private func bindInputViews() {
@@ -348,23 +366,6 @@ final class EditProfileViewController: UIViewController {
         
         alert.addAction(cancelAction)
         alert.addAction(extitAction)
-        
-        present(alert, animated: true)
-    }
-    
-    private func showErrorAlert() {
-        let alert = UIAlertController(
-            title: Localization.ProfileAlert.updateError,
-            message: nil,
-            preferredStyle: .alert
-        )
-        let cancelAction = UIAlertAction(title: Localization.ProfileAlert.cancel, style: .cancel)
-        let retryAction = UIAlertAction(title: Localization.ProfileAlert.retry, style: .default) { [weak self] _ in
-            self?.viewModel.saveChanges()
-        }
-        
-        alert.addAction(cancelAction)
-        alert.addAction(retryAction)
         
         present(alert, animated: true)
     }

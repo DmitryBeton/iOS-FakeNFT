@@ -25,7 +25,6 @@
 "ProfileAlert.stay" = "Остаться";
 "ProfileAlert.exit" = "Выйти";
 "ProfileAlert.loadError" = "Не удалось получить данные";
-"ProfileAlert.updateError" = "Не удалось обновить данные";
 "ProfileAlert.retry" = "Повторить";
 
 // MyNFT
@@ -39,3 +38,6 @@
 "MyNFT.byName" = "По названию";
 "MyNFT.close" = "Закрыть";
 
+// Favourites
+"Favourites.title" = "Избранные NFT";
+"Favourites.empty" = "У Вас ещё нет избранных NFT";

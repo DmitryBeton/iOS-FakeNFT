@@ -6,24 +6,14 @@ final class ProfileViewModel: ProfileViewModelProtocol {
     
     var onStateChange: ((ProfileState) -> Void)?
     
-    // MARK: - Public Properties
-    
-    private(set) var service: ProfileServiceProtocol
-    
     // MARK: - Public Methods
     
     func loadProfile() {
         state = .loading
         
         service.loadProfile() { [weak self] result in
-            guard let self else { return }
-            switch result {
-            case .success(let profileResult):
-                profile = profileResult
-                let profileUI = mapToProfileUI(profileResult)
-                state = .data(profileUI)
-            case .failure(let error):
-                state = .failed
+            if case let .failure(error) = result {
+                self?.state = .failed
                 print("❌[ProfileService] failed to load data, error: \(error)")
             }
         }
@@ -55,12 +45,23 @@ final class ProfileViewModel: ProfileViewModelProtocol {
     
     // MARK: - Private Properties
     
+    private let service: ProfileServiceProtocol
     private var profile: Profile?
+    private var profileObserver: NSObjectProtocol?
     
     // MARK: - Init
     
-    init(service: ProfileServiceProtocol) {
-        self.service = service
+    init(profileService: ProfileServiceProtocol) {
+        self.service = profileService
+        observeProfileChanges()
+    }
+    
+    // MARK: - Deinit
+    
+    deinit {
+        if let profileObserver {
+            NotificationCenter.default.removeObserver(profileObserver)
+        }
     }
     
     // MARK: - Private Methods
@@ -74,4 +75,23 @@ final class ProfileViewModel: ProfileViewModelProtocol {
         )
     }
     
+    private func observeProfileChanges() {
+        profileObserver = NotificationCenter.default.addObserver(
+            forName: .profileDidChange,
+            object: nil,
+            queue: .main,
+        ) { [weak self] notificaton in
+            guard
+                let self,
+                let profile = notificaton.object as? Profile,
+                self.profile != profile
+            else { return }
+            
+            self.profile = profile
+            let profileUI = self.mapToProfileUI(profile)
+            self.state = .data(profileUI)
+        }
+    }
+    
 }
+

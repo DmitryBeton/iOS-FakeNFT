@@ -43,6 +43,22 @@ final class ProfileService: ProfileServiceProtocol {
         }
     }
     
+    func updateProfileLikes(with likesDto: ProfileLikesDto, completion: @escaping ProfileCompletion) {
+        let request = UpdateProfileRequest(dto: likesDto)
+        networkClient.send(
+            request: request,
+            type: Profile.self
+        ) { [weak storage] result in
+            switch result {
+            case .success(let profile):
+                storage?.saveProfile(profile)
+                completion(.success(profile))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+    
     // MARK: - Private Properties
     
     private let networkClient: NetworkClient
