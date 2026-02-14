@@ -149,6 +149,11 @@ final class ProfileViewController: UIViewController, NetworkErrorView {
         viewModel.loadProfile()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        syncState()
+    }
+    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         ProgressHUD.dismiss()
@@ -262,6 +267,26 @@ final class ProfileViewController: UIViewController, NetworkErrorView {
                     }
                 }
             }
+        }
+    }
+    
+    private func syncState() {
+        switch viewModel.state {
+        case .initial:
+            ProgressHUD.dismiss()
+            toggleEnablement(true)
+            
+        case .loading:
+            ProgressHUD.show()
+            toggleEnablement(false)
+            
+        case .data:
+            ProgressHUD.dismiss()
+            toggleEnablement(true)
+            
+        case .failed:
+            ProgressHUD.dismiss()
+            toggleEnablement(true)
         }
     }
     

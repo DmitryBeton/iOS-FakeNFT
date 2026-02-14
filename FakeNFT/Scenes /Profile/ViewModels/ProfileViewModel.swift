@@ -37,7 +37,7 @@ final class ProfileViewModel: ProfileViewModelProtocol {
     
     // MARK: - State
     
-    private var state: ProfileState = .initial {
+    var state: ProfileState = .initial {
         didSet {
             onStateChange?(state)
         }
