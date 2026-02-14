@@ -1,5 +1,6 @@
 import UIKit
 import Kingfisher
+import ProgressHUD
 
 final class EditProfileViewController: UIViewController, NetworkErrorView {
     
@@ -134,6 +135,11 @@ final class EditProfileViewController: UIViewController, NetworkErrorView {
         viewModel.loadProfile()
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        ProgressHUD.dismiss()
+    }
+    
     // MARK: - UI Methods
     
     private func setupViews() {
@@ -223,27 +229,33 @@ final class EditProfileViewController: UIViewController, NetworkErrorView {
             DispatchQueue.main.async {
                 switch state {
                 case .initial:
-                    UIBlockingProgressHUD.dismiss()
+                    ProgressHUD.dismiss()
+                    self?.toggleEnablement(true)
                     assertionFailure("can't move to initial state")
                     
                 case .initialData(let profile):
-                    UIBlockingProgressHUD.dismiss()
+                    ProgressHUD.dismiss()
+                    self?.toggleEnablement(true)
                     self?.setProfile(profile)
                     self?.updateSaveButtonState()
                     
                 case .editing:
-                    UIBlockingProgressHUD.dismiss()
+                    ProgressHUD.dismiss()
+                    self?.toggleEnablement(true)
                     self?.updateSaveButtonState()
                     
                 case .saving:
-                    UIBlockingProgressHUD.show()
+                    ProgressHUD.show()
+                    self?.toggleEnablement(false)
                     
                 case .saved:
-                    UIBlockingProgressHUD.dismiss()
+                    ProgressHUD.dismiss()
+                    self?.toggleEnablement(true)
                     self?.navigationController?.popViewController(animated: true)
                     
                 case .failed:
-                    UIBlockingProgressHUD.dismiss()
+                    ProgressHUD.dismiss()
+                    self?.toggleEnablement(true)
                     self?.showNetworkError() {
                         self?.viewModel.saveChanges()
                     }
@@ -307,6 +319,14 @@ final class EditProfileViewController: UIViewController, NetworkErrorView {
         websiteInputView.onTextChange = { [weak self] text in
             self?.viewModel.changeWebsite(urlString: text)
         }
+    }
+    
+    private func toggleEnablement(_ isEnabled: Bool) {
+        saveButton.isEnabled = isEnabled
+        editAvatarView.isUserInteractionEnabled = isEnabled
+        nameInputView.isUserInteractionEnabled = isEnabled
+        descriptionInputView.isUserInteractionEnabled = isEnabled
+        websiteInputView.isUserInteractionEnabled = isEnabled
     }
     
     private func showPhotoAlert() {

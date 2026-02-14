@@ -1,4 +1,5 @@
 import UIKit
+import ProgressHUD
 
 final class FavouritesViewController: UIViewController, NetworkErrorView {
     
@@ -79,6 +80,11 @@ final class FavouritesViewController: UIViewController, NetworkErrorView {
         viewModel.loadNfts()
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        ProgressHUD.dismiss()
+    }
+    
     // MARK: - UI Methods
     
     private func setupViews() {
@@ -122,20 +128,20 @@ final class FavouritesViewController: UIViewController, NetworkErrorView {
             DispatchQueue.main.async {
                 switch state {
                 case .initial:
-                    UIBlockingProgressHUD.dismiss()
+                    ProgressHUD.dismiss()
                     assertionFailure("can't move to initial state")
                     
                 case .loading:
-                    UIBlockingProgressHUD.show()
+                    ProgressHUD.show()
                     
                 case .data:
-                    UIBlockingProgressHUD.dismiss()
+                    ProgressHUD.dismiss()
                     let nfts = self.viewModel.nftsUI
                     self.applySnapshot(nfts: nfts, animating: true)
                     self.updateEmptyState()
                     
                 case .failed:
-                    UIBlockingProgressHUD.dismiss()
+                    ProgressHUD.dismiss()
                     self.showNetworkError() {
                         self.viewModel.loadNfts()
                     }

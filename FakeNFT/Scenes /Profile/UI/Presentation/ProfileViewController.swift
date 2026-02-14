@@ -1,5 +1,6 @@
 import UIKit
 import Kingfisher
+import ProgressHUD
 
 final class ProfileViewController: UIViewController, NetworkErrorView {
     
@@ -148,6 +149,11 @@ final class ProfileViewController: UIViewController, NetworkErrorView {
         viewModel.loadProfile()
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        ProgressHUD.dismiss()
+    }
+    
     // MARK: - UI Methods
     
     private func setupViews() {
@@ -234,25 +240,34 @@ final class ProfileViewController: UIViewController, NetworkErrorView {
             DispatchQueue.main.async {
                 switch state {
                 case .initial:
-                    UIBlockingProgressHUD.dismiss()
+                    ProgressHUD.dismiss()
+                    self?.toggleEnablement(true)
                     assertionFailure("can't move to initial state")
                     
                 case .loading:
-                    UIBlockingProgressHUD.show()
+                    ProgressHUD.show()
+                    self?.toggleEnablement(false)
                     
                 case .data(let profile):
-                    UIBlockingProgressHUD.dismiss()
+                    ProgressHUD.dismiss()
+                    self?.toggleEnablement(true)
                     self?.setProfile(profile)
                     self?.menuTableView.reloadData()
                     
                 case .failed:
-                    UIBlockingProgressHUD.dismiss()
+                    ProgressHUD.dismiss()
+                    self?.toggleEnablement(true)
                     self?.showNetworkError() {
                         self?.viewModel.loadProfile()
                     }
                 }
             }
         }
+    }
+    
+    private func toggleEnablement(_ isEnabled: Bool) {
+        linkButton.isEnabled = isEnabled
+        menuTableView.allowsSelection = isEnabled
     }
     
     private func setupDelegates() {
