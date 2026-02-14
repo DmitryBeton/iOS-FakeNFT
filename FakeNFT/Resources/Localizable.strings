@@ -11,3 +11,40 @@
 "name" = "По названию";
 "number_of_NFTs" = "По количеству NFT";
 "cancel" = "Закрыть";
+
+// Profile
+"Tab.profile" = "Профиль";
+"Profile.myNFT" = "Мои NFT";
+"Profile.favourites" = "Избранные NFT";
+"EditProfile.name" = "Имя";
+"EditProfile.description" = "Описание";
+"EditProfile.website" = "Сайт";
+"EditProfile.save" = "Сохранить";
+
+// Profile Alert
+"ProfileAlert.profilePhoto" = "Фото профиля";
+"ProfileAlert.changePhoto" = "Изменить фото";
+"ProfileAlert.deletePhoto" = "Удалить фото";
+"ProfileAlert.photoLink" = "Ссылка на фото";
+"ProfileAlert.cancel" = "Отмена";
+"ProfileAlert.save" = "Сохранить";
+"ProfileAlert.wantToExit" = "Уверены, что хотите выйти?";
+"ProfileAlert.stay" = "Остаться";
+"ProfileAlert.exit" = "Выйти";
+"ProfileAlert.loadError" = "Не удалось получить данные";
+"ProfileAlert.retry" = "Повторить";
+
+// MyNFT
+"MyNFT.title" = "Мои NFT";
+"MyNFT.empty" = "У Вас ещё нет NFT";
+"MyNFT.price" = "Цена";
+"MyNFT.fromAuthor" = "от %@";
+"MyNFT.sort" = "Сортировка";
+"MyNFT.byPrice" = "По цене";
+"MyNFT.byRating" = "По рейтингу";
+"MyNFT.byName" = "По названию";
+"MyNFT.close" = "Закрыть";
+
+// Favourites
+"Favourites.title" = "Избранные NFT";
+"Favourites.empty" = "У Вас ещё нет избранных NFT";
