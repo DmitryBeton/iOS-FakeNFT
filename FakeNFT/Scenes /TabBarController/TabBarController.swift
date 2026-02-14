@@ -1,12 +1,14 @@
 import UIKit
 
 final class TabBarController: UITabBarController {
+    
+    //MARK: - Properties
 
-    var servicesAssembly: ServicesAssembly!
+    private let servicesAssembly: ServicesAssembly
 
     private let catalogTabBarItem = UITabBarItem(
-        title: NSLocalizedString("Tab.catalog", comment: ""),
-        image: UIImage(systemName: "square.stack.3d.up.fill"),
+        title: Localization.Catalog.catalog.localized,
+        image: UIImage(resource: .catalogTab),
         tag: 1
     )
     
@@ -15,20 +17,40 @@ final class TabBarController: UITabBarController {
         image: UIImage(resource: .profileTabIcon),
         tag: 0
     )
+    
+    //MARK: - Init
+    
+    init(servicesAssembly: ServicesAssembly) {
+        self.servicesAssembly = servicesAssembly
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    //MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        let catalogController = TestCatalogViewController(
-            servicesAssembly: servicesAssembly
-        )
-        catalogController.tabBarItem = catalogTabBarItem
+        setupView()
         
         let profileController = buildProfileController()
 
-        viewControllers = [profileController, catalogController]
+        let catalogController = CatalogViewController(
+            servicesAssembly: servicesAssembly
+        )
+        let catalogNavigationController = UINavigationController(rootViewController: catalogController)
+        catalogNavigationController.tabBarItem = catalogTabBarItem
 
+        viewControllers = [profileController, catalogNavigationController]
+    }
+    
+    //MARK: - Methods
+    
+    private func setupView() {
         view.backgroundColor = .systemBackground
+        tabBar.unselectedItemTintColor = UIColor(resource: .nftBlack)
     }
     
     private func buildProfileController() -> UINavigationController {
