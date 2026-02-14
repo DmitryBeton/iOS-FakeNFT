@@ -13,6 +13,7 @@ final class FavouritesViewController: UIViewController, NetworkErrorView {
     private lazy var favouritesCollectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.register(FavouriteCell.self)
+        collectionView.backgroundColor = .clear
         return collectionView
     }()
     
