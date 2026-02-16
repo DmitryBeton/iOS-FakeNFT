@@ -35,20 +35,6 @@ final class ServicesAssembly {
         )
     }
 
-<<<<<<< HEAD
-    var statisticsService: StatisticsServiceProtocol {
-        StatisticsService(client: networkClient)
-    }
-    
-    var userService: UserServiceProtocol {
-        UserService(client: networkClient)
-    }
-    
-    var profileService: ProfileServiceProtocol {
-        ProfileService(client: networkClient)
-    }
-
-=======
     var collectionService: CollectionService {
         CollectionServiceImpl(
             networkClient: networkClient,
@@ -450,6 +436,4 @@ private extension CartService {
         guard let start, let end else { return 0 }
         return max(0, end.timeIntervalSince(start))
     }
->>>>>>> develop
 }
-

@@ -2,18 +2,6 @@ import UIKit
 
 final class TabBarController: UITabBarController {
 
-<<<<<<< HEAD
-    let servicesAssembly: ServicesAssembly
-
-    init(servicesAssembly: ServicesAssembly) {
-        self.servicesAssembly = servicesAssembly
-        super.init(nibName: nil, bundle: nil)
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-=======
     private let servicesAssembly: ServicesAssembly
 
     private let profileTabBarItem = UITabBarItem(
@@ -21,7 +9,6 @@ final class TabBarController: UITabBarController {
         image: UIImage(resource: .profileTabIcon),
         tag: 0
     )
->>>>>>> develop
 
     private let catalogTabBarItem = UITabBarItem(
         title: Localization.Catalog.catalog.localized,
@@ -46,20 +33,6 @@ final class TabBarController: UITabBarController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-<<<<<<< HEAD
-        setupTabs()
-    }
-
-    private func setupTabs() {
-        let statistics = StatisticsModule.makeRoot(servicesAssembly: servicesAssembly)
-        statistics.tabBarItem = UITabBarItem(
-            title: "Статистика",
-            image: UIImage(named: "statisticTabBar"),
-            selectedImage: UIImage(named: "statisticTabBar")
-        )
-
-        viewControllers = [statistics]
-=======
         setupView()
 
         let profileController = buildProfileController()
@@ -93,7 +66,5 @@ final class TabBarController: UITabBarController {
         let navController = UINavigationController(rootViewController: controller)
         navController.tabBarItem = profileTabBarItem
         return navController
->>>>>>> develop
     }
 }
-

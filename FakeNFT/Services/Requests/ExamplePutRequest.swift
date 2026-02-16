@@ -13,13 +13,8 @@ struct ExampleDtoObject: Dto {
    let param2: String
 
     enum CodingKeys: String, CodingKey {
-<<<<<<< HEAD
-        case param1 = "param_1"
-        case param2 
-=======
         case param1 = "param_1" // имя поля в запросе будет param_1
         case param2 // имя поля в запросе будет param_2
->>>>>>> develop
     }
 
     func asDictionary() -> [String: String] {

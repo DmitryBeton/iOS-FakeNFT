@@ -1,16 +1,5 @@
 import Foundation
 
-<<<<<<< HEAD
-struct Nft: Decodable {
-    let createdAt: String?
-    let name: String
-    let images: [URL]
-    let rating: Int
-    let description: String?
-    let price: Float
-    let author: String?
-    let website: String?
-=======
 struct Nft: Codable, Equatable {
     let id: String
     let createdAt: String
@@ -25,7 +14,5 @@ struct Nft: Codable, Equatable {
 
 struct CartOrderResponse: Codable {
     let nfts: [String]
->>>>>>> develop
     let id: String
 }
-

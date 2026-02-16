@@ -246,15 +246,6 @@ final class DefaultNetworkClient: NetworkClient {
 
         urlRequest.setValue("application/json", forHTTPHeaderField: "Accept")
         urlRequest.addValue(RequestConstants.token, forHTTPHeaderField: "X-Practicum-Mobile-Token")
-        
-        let url = urlRequest.url?.absoluteString ?? "nil"
-        let method = urlRequest.httpMethod ?? "nil"
-        let headers = urlRequest.allHTTPHeaderFields ?? [:]
-
-        AppLog.network.debug("URL: \(url, privacy: .public)")
-        AppLog.network.debug("Method: \(method, privacy: .public)")
-        AppLog.network.debug("Headers: \(headers, privacy: .public)")
-
 
         if let headers = request.headers {
             for (key, value) in headers {
@@ -299,9 +290,6 @@ final class DefaultNetworkClient: NetworkClient {
     }
 }
 
-<<<<<<< HEAD
-
-=======
 private final class ResponseCacheStore {
     private static let logger = Logger(subsystem: "com.fakenft.app", category: "NetworkCache")
 
@@ -381,4 +369,3 @@ private final class URLSessionMetricsCollector: NSObject, URLSessionTaskDelegate
         callback?(metrics)
     }
 }
->>>>>>> develop

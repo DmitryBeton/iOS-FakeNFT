@@ -2,18 +2,10 @@ import Foundation
 
 struct NFTRequest: NetworkRequest {
     let id: String
-
     var endpoint: URL? {
         URL(string: "\(RequestConstants.baseURL)/api/v1/nft/\(id)")
     }
 
-<<<<<<< HEAD
-    var httpMethod: HttpMethod { .get }
-
-    var parameters: [String: String]? { nil }
-
-    var dto: Dto? { nil }
-=======
     var cachePolicy: RequestCachePolicy {
         .ttl(300)
     }
@@ -77,6 +69,4 @@ private func formBody(for nftIDs: [String]) -> Data {
         .map { "nfts=\($0.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? $0)" }
         .joined(separator: "&")
     return Data(bodyString.utf8)
->>>>>>> develop
 }
-
