@@ -21,7 +21,17 @@ final class NftDetailPresenterImpl: NftDetailPresenter {
     private let service: NftService
     private var state = NftDetailState.initial {
         didSet {
-            stateDidChanged()
+            runOnMain { [weak self] in
+                self?.stateDidChanged()
+            }
+        }
+    }
+
+    private func runOnMain(_ block: @escaping () -> Void) {
+        if Thread.isMainThread {
+            block()
+        } else {
+            DispatchQueue.main.async(execute: block)
         }
     }
 
@@ -35,7 +45,9 @@ final class NftDetailPresenterImpl: NftDetailPresenter {
     // MARK: - Functions
 
     func viewDidLoad() {
-        state = .loading
+        runOnMain { [weak self] in
+            self?.state = .loading
+        }
     }
 
     private func stateDidChanged() {
@@ -59,11 +71,13 @@ final class NftDetailPresenterImpl: NftDetailPresenter {
 
     private func loadNft() {
         service.loadNft(id: input.id) { [weak self] result in
-            switch result {
-            case .success(let nft):
-                self?.state = .data(nft)
-            case .failure(let error):
-                self?.state = .failed(error)
+            self?.runOnMain {
+                switch result {
+                case .success(let nft):
+                    self?.state = .data(nft)
+                case .failure(let error):
+                    self?.state = .failed(error)
+                }
             }
         }
     }
@@ -79,8 +93,9 @@ final class NftDetailPresenterImpl: NftDetailPresenter {
 
         let actionText = NSLocalizedString("Error.repeat", comment: "")
         return ErrorModel(message: message, actionText: actionText) { [weak self] in
-            self?.state = .loading
+            self?.runOnMain {
+                self?.state = .loading
+            }
         }
     }
 }
-
