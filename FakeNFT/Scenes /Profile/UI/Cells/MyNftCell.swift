@@ -64,7 +64,7 @@ final class MyNftCell: UITableViewCell, ReuseIdentifying {
         return label
     }()
     
-    private lazy var ratingView: RatingView = RatingView()
+    private lazy var ratingView: ProfileRatingView = ProfileRatingView()
     
     private lazy var authorLabel: UILabel = {
         let label = UILabel()

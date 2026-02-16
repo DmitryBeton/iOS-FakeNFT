@@ -19,7 +19,7 @@ final class MyNftViewModel: MyNftViewModelProtocol {
         loadProfileData()
     }
     
-    func changeSort(_ sort: SortOption) {
+    func changeSort(_ sort: ProfileSortOption) {
         self.sort = sort
     }
     
@@ -51,7 +51,7 @@ final class MyNftViewModel: MyNftViewModelProtocol {
     private var nfts: [ProfileNft] = []
     private var likedNfts: Set<UUID> = []
     
-    private var sort: SortOption {
+    private var sort: ProfileSortOption {
         didSet {
             sortStorage.sortOption = sort
             updateSortedNfts()
@@ -111,7 +111,7 @@ final class MyNftViewModel: MyNftViewModelProtocol {
         sortedNfts = sorted.map { mapToUI($0) }
     }
     
-    private func sortNfts(_ nfts: [ProfileNft], by sort: SortOption) -> [ProfileNft] {
+    private func sortNfts(_ nfts: [ProfileNft], by sort: ProfileSortOption) -> [ProfileNft] {
         nfts.sorted { lhs, rhs in
             switch sort {
             case .name:

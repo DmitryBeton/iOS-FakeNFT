@@ -25,7 +25,7 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
     // MARK: - Private Methods
     
     private func setupProgressHUD() {
-        ProgressHUD.animationType = .systemActivityIndicator
+        ProgressHUD.animationType = .activityIndicator
         ProgressHUD.colorHUD = UIColor(resource: .nftWhite)
         ProgressHUD.colorAnimation = UIColor(resource: .nftBlack)
     }

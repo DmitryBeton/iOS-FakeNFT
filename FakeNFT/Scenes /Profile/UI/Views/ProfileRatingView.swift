@@ -1,6 +1,6 @@
 import UIKit
 
-final class RatingView: UIStackView {
+final class ProfileRatingView: UIStackView {
     
     // MARK: - Public Properties
     

@@ -135,6 +135,9 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		8C5EE8412F333CD400128266 /* Cart */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Cart; sourceTree = "<group>"; };
+		8C5EE8512F333CD400128266 /* Payment */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Payment; sourceTree = "<group>"; };
+		B1C2D3E62F50011100A1B2C3 /* Logging */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Logging; sourceTree = "<group>"; };
 		9D0D7B8B2F26332B0087E04B /* Profile */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Profile; sourceTree = "<group>"; };
 		9DF966AB2F40DCBA003D6523 /* ProfileServices */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = ProfileServices; sourceTree = "<group>"; };
 		9DF966AC2F40DD7D003D6523 /* ProfileModels */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = ProfileModels; sourceTree = "<group>"; };
@@ -307,6 +310,8 @@
 		3F6806C729CBBC5B00B4F915 /* Scenes  */ = {
 			isa = PBXGroup;
 			children = (
+				8C5EE8412F333CD400128266 /* Cart */,
+				8C5EE8512F333CD400128266 /* Payment */,
 				FD05033D2F24FC3400E304AC /* Catalog */,
 				8C6D9DC52F3334560007FDD6 /* AgreementWebView */,
 				9D0D7B8B2F26332B0087E04B /* Profile */,
@@ -339,6 +344,7 @@
 		3F6806CE29CBBD1B00B4F915 /* Foundation */ = {
 			isa = PBXGroup;
 			children = (
+				B1C2D3E62F50011100A1B2C3 /* Logging */,
 				9DF966AD2F40DDF3003D6523 /* ProfileExtensions */,
 				0CFCB74C2A7817C30009A829 /* MemoryStorage */,
 				3F6806CF29CBBDB100B4F915 /* NetworkClient */,
@@ -434,6 +440,9 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				8C5EE8412F333CD400128266 /* Cart */,
+				8C5EE8512F333CD400128266 /* Payment */,
+				B1C2D3E62F50011100A1B2C3 /* Logging */,
 				9D0D7B8B2F26332B0087E04B /* Profile */,
 				9DF966AB2F40DCBA003D6523 /* ProfileServices */,
 				9DF966AC2F40DD7D003D6523 /* ProfileModels */,

@@ -25,7 +25,7 @@ protocol MyNftViewModelProtocol: AnyObject {
     /// Изменить текущую сортировку во ViewModel
     /// - Parameter sort: Тип сортировки
     /// - Note: После пересортировки NFT уведомляет об изменениях через замыкание
-    func changeSort(_ sort: SortOption)
+    func changeSort(_ sort: ProfileSortOption)
     
     /// Добавить или удалить лайк для NFT с заданным id.
     /// После обновления лайков вызывается замыкание `onLikesUpdate` и обновляется `sortedNfts`.

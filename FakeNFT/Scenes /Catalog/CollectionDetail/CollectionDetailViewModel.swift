@@ -107,7 +107,7 @@ final class CollectionDetailViewModel {
                     let model = NFTCellModel(
                         id: nft.id,
                         name: nft.name,
-                        imageURL: nft.images.first,
+                        imageURL: URL(string: nft.images.first ?? ""),
                         rating: nft.rating,
                         price: self.formatPrice(nft.price),
                         isLiked: self.favoritesStorage.isFavorite(nftId: nft.id),
