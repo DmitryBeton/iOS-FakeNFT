@@ -1,4 +1,5 @@
 import UIKit
+import ProgressHUD
 
 @main
 final class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -6,6 +7,8 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         _: UIApplication,
         didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
+        AnalyticsService.activate()
+        setupProgressHUD()
         return true
     }
 
@@ -18,4 +21,13 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
     ) -> UISceneConfiguration {
         return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
     }
+    
+    // MARK: - Private Methods
+    
+    private func setupProgressHUD() {
+        ProgressHUD.animationType = .activityIndicator
+        ProgressHUD.colorHUD = UIColor(resource: .nftWhite)
+        ProgressHUD.colorAnimation = UIColor(resource: .nftBlack)
+    }
+    
 }

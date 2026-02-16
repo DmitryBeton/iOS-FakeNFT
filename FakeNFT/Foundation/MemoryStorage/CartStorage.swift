@@ -1,46 +1,55 @@
 import Foundation
 
-protocol CartStoring {
-    func isInCart(id: String) -> Bool
-    func setInCart(_ inCart: Bool, id: String)
-    func toggle(id: String)
-    func allIds() -> Set<String>
-    func setAllIds(_ ids: Set<String>)
+protocol CartStorage {
+    func isInCart(nftId: String) -> Bool
+    func addToCart(nftId: String)
+    func removeFromCart(nftId: String)
+    func toggleCart(nftId: String) -> Bool
+    func getAllCartItems() -> [String]
 }
 
-final class CartStorage: CartStoring {
+final class CartStorageImpl: CartStorage {
 
-    static let shared = CartStorage()
+    static let shared = CartStorageImpl()
 
-    private let key = "cart_nft_ids"
-    private let defaults = UserDefaults.standard
+    private let userDefaults = UserDefaults.standard
+    private let cartKey = "CartNFTs"
 
     private init() {}
 
-    func isInCart(id: String) -> Bool {
-        allIds().contains(id)
+    func isInCart(nftId: String) -> Bool {
+        let cartItems = getAllCartItems()
+        return cartItems.contains(nftId)
     }
 
-    func setInCart(_ inCart: Bool, id: String) {
-        var ids = allIds()
-        if inCart {
-            ids.insert(id)
+    func addToCart(nftId: String) {
+        var cartItems = getAllCartItems()
+        guard !cartItems.contains(nftId) else { return }
+        cartItems.append(nftId)
+        saveCartItems(cartItems)
+    }
+
+    func removeFromCart(nftId: String) {
+        var cartItems = getAllCartItems()
+        cartItems.removeAll { $0 == nftId }
+        saveCartItems(cartItems)
+    }
+
+    func toggleCart(nftId: String) -> Bool {
+        if isInCart(nftId: nftId) {
+            removeFromCart(nftId: nftId)
+            return false
         } else {
-            ids.remove(id)
+            addToCart(nftId: nftId)
+            return true
         }
-        setAllIds(ids)
     }
 
-    func toggle(id: String) {
-        setInCart(!isInCart(id: id), id: id)
+    func getAllCartItems() -> [String] {
+        return userDefaults.stringArray(forKey: cartKey) ?? []
     }
 
-    func allIds() -> Set<String> {
-        Set(defaults.stringArray(forKey: key) ?? [])
-    }
-
-    func setAllIds(_ ids: Set<String>) {
-        defaults.set(Array(ids), forKey: key)
+    private func saveCartItems(_ cartItems: [String]) {
+        userDefaults.set(cartItems, forKey: cartKey)
     }
 }
-
