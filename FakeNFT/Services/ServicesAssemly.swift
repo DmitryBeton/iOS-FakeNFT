@@ -25,5 +25,10 @@ final class ServicesAssembly {
     var userService: UserServiceProtocol {
         UserService(client: networkClient)
     }
+    
+    var profileService: ProfileServiceProtocol {
+        ProfileService(client: networkClient)
+    }
+
 }
 

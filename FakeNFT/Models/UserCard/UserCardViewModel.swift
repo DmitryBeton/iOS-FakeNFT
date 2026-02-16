@@ -6,7 +6,7 @@ protocol UserCardViewModelProtocol: AnyObject {
     var onError: ((String) -> Void)? { get set }
 
     var onOpenWebsite: ((URL) -> Void)? { get set }
-    var onOpenCollection: ((String, Int) -> Void)? { get set } // userId, count
+    var onOpenCollection: ((String, Int) -> Void)? { get set }
 
     var model: UserCardModel? { get }
 
