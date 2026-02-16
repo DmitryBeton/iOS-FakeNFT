@@ -57,7 +57,7 @@ final class FavouriteCell: UICollectionViewCell, ReuseIdentifying {
         return label
     }()
     
-    private lazy var ratingView: RatingView = RatingView()
+    private lazy var ratingView: ProfileRatingView = ProfileRatingView()
     
     private lazy var priceLabel: UILabel = {
         let label = UILabel()

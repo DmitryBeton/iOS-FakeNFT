@@ -4,10 +4,10 @@ final class SortOptionStorage: SortOptionStorageProtocol {
     
     // MARK: - Public Properties
     
-    var sortOption: SortOption {
+    var sortOption: ProfileSortOption {
         get {
             guard let rawValue = defaults.string(forKey: key),
-                  let option = SortOption(rawValue: rawValue)
+                  let option = ProfileSortOption(rawValue: rawValue)
             else { return .rating }
             return option
         }

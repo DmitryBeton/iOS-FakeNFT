@@ -17,8 +17,10 @@ final class CollectionDetailViewModel {
 
     private let collectionService: CollectionService
     private let nftService: NftService
+    private let cartService: CartServiceProtocol
     private let favoritesStorage: FavoritesStorage
     private let cartStorage: CartStorage
+    private var pendingCartMutations: Set<String> = []
 
     // MARK: - Init
 
@@ -26,12 +28,14 @@ final class CollectionDetailViewModel {
         collectionId: String,
         collectionService: CollectionService,
         nftService: NftService,
+        cartService: CartServiceProtocol,
         favoritesStorage: FavoritesStorage = FavoritesStorageImpl.shared,
         cartStorage: CartStorage = CartStorageImpl.shared
     ) {
         self.collectionId = collectionId
         self.collectionService = collectionService
         self.nftService = nftService
+        self.cartService = cartService
         self.favoritesStorage = favoritesStorage
         self.cartStorage = cartStorage
     }
@@ -64,10 +68,41 @@ final class CollectionDetailViewModel {
         guard index < nfts.count else { return }
 
         let nftId = nfts[index].id
-        let newState = cartStorage.toggleCart(nftId: nftId)
-        nfts[index].isInCart = newState
+        guard !pendingCartMutations.contains(nftId) else { return }
 
-        onNFTCartUpdated?(index, newState)
+        let previousState = nfts[index].isInCart
+        let targetState = !previousState
+
+        pendingCartMutations.insert(nftId)
+        nfts[index].isInCart = targetState
+        onNFTCartUpdated?(index, targetState)
+
+        let completion: (Result<[String], Error>) -> Void = { [weak self] result in
+            guard let self else { return }
+            self.pendingCartMutations.remove(nftId)
+
+            switch result {
+            case .success(let ids):
+                self.syncLocalCart(with: ids)
+                if let refreshedIndex = self.nfts.firstIndex(where: { $0.id == nftId }) {
+                    let actualState = ids.contains(nftId)
+                    self.nfts[refreshedIndex].isInCart = actualState
+                    self.onNFTCartUpdated?(refreshedIndex, actualState)
+                }
+                NotificationCenter.default.post(name: .cartDidChange, object: nil)
+            case .failure:
+                if let refreshedIndex = self.nfts.firstIndex(where: { $0.id == nftId }) {
+                    self.nfts[refreshedIndex].isInCart = previousState
+                    self.onNFTCartUpdated?(refreshedIndex, previousState)
+                }
+            }
+        }
+
+        if targetState {
+            cartService.addCartItem(id: nftId, completion: completion)
+        } else {
+            cartService.removeCartItem(id: nftId, completion: completion)
+        }
     }
 
     // MARK: - Private Methods
@@ -107,7 +142,7 @@ final class CollectionDetailViewModel {
                     let model = NFTCellModel(
                         id: nft.id,
                         name: nft.name,
-                        imageURL: nft.images.first,
+                        imageURL: URL(string: nft.images.first ?? ""),
                         rating: nft.rating,
                         price: self.formatPrice(nft.price),
                         isLiked: self.favoritesStorage.isFavorite(nftId: nft.id),
@@ -136,5 +171,16 @@ final class CollectionDetailViewModel {
             ? String(format: "%.0f", price)
             : String(format: "%.2f", price)
         return "\(formatted) ETH"
+    }
+
+    private func syncLocalCart(with serverIDs: [String]) {
+        let serverSet = Set(serverIDs)
+        let localSet = Set(cartStorage.getAllCartItems())
+
+        let toAdd = serverSet.subtracting(localSet)
+        let toRemove = localSet.subtracting(serverSet)
+
+        toAdd.forEach { cartStorage.addToCart(nftId: $0) }
+        toRemove.forEach { cartStorage.removeFromCart(nftId: $0) }
     }
 }

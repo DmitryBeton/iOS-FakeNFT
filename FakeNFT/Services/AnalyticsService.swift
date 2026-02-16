@@ -1,3 +1,10 @@
+//
+//  AnalyticsService.swift
+//  FakeNFT
+//
+//  Created by Дмитрий Чалов on 09.02.2026.
+//
+
 import Foundation
 import AppMetricaCore
 
@@ -5,14 +12,50 @@ protocol AnalyticsReporting {
     func track(_ event: AnalyticsEvent)
 }
 
+enum AnalyticsScreen: String {
+    case cart
+    case payment
+}
+
+enum AnalyticsButton: Equatable {
+    case pullToRefresh
+    case sort
+    case sortOption(name: String)
+    case pay
+    case agreement
+    case loadCurrencies
+
+    var name: String {
+        switch self {
+        case .pullToRefresh:
+            return "pull_to_refresh"
+        case .sort:
+            return "sort"
+        case .sortOption(let name):
+            return "sort_\(name)"
+        case .pay:
+            return "pay"
+        case .agreement:
+            return "agreement"
+        case .loadCurrencies:
+            return "load_currencies"
+        }
+    }
+}
+
+enum AnalyticsCartRemoveSource: String {
+    case swipe
+    case alert
+}
+
 enum AnalyticsEvent {
-    case screenOpened(name: String)
-    case buttonTapped(name: String, screen: String)
+    case screenOpened(screen: AnalyticsScreen)
+    case buttonTapped(button: AnalyticsButton, screen: AnalyticsScreen)
     case currencySelected(id: String, name: String)
-    case cartItemRemoved(id: String, source: String)
+    case cartItemRemoved(id: String, source: AnalyticsCartRemoveSource)
     case checkoutStarted(itemCount: Int, totalPrice: Double)
     case purchaseCompleted(itemCount: Int, totalPrice: Double, currencyID: String?)
-    case purchaseFailed(reason: String)
+    case purchaseFailed(reason: String, screen: AnalyticsScreen)
 
     var name: String {
         switch self {
@@ -28,14 +71,14 @@ enum AnalyticsEvent {
 
     var params: [String: Any] {
         switch self {
-        case .screenOpened(let name):
-            return ["screen_name": name]
-        case .buttonTapped(let name, let screen):
-            return ["button_name": name, "screen_name": screen]
+        case .screenOpened(let screen):
+            return ["screen_name": screen.rawValue]
+        case .buttonTapped(let button, let screen):
+            return ["button_name": button.name, "screen_name": screen.rawValue]
         case .currencySelected(let id, let name):
             return ["currency_id": id, "currency_name": name]
         case .cartItemRemoved(let id, let source):
-            return ["nft_id": id, "source": source]
+            return ["nft_id": id, "source": source.rawValue]
         case .checkoutStarted(let itemCount, let totalPrice):
             return ["item_count": itemCount, "total_price": roundedPrice(totalPrice)]
         case .purchaseCompleted(let itemCount, let totalPrice, let currencyID):
@@ -47,8 +90,8 @@ enum AnalyticsEvent {
                 params["currency_id"] = currencyID
             }
             return params
-        case .purchaseFailed(let reason):
-            return ["reason": reason]
+        case .purchaseFailed(let reason, let screen):
+            return ["reason": reason, "screen_name": screen.rawValue]
         }
     }
 
@@ -73,7 +116,7 @@ final class AnalyticsService: AnalyticsReporting {
     func track(_ event: AnalyticsEvent) {
         Self.activate()
         AppMetrica.reportEvent(name: event.name, parameters: event.params) { error in
-            NSLog("Analytics report failed: \(error.localizedDescription)")
+            NSLog("[%@] Analytics report failed: %@", LogTimestamp.current(), error.localizedDescription)
         }
     }
 }
