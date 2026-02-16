@@ -1,5 +1,6 @@
 import Foundation
 
+
 final class StatisticsViewModel: StatisticsViewModelProtocol {
 
     var onUserSelected: ((String) -> Void)?
@@ -11,7 +12,7 @@ final class StatisticsViewModel: StatisticsViewModelProtocol {
     private let service: StatisticsServiceProtocol
     private let mapper: StatisticsUsersMapperProtocol
     private let sorter: StatisticsUsersSorterProtocol
-    private let sortStorage: SortOptionStorageProtocol
+    private let sortStorage: StatisticsSortOptionStorageProtocol
 
     private var users: [StatisticsUserDomain] = []
     private var sorted: [StatisticsUserDomain] = []
@@ -21,7 +22,7 @@ final class StatisticsViewModel: StatisticsViewModelProtocol {
         service: StatisticsServiceProtocol = StatisticsService(),
         mapper: StatisticsUsersMapperProtocol = StatisticsUsersMapper(),
         sorter: StatisticsUsersSorterProtocol = StatisticsUsersSorter(),
-        sortStorage: SortOptionStorageProtocol = SortOptionStorage()
+        sortStorage: StatisticsSortOptionStorageProtocol = StatisticsSortOptionStorage()
     ) {
         self.service = service
         self.mapper = mapper
@@ -57,7 +58,7 @@ final class StatisticsViewModel: StatisticsViewModelProtocol {
                 }
 
             case .failure(let error):
-                AppLog.ui.error("Statistics load error: \(error.localizedDescription, privacy: .public)")
+                //AppLog.ui.error("Statistics load error: \(error.localizedDescription, privacy: .public)")
                 DispatchQueue.main.async {
                     self.onLoadingChanged?(false)
                     self.onError?("Не удалось загрузить статистику")

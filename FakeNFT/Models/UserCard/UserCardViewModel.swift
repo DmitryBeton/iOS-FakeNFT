@@ -63,7 +63,7 @@ final class UserCardViewModel: UserCardViewModelProtocol {
                 }
 
             case .failure(let error):
-                AppLog.ui.error("UserCard load error: \(error.localizedDescription, privacy: .public)")
+                //AppLog.ui.error("UserCard load error: \(error.localizedDescription, privacy: .public)")
                 DispatchQueue.main.async {
                     self.onLoadingChanged?(false)
                     self.onError?("Не удалось загрузить пользователя")
