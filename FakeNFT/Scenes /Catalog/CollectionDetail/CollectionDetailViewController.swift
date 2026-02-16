@@ -108,7 +108,8 @@ final class CollectionDetailViewController: UIViewController {
         self.viewModel = CollectionDetailViewModel(
             collectionId: collectionId,
             collectionService: servicesAssembly.collectionService,
-            nftService: servicesAssembly.nftService
+            nftService: servicesAssembly.nftService,
+            cartService: servicesAssembly.cartService
         )
         super.init(nibName: nil, bundle: nil)
     }
