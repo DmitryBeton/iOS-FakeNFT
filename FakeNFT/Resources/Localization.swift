@@ -77,6 +77,10 @@ enum Localization {
         static let backButton = "Delete.Alert.cancel"
         static let deleteButton = "Delete.Alert.delete"
     }
+    
+    enum Statistics {
+        static let tabTitle = "Tab.statistics".localized
+    }
 
     enum Payment {
         static let navTitle = "Payment.navigation_title"

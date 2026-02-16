@@ -21,6 +21,12 @@ final class TabBarController: UITabBarController {
         image: UIImage(resource: .tabBasketIcon),
         tag: 2
     )
+    
+    private let statisticsTabBarItem = UITabBarItem(
+        title: "Статистика",
+        image: UIImage(resource: .statisticTabBar),
+        tag: 3
+    )
 
     init(servicesAssembly: ServicesAssembly) {
         self.servicesAssembly = servicesAssembly
@@ -35,18 +41,35 @@ final class TabBarController: UITabBarController {
         super.viewDidLoad()
         setupView()
 
-        let profileController = buildProfileController()
+        // 1) Профиль
+        let profileNavigationController = buildProfileController()
 
+        // 3) Каталог
         let catalogController = CatalogViewController(servicesAssembly: servicesAssembly)
         let catalogNavigationController = UINavigationController(rootViewController: catalogController)
         catalogNavigationController.tabBarItem = catalogTabBarItem
 
+        // 4) Корзина
         let cartViewModel = CartViewModel(service: servicesAssembly.cartService)
         let cartController = CartViewController(viewModel: cartViewModel, router: CartRouter())
         let cartNavigationController = UINavigationController(rootViewController: cartController)
         cartNavigationController.tabBarItem = cartTabBarItem
+        
+        // 2) Статистика
+        let statisticsViewModel = StatisticsViewModel(service: servicesAssembly.statisticsService)
+        let statisticsController = StatisticsViewController(
+            viewModel: statisticsViewModel,
+            servicesAssembly: servicesAssembly
+        )
+        let statisticsNavigationController = UINavigationController(rootViewController: statisticsController)
+        statisticsNavigationController.tabBarItem = statisticsTabBarItem
 
-        viewControllers = [profileController, catalogNavigationController, cartNavigationController]
+        viewControllers = [
+            profileNavigationController,
+            catalogNavigationController,
+            cartNavigationController,
+            statisticsNavigationController
+        ]
     }
 
     private func setupView() {
@@ -68,3 +91,4 @@ final class TabBarController: UITabBarController {
         return navController
     }
 }
+

@@ -2,16 +2,16 @@ import Foundation
 import OSLog
 
 final class ServicesAssembly {
-    
+
     private let networkClient: NetworkClient
     private let nftStorage: NftStorage
-    
+
     private let collectionStorage: CollectionStorage
 
     private let profileStorage: ProfileStorageProtocol
     private let myNftStorage: ProfileNftStorageProtocol
     private let favouritesStorage: ProfileNftStorageProtocol
-    
+
     init(
         networkClient: NetworkClient,
         nftStorage: NftStorage,
@@ -27,7 +27,7 @@ final class ServicesAssembly {
         self.myNftStorage = myNftStorage
         self.favouritesStorage = favouritesStorage
     }
-    
+
     var nftService: NftService {
         NftServiceImpl(
             networkClient: networkClient,
@@ -41,21 +41,21 @@ final class ServicesAssembly {
             storage: collectionStorage
         )
     }
-    
+
     var profileService: ProfileServiceProtocol {
         ProfileService(
             networkClient: networkClient,
             storage: profileStorage
         )
     }
-    
+
     var myNftService: ProfileNftByIdServiceProtocol {
         ProfileNftByIdService(
             networkClient: networkClient,
             storage: myNftStorage
         )
     }
-    
+
     var favouritesService: ProfileNftByIdServiceProtocol {
         ProfileNftByIdService(
             networkClient: networkClient,
@@ -69,6 +69,15 @@ final class ServicesAssembly {
             nftService: nftService
         )
     }
+
+    // ✅ ДОБАВЛЯЕМ ЗДЕСЬ (а не в CartService)
+    var statisticsService: StatisticsServiceProtocol {
+        StatisticsService(client: networkClient)
+    }
+
+    var userService: UserServiceProtocol {
+        UserService(client: networkClient)
+    }
 }
 
 typealias CartItemsCompletion = (Result<[CartItem], Error>) -> Void
@@ -76,46 +85,16 @@ typealias CartItemsPartialUpdate = ([CartItem]) -> Void
 typealias CartPlaceholdersUpdate = ([String]) -> Void
 typealias CartMutationCompletion = (Result<[String], Error>) -> Void
 
-/// Сервис данных корзины.
-///
-/// Контракт по потокам:
-/// - Все callbacks (`completion`, `partial`, `placeholders`) отдаются в main queue.
-/// - Сетевую работу и агрегацию сервис может выполнять в фоновых очередях.
 protocol CartServiceProtocol: AnyObject {
-    /// Загружает полный снимок корзины.
-    ///
-    /// - Parameter completion: Финальный результат загрузки:
-    ///   - `.success([CartItem])` — полный список элементов в порядке сервера.
-    ///   - `.failure(Error)` — ошибка сетевого запроса/декодирования.
     func fetchCartItems(completion: @escaping CartItemsCompletion)
 
-    /// Загружает корзину с прогрессивной выдачей:
-    /// 1) placeholders (ids), 2) partial items, 3) финальный упорядоченный снимок.
-    ///
-    /// - Parameters:
-    ///   - onPlaceholders: Callback c id элементов до загрузки их деталей.
-    ///   - onPartialUpdate: Callback с частично загруженными элементами.
-    ///   - completion: Финальный результат загрузки.
-    ///
-    /// - Important: `completion` вызывается ровно один раз.
     func fetchCartItems(
         onPlaceholders: CartPlaceholdersUpdate?,
         onPartialUpdate: CartItemsPartialUpdate?,
         completion: @escaping CartItemsCompletion
     )
 
-    /// Добавляет item id через перезапись списка `nfts` в заказе на бэкенде.
-    ///
-    /// - Parameters:
-    ///   - id: Идентификатор NFT для добавления.
-    ///   - completion: Обновленный список id (`.success`) или ошибка (`.failure`).
     func addCartItem(id: String, completion: @escaping CartMutationCompletion)
-
-    /// Удаляет item id через перезапись списка `nfts` в заказе на бэкенде.
-    ///
-    /// - Parameters:
-    ///   - id: Идентификатор NFT для удаления.
-    ///   - completion: Обновленный список id (`.success`) или ошибка (`.failure`).
     func removeCartItem(id: String, completion: @escaping CartMutationCompletion)
 }
 
@@ -130,6 +109,7 @@ extension CartServiceProtocol {
 }
 
 final class CartService: CartServiceProtocol {
+
     private static let logger = Logger(subsystem: "com.fakenft.app", category: "CartService")
     private static let progressBatchSize = 3
 
@@ -150,15 +130,6 @@ final class CartService: CartServiceProtocol {
         self.nftService = nftService
     }
 
-    /// Загружает корзину с прогрессивными обновлениями.
-    ///
-    /// Алгоритм:
-    /// 1. Получить список `nfts` из заказа.
-    /// 2. Сразу отдать placeholders в UI.
-    /// 3. Параллельно загрузить детали каждого NFT.
-    /// 4. Периодически отправлять partial update и затем финальный список.
-    ///
-    /// Такой порядок уменьшает perceived latency: экран появляется сразу, а контент догружается постепенно.
     func fetchCartItems(
         onPlaceholders: CartPlaceholdersUpdate?,
         onPartialUpdate: CartItemsPartialUpdate?,
@@ -166,28 +137,20 @@ final class CartService: CartServiceProtocol {
     ) {
         let requestID = UUID().uuidString
         let startedAt = Date()
-        Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] [\(requestID, privacy: .public)] Starting cart order request: /api/v1/orders/1")
 
         networkClient.send(
             request: CartOrderRequest(),
             type: CartOrderResponse.self,
-            onTaskMetrics: { metrics in
-                self.logOrderRequestMetrics(metrics, traceID: requestID)
-            },
             completionQueue: responseQueue
         ) { [weak self] result in
             guard let self else { return }
+
             switch result {
             case .success(let order):
-                let orderRequestDuration = Date().timeIntervalSince(startedAt)
-                Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] [\(requestID, privacy: .public)] Order response received. orderID=\(order.id, privacy: .public), idsCount=\(order.nfts.count), duration=\(orderRequestDuration, format: .fixed(precision: 3))s")
-                let joinedIDs = order.nfts.joined(separator: ",")
-                Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] [\(requestID, privacy: .public)] NFT IDs payload: \(joinedIDs, privacy: .public)")
-
                 DispatchQueue.main.async {
-                    Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] [\(requestID, privacy: .public)] Sending placeholders to UI. placeholdersCount=\(order.nfts.count)")
                     onPlaceholders?(order.nfts)
                 }
+
                 self.loadNfts(
                     ids: order.nfts,
                     traceID: requestID,
@@ -195,9 +158,8 @@ final class CartService: CartServiceProtocol {
                     onPartialUpdate: onPartialUpdate,
                     completion: completion
                 )
+
             case .failure(let error):
-                let orderRequestDuration = Date().timeIntervalSince(startedAt)
-                Self.logger.error("[\(LogTimestamp.current(), privacy: .public)] [\(requestID, privacy: .public)] Failed to load cart order after \(orderRequestDuration, format: .fixed(precision: 3))s. error=\(String(describing: error), privacy: .public)")
                 DispatchQueue.main.async {
                     completion(.failure(error))
                 }
@@ -215,6 +177,7 @@ final class CartService: CartServiceProtocol {
 }
 
 private extension CartService {
+
     enum CartMutationAction: String {
         case add
         case remove
@@ -225,9 +188,6 @@ private extension CartService {
         action: CartMutationAction,
         completion: @escaping CartMutationCompletion
     ) {
-        let traceID = UUID().uuidString
-        Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Starting cart mutation. action=\(action.rawValue, privacy: .public), nftID=\(id, privacy: .public)")
-
         networkClient.send(
             request: CartOrderRequest(),
             type: CartOrderResponse.self,
@@ -237,8 +197,6 @@ private extension CartService {
 
             switch result {
             case .success(let order):
-                // В этом API нет отдельных add/remove endpoint-ов.
-                // Мутация реализуется как: GET текущих ids -> вычисление нового списка -> PUT полного списка.
                 let updatedIDs: [String]
                 switch action {
                 case .add:
@@ -248,18 +206,15 @@ private extension CartService {
                 }
 
                 if updatedIDs == order.nfts {
-                    Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Cart mutation produced no changes. Returning current IDs.")
                     DispatchQueue.main.async {
                         completion(.success(order.nfts))
                     }
                     return
                 }
 
-                Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Sending PUT /api/v1/orders/1 with idsCount=\(updatedIDs.count)")
-                self.sendOrderUpdate(nftIDs: updatedIDs, traceID: traceID, completion: completion)
+                self.sendOrderUpdate(nftIDs: updatedIDs, completion: completion)
 
             case .failure(let error):
-                Self.logger.error("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Failed to load order before mutation. error=\(String(describing: error), privacy: .public)")
                 DispatchQueue.main.async {
                     completion(.failure(error))
                 }
@@ -269,25 +224,18 @@ private extension CartService {
 
     func sendOrderUpdate(
         nftIDs: [String],
-        traceID: String,
         completion: @escaping CartMutationCompletion
     ) {
         networkClient.send(
             request: UpdateCartOrderRequest(nftIDs: nftIDs),
             type: CartOrderResponse.self,
             completionQueue: responseQueue
-        ) { [weak self] result in
-            guard let self else { return }
-
-            switch result {
-            case .success(let response):
-                Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] PUT order succeeded. idsCount=\(response.nfts.count)")
-                DispatchQueue.main.async {
+        ) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let response):
                     completion(.success(response.nfts))
-                }
-            case .failure(let error):
-                Self.logger.error("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] PUT order failed. error=\(String(describing: error), privacy: .public)")
-                DispatchQueue.main.async {
+                case .failure(let error):
                     completion(.failure(error))
                 }
             }
@@ -302,17 +250,10 @@ private extension CartService {
         completion: @escaping CartItemsCompletion
     ) {
         guard !ids.isEmpty else {
-            Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Order contains no NFT IDs. Returning empty cart.")
-            DispatchQueue.main.async {
-                completion(.success([]))
-            }
+            DispatchQueue.main.async { completion(.success([])) }
             return
         }
 
-        Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Starting NFT details loading for \(ids.count) IDs. batchSize=\(Self.progressBatchSize)")
-
-        // Общее агрегирующее состояние изменяется из нескольких async callback-ов NFT.
-        // NSLock защищает словари/счетчики и предотвращает data race.
         let lock = NSLock()
         let group = DispatchGroup()
         var firstError: Error?
@@ -322,7 +263,6 @@ private extension CartService {
 
         for id in ids {
             group.enter()
-            Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Requesting NFT details by ID: \(id, privacy: .public)")
             nftService.loadNft(id: id) { result in
                 defer { group.leave() }
                 var partialItems: [CartItem]?
@@ -330,32 +270,28 @@ private extension CartService {
                 lock.lock()
                 switch result {
                 case .success(let nft):
-                    itemsByID[id] = self.mapNftToCartItem(nft)
+                    itemsByID[id] = CartItem(
+                        id: nft.id,
+                        name: nft.name,
+                        images: nft.images,
+                        rating: nft.rating,
+                        price: nft.price
+                    )
                     loadedCount += 1
-                    Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] NFT loaded: id=\(id, privacy: .public), loadedCount=\(loadedCount)/\(ids.count)")
 
-                    // Намеренно "дросселируем" частичные обновления UI:
-                    // первый загруженный элемент + каждый N-й элемент.
-                    // Это сохраняет отзывчивость UI и снижает churn в таблице.
-                    let shouldEmitProgress = loadedCount == 1 ||
-                    loadedCount - lastEmittedCount >= Self.progressBatchSize
-                    if shouldEmitProgress {
+                    let shouldEmit = loadedCount == 1 || loadedCount - lastEmittedCount >= Self.progressBatchSize
+                    if shouldEmit {
                         lastEmittedCount = loadedCount
                         partialItems = ids.compactMap { itemsByID[$0] }
-                        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Emitting partial update. emittedCount=\(partialItems?.count ?? 0), loadedCount=\(loadedCount)")
                     }
+
                 case .failure(let error):
-                    Self.logger.error("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Failed to load NFT by ID: \(id, privacy: .public). error=\(String(describing: error), privacy: .public)")
-                    if firstError == nil {
-                        firstError = error
-                        Self.logger.error("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Captured first error for final completion.")
-                    }
+                    if firstError == nil { firstError = error }
                 }
                 lock.unlock()
 
                 if let partialItems {
                     DispatchQueue.main.async {
-                        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Delivering partial update to UI. itemsCount=\(partialItems.count)")
                         onPartialUpdate?(partialItems)
                     }
                 }
@@ -364,76 +300,12 @@ private extension CartService {
 
         group.notify(queue: responseQueue) {
             if let firstError {
-                let totalDuration = Date().timeIntervalSince(requestStartedAt)
-                Self.logger.error("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Finishing with failure. loaded=\(itemsByID.count)/\(ids.count), duration=\(totalDuration, format: .fixed(precision: 3))s, error=\(String(describing: firstError), privacy: .public)")
-                DispatchQueue.main.async {
-                    completion(.failure(firstError))
-                }
+                DispatchQueue.main.async { completion(.failure(firstError)) }
                 return
             }
-
-            // Сохраняем исходный порядок из массива ids, пришедшего с бэкенда.
             let orderedItems = ids.compactMap { itemsByID[$0] }
-            let totalDuration = Date().timeIntervalSince(requestStartedAt)
-            Self.logger.info("[\(LogTimestamp.current(), privacy: .public)] [\(traceID, privacy: .public)] Completed cart load successfully. orderedItemsCount=\(orderedItems.count), duration=\(totalDuration, format: .fixed(precision: 3))s")
-            DispatchQueue.main.async {
-                completion(.success(orderedItems))
-            }
+            DispatchQueue.main.async { completion(.success(orderedItems)) }
         }
-    }
-
-    func mapNftToCartItem(_ nft: Nft) -> CartItem {
-        Self.logger.debug("[\(LogTimestamp.current(), privacy: .public)] Mapping NFT to CartItem. id=\(nft.id, privacy: .public), name=\(nft.name, privacy: .public), rating=\(nft.rating), price=\(nft.price, format: .fixed(precision: 2))")
-        return CartItem(
-            id: nft.id,
-            name: nft.name,
-            images: nft.images,
-            rating: nft.rating,
-            price: nft.price
-        )
-    }
-
-    func logOrderRequestMetrics(_ metrics: URLSessionTaskMetrics, traceID: String) {
-        var dnsDuration: TimeInterval = 0
-        var connectDuration: TimeInterval = 0
-        var tlsDuration: TimeInterval = 0
-        var requestSendDuration: TimeInterval = 0
-        var waitForResponseDuration: TimeInterval = 0
-        var responseReadDuration: TimeInterval = 0
-        var reusedConnections = 0
-
-        for transaction in metrics.transactionMetrics {
-            dnsDuration += duration(from: transaction.domainLookupStartDate, to: transaction.domainLookupEndDate)
-            connectDuration += duration(from: transaction.connectStartDate, to: transaction.connectEndDate)
-            tlsDuration += duration(from: transaction.secureConnectionStartDate, to: transaction.secureConnectionEndDate)
-            requestSendDuration += duration(from: transaction.requestStartDate, to: transaction.requestEndDate)
-            waitForResponseDuration += duration(from: transaction.requestEndDate, to: transaction.responseStartDate)
-            responseReadDuration += duration(from: transaction.responseStartDate, to: transaction.responseEndDate)
-            if transaction.isReusedConnection {
-                reusedConnections += 1
-            }
-        }
-
-        let totalDuration = metrics.taskInterval.duration
-        Self.logger.info(
-            """
-            [\(traceID, privacy: .public)] URLSessionTaskMetrics \
-            total=\(totalDuration, format: .fixed(precision: 3))s \
-            dns=\(dnsDuration, format: .fixed(precision: 3))s \
-            connect=\(connectDuration, format: .fixed(precision: 3))s \
-            tls=\(tlsDuration, format: .fixed(precision: 3))s \
-            requestSend=\(requestSendDuration, format: .fixed(precision: 3))s \
-            waitResponse=\(waitForResponseDuration, format: .fixed(precision: 3))s \
-            responseRead=\(responseReadDuration, format: .fixed(precision: 3))s \
-            redirects=\(metrics.redirectCount) \
-            transactions=\(metrics.transactionMetrics.count) \
-            reusedConnections=\(reusedConnections)
-            """
-        )
-    }
-
-    func duration(from start: Date?, to end: Date?) -> TimeInterval {
-        guard let start, let end else { return 0 }
-        return max(0, end.timeIntervalSince(start))
     }
 }
+

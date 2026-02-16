@@ -56,7 +56,7 @@ final class StatisticsPresenter: StatisticsPresenterProtocol {
                 }
 
             case .failure(let error):
-                AppLog.ui.error("Statistics load error: \(error.localizedDescription, privacy: .public)")
+                //AppLog.ui.error("Statistics load error: \(error.localizedDescription, privacy: .public)")
                 DispatchQueue.main.async {
                     self.onLoadingChanged?(false)
                     self.onError?("Не удалось загрузить статистику: \(error)")
